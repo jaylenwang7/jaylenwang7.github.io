@@ -13,5 +13,6 @@ I'm a Senior (class of 2022) at [Harvard University](https://www.harvard.edu/).
 What do I think is cool?
 ======
 * Computer architecture
-* Hardware/software co-esign
+* Hardware/software codesign
 * Machine learning
+* Sustainability
