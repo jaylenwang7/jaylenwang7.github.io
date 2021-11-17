@@ -4,7 +4,7 @@ collection: teaching
 type: "Undergraduate math course"
 permalink: /teaching/2019-fall-teaching-1
 venue: "Harvard University, Math Department"
-date: 2020-Fall
+date: 2019-09-01
 location: "Cambridge, MA"
 ---
 
