@@ -2,7 +2,7 @@
 title: "Math 1B: Integration, Series and Differential Equations"
 collection: teaching
 type: "Undergraduate math course"
-permalink: /teaching/2019-fall-teaching-1
+permalink: /teaching/math1b
 venue: "Harvard University, Math Department"
 date: 2019-09-01
 location: "Cambridge, MA"
