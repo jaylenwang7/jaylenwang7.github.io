@@ -8,7 +8,7 @@ date: 2021-02-01
 location: "Cambridge, MA"
 ---
 
-ES 50 is the introductory electrical engineering class at Harvard. The class covers material ranging from introductory circuit design (resistor circuits, op amps, RLC) to digital logic (FSMs, boolean logic). 
+ES 50 is the introductory electrical engineering class at Harvard. The class covers material ranging from introductory circuit design (resistor circuits, op amps, RLC) to digital logic (FSMs, boolean logic). I had the pleasure of working with professors Chris Lombardo and Marko Loncar.
 
 ### What I did (virtually):
 * Ran office hours for helping students to work through the problem sets.
