@@ -1,5 +1,5 @@
 ---
-title: "Crypto Hardware Carbon Project"
+title: "Crypto Hardware Carbon Footprint"
 collection: research
 permalink: /research/crypto_carbon
 type: "Research Project"
