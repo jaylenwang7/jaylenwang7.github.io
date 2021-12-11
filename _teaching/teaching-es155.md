@@ -8,5 +8,9 @@ date: 2020-09-01
 location: "Cambridge, MA"
 ---
 
-ES 155 is the introductory systems and control class at Harvard.
+ES 155 is the introductory systems and control class at Harvard. The class covers topics ranging from system modeling (with state-space representation), to stability analysis, to feedback controller design (PID controllers). I had the pleasure of working with Professors Li Na and Yue Lu. 
+
+### What I did (virtually):
+* Ran office hours for the problem sets
+* Attended classes to help facilitate discussion in breakout rooms and to help students work through in-class exercises
 
