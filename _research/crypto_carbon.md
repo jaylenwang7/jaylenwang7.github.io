@@ -7,7 +7,7 @@ venue: "Harvard Architecture, Circuits, and Compilers Group"
 date: 2021-12-01
 ---
 
-A current research project I'm leading within the Harvard Architecture, Circuits, and Compilers Group with the help of Udit Gupta. The project aims to better understand the manufacturing carbon footprint of crypto mining hardware and how ASIC designs of mining algorithms leads to interesting emissions characteristics.
+A current research project I'm leading within the Harvard Architecture, Circuits, and Compilers Group with the help of [Udit Gupta](https://ugupta.com/). The project aims to better understand the manufacturing carbon footprint of crypto mining hardware and how ASIC designs of mining algorithms leads to interesting emissions characteristics.
 
 # Project Goal:
 Given previous research finding that, for many computing applications, manufacturing related carbon emissions (AKA capex emissions) can dominate the device's overall carbon footprint, I'm looking to see how this applies to cryptocurrency mining. This boils down to a couple of subgoals:
