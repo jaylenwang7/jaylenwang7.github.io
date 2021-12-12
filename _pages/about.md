@@ -10,12 +10,13 @@ redirect_from:
 
 I'm a Senior (Class of 2022) at [Harvard University](https://www.harvard.edu/) studying Electrical Engineering and Computer Science. Welcome to my personal site! Feel free to click around to get to know me and see what I'm up to, and please do reach out if you have any questions about anything I've done.
 
-What do I think is cool?
+What do I think is cool? (ie. research areas of interest)
 ======
 * Computer architecture
-* Hardware/software codesign
+* Hardware/software co-design
 * Machine learning
-* Sustainability
+* Cryptocurrency hardware
+* Sustainable computing
 
 What am I currently up to?
 ======
@@ -23,3 +24,10 @@ What am I currently up to?
 2. Working on my two research projects
 3. Helping to teach two classes: CS61 (Systems Programming and Machine Organization) and ES152 (Circuits, Devices, and Transduction)
 4. When I'm not doing 1-3 you can find me playing tennis with the club tennis team, reading a book, or in [Kirkland dhall](https://kirkland.harvard.edu/)
+
+Hobbies/interests
+======
+* I'm an avid tennis player and am currently the co-captain of the Harvard Club Tennis team. I've played competitively throughout high school and have made so many great friends along the way.
+* I'm a big NBA fan, particularly of the Boston Celtics. While I don't always have time to watch all the Celtics games, I love keeping up with the players and what's going on around the league. If you have any NBA takes - I love a nice NBA-related discussion/debate :)
+* I love hiking, especially with my parents. Hiking is just a great way to clear your mind, get active, and see all the great things nature has to offer. 
+* I love listening to podcasts and books, especially on topics related to history, tech, science, and philosophy.
