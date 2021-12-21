@@ -2,7 +2,7 @@
 title: "ES152: Circuits, Devices, and Transduction"
 collection: teaching
 type: "Undergraduate EE course"
-permalink: /teaching/cs61
+permalink: /teaching/es152
 venue: "Harvard University, Electrical Engineering Department"
 date: 2021-09-01
 location: "Cambridge, MA"
