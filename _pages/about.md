@@ -21,7 +21,7 @@ What do I think is cool? (ie. research areas of interest)
 What am I currently up to?
 ======
 1. Applying to PhD programs (exciting!)
-2. Working on my two research projects
+2. Working on my two research projects (see the "Research Projects" tab)
 3. Helping to teach two classes: CS61 (Systems Programming and Machine Organization) and ES152 (Circuits, Devices, and Transduction)
 4. When I'm not doing 1-3 you can find me playing tennis with the club tennis team, reading a book, or in [Kirkland dhall](https://kirkland.harvard.edu/)
 
