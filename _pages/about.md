@@ -8,7 +8,7 @@ redirect_from:
   - /about.html
 ---
 
-Hello! I'm an incoming PhD student at CMU's ECE program. I recently graduated from [Harvard University](https://www.harvard.edu/) (Class of 2022), where I studied Electrical Engineering and Computer Science. Welcome to my personal site! Feel free to click around to get to know me and see what I'm up to, and please do reach out if you have any questions about anything I've done.
+Hello! I'm a first-year PhD student in [CMU's ECE](https://www.ece.cmu.edu/) program working with [Prof. Akshitha Sriraman](https://akshithasriraman.eecs.umich.edu/). I recently graduated from [Harvard University](https://www.harvard.edu/) (Class of 2022), where I studied Electrical Engineering and Computer Science. Welcome to my personal site! Feel free to click around to get to know me and see what I'm up to, and please do reach out if you have any questions about anything I've done.
 
 What do I think is cool? (ie. research areas of interest)
 ======
