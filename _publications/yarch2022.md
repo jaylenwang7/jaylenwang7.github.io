@@ -4,7 +4,7 @@ collection: publications
 permalink: /publication/2009-10-01-paper-title-number-1
 excerpt: 'We propose a novel resilience analysis framework targeting DNN accelerator design.'
 date: 2022-03-28
-venue: 'Young Architects Workshop 2022'
+venue: 'Young Architects Workshop'
 paperurl: 'https://yarch2022.hotcrp.com/u/0/doc/yarch2022-paper13.pdf'
 citation: 'Jaylen Wang, Abdulrahman Mahmoud, David Brooks, Gu-Yeon Wei. (2022). &quot;A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network Accelerators.&quot; <i>YArch 2022</i>.'
 ---
@@ -12,4 +12,4 @@ We propose a novel resilience analysis framework targeting DNN accelerator desig
 
 [Download paper here](https://yarch2022.hotcrp.com/u/0/doc/yarch2022-paper13.pdf)
 
-Recommended citation: 'Jaylen Wang, Abdulrahman Mahmoud, David Brooks, Gu-Yeon Wei. (2022). &quot;A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network Accelerators.&quot; <i>YArch 2022</i>.'
+Jaylen Wang, Abdulrahman Mahmoud, David Brooks, Gu-Yeon Wei. (2022). &quot;A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network Accelerators.&quot; <i>YArch 2022</i>.
