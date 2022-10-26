@@ -18,11 +18,6 @@ What do I think is cool? (ie. research areas of interest)
 * Cryptocurrency hardware
 * Sustainable computing
 
-What am I currently up to?
-======
-1. Enjoying the summer before entering my new PhD program (and trying to contain my excitement!)
-2. Working on one of my main research projects relating to the resilience of DNN hardware to hardware faults.
-
 Hobbies/interests
 ======
 * I'm an avid tennis player and am currently the co-captain of the Harvard Club Tennis team. I've played competitively throughout high school and have made so many great friends along the way.
