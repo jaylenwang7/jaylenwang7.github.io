@@ -12,15 +12,15 @@ Hello! I'm a first-year PhD student in [CMU's ECE](https://www.ece.cmu.edu/) pro
 
 What do I think is cool? (ie. research areas of interest)
 ======
-* Computer architecture
-* Hardware/software co-design
-* Machine learning
-* Cryptocurrency hardware
+* Computer architecture/systems
 * Sustainable computing
+* Hardware/software co-design
+* Datacenter design
+* Machine learning
 
 Hobbies/interests
 ======
-* I'm an avid tennis player and am currently the co-captain of the Harvard Club Tennis team. I've played competitively throughout high school and have made so many great friends along the way.
+* I'm an avid tennis player (was previously the co-captain of the Harvard Club Tennis team). I've played competitively throughout high school and have made so many great friends along the way.
 * I'm a big NBA fan, particularly of the Boston Celtics. While I don't always have time to watch all the Celtics games, I love keeping up with the players and what's going on around the league. If you have any NBA takes - I love a nice NBA-related discussion/debate :)
 * I enjoy hiking, especially with my parents. Recently went hiking in the Rockies which was amazing!
 * I love listening to podcasts and books, especially on topics related to history, tech, science, and food. Please give me book recs :)
