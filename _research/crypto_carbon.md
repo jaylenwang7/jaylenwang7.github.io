@@ -7,18 +7,13 @@ venue: "Harvard Architecture, Circuits, and Compilers Group"
 date: 2021-12-01
 ---
 
-A current research project I'm leading within the Harvard Architecture, Circuits, and Compilers Group with the help of [Udit Gupta](https://ugupta.com/). The project aims to better understand the manufacturing carbon footprint of crypto mining hardware and how ASIC designs of mining algorithms leads to interesting emissions characteristics.
+A previous research project I led within the Harvard Architecture, Circuits, and Compilers Group with the help of [Udit Gupta](https://ugupta.com/). The project aimed to better understand the manufacturing carbon footprint of crypto mining hardware and how ASIC designs of mining algorithms leads to interesting emissions characteristics.
 
 # Project Goal:
 Given previous research finding that, for many computing applications, manufacturing related carbon emissions (AKA capex emissions) can dominate the device's overall carbon footprint, I'm looking to see how this applies to cryptocurrency mining. This boils down to a couple of subgoals:
 * Estimate the capex carbon footprint of manufacturing mining hardware
 * Understand how the proof-of-work algorithms of different cryptocurrencies affect HW/ASIC design and how this leads to different emission characteristics
 * Combine this with previous research of operational emissions to get a more holistic understanding of emissions
-
-# Project Status:
-* I've successfully developed a prototype of a Bitcoin mining ASIC (specialized double SHA-256 accelerator) using C++ HLS
-* Have used this ASIC design to obtain area and energy numbers to estimate capex footprint
-* I'm currently looking into Ethereum (ethash) accelerators to compare them to Bitcoin (SHA-256)
 
 # Project Background:
 Cryptocurrencies have been increasing in popularity in recent years. Among them is Bitcoin, the first of these decentralized cryptocurrencies and by far the most popular. With cryptocurrencies constantly in the news and many touting it as a replacement for physical currency, many have raised the alarm in terms of how the mining of such cryptocurrencies could exacerbate global warming.
