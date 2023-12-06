@@ -1,6 +1,7 @@
 ---
 title: "A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network Accelerators"
 collection: publications
+authors: "<u>Jaylen Wang</u>, Abdulrahman Mahmoud, David Brooks, Gu-Yeon Wei"
 permalink: /publication/2009-10-01-paper-title-number-1
 excerpt: 'We propose a novel resilience analysis framework targeting DNN accelerator design.'
 date: 2022-03-28
