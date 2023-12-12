@@ -7,7 +7,7 @@ venue: "Harvard Architecture, Circuits, and Compilers Group"
 date: 2021-12-01
 ---
 
-A previous research project I led within the Harvard Architecture, Circuits, and Compilers Group with the help of [Udit Gupta](https://ugupta.com/). The project aimed to better understand the manufacturing carbon footprint of crypto mining hardware and how ASIC designs of mining algorithms leads to interesting emissions characteristics.
+A previous research project I led as an Undergraduate within the Harvard Architecture, Circuits, and Compilers Group with the help of [Udit Gupta](https://ugupta.com/). The project aimed to better understand the manufacturing carbon footprint of crypto mining hardware and how ASIC designs of mining algorithms leads to interesting emissions characteristics.
 
 # Project Goal:
 Given previous research finding that, for many computing applications, manufacturing related carbon emissions (AKA capex emissions) can dominate the device's overall carbon footprint, I'm looking to see how this applies to cryptocurrency mining. This boils down to a couple of subgoals:
@@ -23,7 +23,7 @@ As an example, Bitcoin mining is extremely energy intensive, with previous resea
 There has been a good amount of research looking into the potential energy consumption and carbon costs of Bitcoin. None of this research, however, has taken a very holistic view of energy consumption beyond just the operating costs of mining. Most importantly, no research has looked at the costs associated with manufacturing the hardware used for bitcoin mining. From previous research done by a graduate student at Harvard (Udit Gupta) we know that “capex”, i.e. one time costs like manufacturing, costs can make up a large portion, sometimes a majority depending on the application, of the total carbon footprint of using hardware. Just as an example, for Apple 74% of total emissions come from manufacturing while only 19% is derived from actual product use.
 
 # Project Presentation
-See the following presentation I gave to my lab group for a more detailed description of the project and current results:
+See the following presentation I gave to my lab group for a more detailed description of the project and some of the results:
 <object data="https://jaylenwang7.github.io/files/Crypto_Capex_Carbon.pdf" type="Crypto/pdf" width="700px" height="700px">
     <embed src="https://jaylenwang7.github.io/files/Crypto_Capex_Carbon.pdf">
         <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://jaylenwang7.github.io/files/Crypto_Capex_Carbon.pdf">Download PDF</a>.</p>
