@@ -12,6 +12,8 @@ Hello! I'm a second-year PhD student in [CMU's ECE](https://www.ece.cmu.edu/) pr
 
 Prior to my PhD, I graduated from Harvard University (Class of 2022), where I studied Electrical Engineering and Computer Science.
 
+The best way to contact me is through email: `jaylenw [at] andrew.cmu.edu`
+
 Research interests
 ======
 * Computer architecture
