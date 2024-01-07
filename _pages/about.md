@@ -22,10 +22,10 @@ Research interests
 * Hardware/software co-design
 * Machine learning hardware
 
-Hobbies/interests
+Hobbies/interests (not that you asked)
 ======
-* I've played tennis most of my life through college (in club tennis), and still playing (when I can).
-* I'm a big fan of the NBA, particularly of the Boston Celtics. If there's a Celtics game on I'll probably be watching. If you also love Derrick White and Al Horford, we'll get along.
+* I've played tennis most of my life. I still enjoy playing regularly (through CMU's club tennis team and with friends). Still trying to figure out how a backhand volley works.
+* I'm a big fan of the NBA, particularlyy of the Boston Celtics. If there's a Celtics game on I'll probably be watching. If you also love Derrick White and Al Horford, we'll get along.
 * I love making, talking about, and eating food. I may ask you questions such as "what fruit do you think is underrated?". I apoligize in advance.
-* I enjoy hiking and basically anything with fresh air. Nothing like eating a PB&J when you reach the top.
+* I enjoy hiking and basically anything with fresh air. What's better than eating a PB&J when you reach the top?
 * I love listening to podcasts and reading books of basically any genre. Please give me book recs :)
