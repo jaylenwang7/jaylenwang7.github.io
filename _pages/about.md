@@ -8,7 +8,7 @@ redirect_from:
   - /about.html
 ---
 
-Hello! I'm a second-year PhD student in [CMU's ECE](https://www.ece.cmu.edu/) program working with [Prof. Akshitha Sriraman](https://akshithasriraman.eecs.umich.edu/). My research passion lies in finding novel ways to make cloud/web systems more sustainable by targeting more efficient use of datacenter resources (particularly hardware) in order to reduce carbon emissions, e-waste, and other environmental impacts from hyperscale systems.
+Hello! I'm a second-year PhD student in [CMU's ECE](https://www.ece.cmu.edu/) program working with [Prof. Akshitha Sriraman](https://users.ece.cmu.edu/~asrirama/). My research passion lies in finding novel ways to make cloud/web systems more sustainable by targeting more efficient use of data center resources (particularly hardware) in order to reduce carbon emissions, e-waste, and other environmental impacts from hyperscale systems. This has manifested in research projects focusing on 1) extending the useful lifetime of servers used in hyperscale web systems through intelligent scheduling and 2) designing a framework to evaluate server designs while considering data center-scale carbon impacts.
 
 Prior to starting my PhD, I graduated from Harvard University (Class of 2022), where I studied Electrical Engineering and Computer Science.
 
@@ -24,8 +24,8 @@ Research interests
 
 Hobbies/interests (not that you asked)
 ======
-* I've played tennis most of my life. I still enjoy playing regularly (through CMU's club tennis team and with friends). Still trying to figure out how a backhand volley works.
+* I've played tennis most of my life. I still enjoy playing regularly (through CMU's club tennis team and with friends). Still trying to figure out how a backhand volley works (might need a separate PhD to figure that out).
 * I'm a big fan of the NBA, particularly of the Boston Celtics. If there's a Celtics game on, I'll probably be watching. If you also love Derrick White and Al Horford, we'll get along.
 * I love making, talking about, and eating food. I may ask you questions such as "what fruit do you think is underrated?". I apoligize in advance.
-* I enjoy hiking and basically anything with fresh air. What's better than eating a PB&J when you reach the top?
-* I love listening to podcasts and reading books of basically any genre. Please give me book recs :)
+* I enjoy hiking and basically anything with fresh air. Always chasing the thrill of eating a day-old PB&J after reaching the top.
+* I love listening to podcasts (of almost any kind) and reading books (especially non-fiction, memoirs, and poetry). Please give me recs :)
