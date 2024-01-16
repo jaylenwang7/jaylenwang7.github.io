@@ -10,7 +10,7 @@ redirect_from:
 
 Hello! I'm a second-year PhD student in [CMU's ECE](https://www.ece.cmu.edu/) program working with [Prof. Akshitha Sriraman](https://users.ece.cmu.edu/~asrirama/). My research passion lies in finding novel ways to make cloud/web systems more sustainable by targeting more efficient use of data center resources (particularly hardware) in order to reduce carbon emissions, e-waste, and other environmental impacts from hyperscale systems. This has manifested in research projects focusing on 1) extending the useful lifetime of servers used in hyperscale web systems through intelligent scheduling and 2) designing a framework to evaluate server designs while considering data center-scale carbon impacts.
 
-Prior to starting my PhD, I graduated from Harvard University (Class of 2022), where I studied Electrical Engineering and Computer Science.
+Prior to starting my PhD, I graduated from Harvard University (Class of 2022), where I studied Electrical Engineering and Computer Science. I was fortunate to work with Profs. [David Brooks](https://www.eecs.harvard.edu/~dbrooks/) and [Gu-Yeon Wei](https://www.eecs.harvard.edu/~gywei/) on projects related to sustainable computing and fault analysis for machine learning.
 
 The best way to contact me is through email: `jaylenw [at] andrew.cmu.edu`.
 
