@@ -16,9 +16,9 @@ The best way to contact me is through email: `jaylenw [at] andrew.cmu.edu`.
 
 Research interests
 ======
-* Computer architecture
 * Data center systems
 * Sustainable computing
+* Computer architecture
 * Hardware/software co-design
 * Machine learning hardware
 
@@ -26,6 +26,6 @@ Hobbies/interests (not that you asked)
 ======
 * I've played tennis most of my life. I still enjoy playing regularly (through CMU's club tennis team and with friends). Still trying to figure out how a backhand volley works (might need a separate PhD to figure that out).
 * I'm a big fan of the NBA, particularly of the Boston Celtics. If there's a Celtics game on, I'll probably be watching. If you also love Derrick White and Al Horford, we'll get along.
-* I love making, talking about, and eating food. I may ask you questions such as "what fruit do you think is underrated?". I apoligize in advance.
+* I love making, talking about, and eating food. I may ask you questions such as "what fruit do you think is underrated?". I apologize in advance.
 * I enjoy hiking and basically anything with fresh air. Always chasing the thrill of eating a day-old PB&J after reaching the top.
 * I love listening to podcasts (of almost any kind) and reading books (especially non-fiction, memoirs, and poetry). Please give me recs :)
