@@ -29,4 +29,4 @@ Hobbies/interests (not that you asked)
 * I love making, talking about, and eating food. I may ask you questions such as "what fruit do you think is underrated?". I apologize in advance.
 * I enjoy hiking and basically anything with fresh air. Always chasing the thrill of eating a day-old PB&J after reaching the top.
 * I love listening to podcasts (of almost any kind) and reading books (especially non-fiction, memoirs, and poetry). Please give me recs :)
-* While you're here, participate in my very scientific [data collection](https://forms.gle/NiYerAvgQ5JkidE5A). I'm trying to see some things.
+* While you're here, participate in my anonymous, very scientific [data collection](https://forms.gle/NiYerAvgQ5JkidE5A). I'm trying to see some things.
