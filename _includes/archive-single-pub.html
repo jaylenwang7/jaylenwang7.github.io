@@ -63,35 +63,51 @@
       <br>Acceptance Rate: {{ post.acceptance_rate}}
     {% endif %}
 
-    {% if post.abstract or post.paperurl or post.slidesurl or post.doi %}
+    {% if post.abstract or post.paperurl or post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %}
       <br>
       {% if post.abstract %}
         <font color="#0000EE"><a href="{{ post.abstract }}">Abstract</a></font>
-        {% if post.paperurl or post.slidesurl or post.doi %} / {% endif %}
+        {% if post.paperurl or post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %} / {% endif %}
       {% endif %}
       {% if post.paperurl %}
         <font color="#0000EE"><a href="{{ post.paperurl }}"><i class="fas fa-file-pdf" aria-hidden="true"></i> Full Text</a></font>
-        {% if post.slidesurl or post.doi %} / {% endif %}
+        {% if post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %} / {% endif %}
       {% endif %}
       {% if post.slidesurl %}
         <font color="#0000EE"><a href="{{ post.slidesurl }}"><i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides</a></font>
-        {% if post.doi %} / {% endif %}
+        {% if post.doi or post.citation or post.artifact or post.bibtex %} / {% endif %}
       {% endif %}
       {% if post.doi %}
         <font color="#0000EE"><a href="https://doi.org/{{ post.doi }}"><i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI</a></font>
+        {% if post.citation or post.artifact or post.bibtex %} / {% endif %}
+      {% endif %}
+      {% if post.artifact %}
+        <font color="#0000EE"><a href="{{ post.artifact }}"><i class="fas fa-code" aria-hidden="true"></i> Code</a></font>
+        {% if post.citation or post.bibtex %} / {% endif %}
+      {% endif %}
+      {% if post.citation %}
+        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="citation-button" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i></button>
+        {% if post.bibtex %} / {% endif %}
+      {% endif %}
+      {% if post.bibtex %}
+        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="bibtex-button" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> BibTeX</button>
       {% endif %}
     {% endif %}
 
     {% if post.citation %}
-      <br>
-      <button onclick="toggleCitation('citation-{{ post.id | slugify }}')"><i class="fas fa-quote-left" aria-hidden="true"></i> Show/Hide Citation</button>
-      <div id="citation-{{ post.id | slugify }}" style="display: none;">
-        <textarea rows="4" cols="50" readonly>{{ post.citation }}</textarea>
+      <div id="citation-{{ post.id | slugify }}" class="citation-content" style="display: none;">
+        <div class="citation-text">{{ post.citation }}</div>
+      </div>
+    {% endif %}
+
+    {% if post.bibtex %}
+      <div id="bibtex-{{ post.id | slugify }}" style="display: none;">
+        {{ post.bibtex }}
       </div>
     {% endif %}
 
     {% if post.lightning %}
-      {% if post.abstract or post.paperurl or post.slidesurl or post.doi %}
+      {% if post.abstract or post.paperurl or post.slidesurl or post.doi or post.artifact %}
         / <font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
       {% else %}
         <font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
@@ -114,31 +130,45 @@
 </div>
 
 <style>
-  .citation-button {
-    background: none;
-    border: none;
-    color: #0000EE;
-    cursor: pointer;
-    padding: 0;
-    font-size: 0.9em;
+.citation-button, .bibtex-button {
+  background: none;
+  border: none;
+  color: #0000EE;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9em;
+}
+.citation-content {
+  margin-top: 10px;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+}
+.citation-text {
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+</style>
+
+<script>
+function toggleCitation(id) {
+  var citation = document.getElementById(id);
+  if (citation.style.display === "none") {
+    citation.style.display = "block";
+  } else {
+    citation.style.display = "none";
   }
-  .citation-content {
-    margin-top: 10px;
-  }
-  .citation-content textarea {
-    width: 100%;
-    padding: 5px;
-    font-size: 0.9em;
-  }
-  </style>
-  
-  <script>
-  function toggleCitation(id) {
-    var citation = document.getElementById(id);
-    if (citation.style.display === "none") {
-      citation.style.display = "block";
-    } else {
-      citation.style.display = "none";
-    }
-  }
-  </script>
+}
+
+function copyBibtex(id) {
+  var bibtex = document.getElementById('bibtex-' + id);
+  var textArea = document.createElement("textarea");
+  textArea.value = bibtex.textContent;
+  document.body.appendChild(textArea);
+  textArea.select();
+  document.execCommand("Copy");
+  textArea.remove();
+  alert("BibTeX citation copied to clipboard!");
+}
+</script>
