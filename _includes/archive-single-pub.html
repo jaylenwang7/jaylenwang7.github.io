@@ -81,10 +81,10 @@
         <a href="{{ post.artifact }}" class="btn btn--primary btn--small"><i class="fas fa-code" aria-hidden="true"></i> Code</a>
       {% endif %}
       {% if post.citation %}
-        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Show citation</button>
+        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Cite</button>
       {% endif %}
       {% if post.bibtex %}
-        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Copy BibTeX to clipboard"><i class="fas fa-copy" aria-hidden="true"></i> Copy BibTeX</button>
+        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> BibTeX</button>
       {% endif %}
     {% endif %}
 
@@ -120,8 +120,12 @@
 </div>
 
 <style>
+.archive__item-title {
+  font-size: 1.2em;
+}
+
 .archive__item-title a {
-  color: #2c3e50; /* Darker blue color */
+  color: #0056b3; /* Dark blue color */
   text-decoration: none;
 }
 
@@ -149,14 +153,14 @@
 }
 
 .btn--primary {
-  color: #ffffff;
-  background-color: #007bff;
-  border: 1px solid #007bff;
+  color: #2c3e50; /* Darker text for better contrast */
+  background-color: #e9f0f8; /* Light blue-gray background */
+  border: 1px solid #b8d1e8; /* Slightly darker border */
 }
 
 .btn--primary:hover {
-  background-color: #0056b3;
-  border-color: #0056b3;
+  background-color: #d0e0f0; /* Slightly darker on hover */
+  border-color: #9cb8d3;
 }
 
 .citation-content {
