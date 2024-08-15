@@ -29,13 +29,13 @@
     {% endif %}
 
     <p>
-      <strong>
+      <strong class="archive__item-title">
       {% if post.link %}
         <a href="{{ post.link }}">{{ title }}</a> <a href="{{ base_path }}{{ post.url }}" rel="permalink"><i class="fa fa-link" aria-hidden="true" title="permalink"></i><span class="sr-only">Permalink</span></a>
       {% else %}
         <a href="{{ base_path }}{{ post.url }}" rel="permalink">{{ title }}</a>
       {% endif %}
-    </strong>
+      </strong>
 
       {% if post.collection == 'teaching' %}
           {{ post.type }}, <i>{{ post.venue }}</i>, {{ post.term }} {{ post.date | default: "1900-01-01" | date: "%Y" }}
@@ -66,25 +66,25 @@
     {% if post.abstract or post.paperurl or post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %}
       <br>
       {% if post.abstract %}
-        <a href="{{ post.abstract }}" class="btn btn--info btn--small">Abstract</a>
+        <a href="{{ post.abstract }}" class="btn btn--primary btn--small">Abstract</a>
       {% endif %}
       {% if post.paperurl %}
-        <a href="{{ post.paperurl }}" class="btn btn--info btn--small"><i class="fas fa-file-pdf" aria-hidden="true"></i> Full Text</a>
+        <a href="{{ post.paperurl }}" class="btn btn--primary btn--small"><i class="fas fa-file-pdf" aria-hidden="true"></i> Full Text</a>
       {% endif %}
       {% if post.slidesurl %}
-        <a href="{{ post.slidesurl }}" class="btn btn--info btn--small"><i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides</a>
+        <a href="{{ post.slidesurl }}" class="btn btn--primary btn--small"><i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides</a>
       {% endif %}
       {% if post.doi %}
-        <a href="https://doi.org/{{ post.doi }}" class="btn btn--info btn--small"><i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI</a>
+        <a href="https://doi.org/{{ post.doi }}" class="btn btn--primary btn--small"><i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI</a>
       {% endif %}
       {% if post.artifact %}
-        <a href="{{ post.artifact }}" class="btn btn--info btn--small"><i class="fas fa-code" aria-hidden="true"></i> Code</a>
+        <a href="{{ post.artifact }}" class="btn btn--primary btn--small"><i class="fas fa-code" aria-hidden="true"></i> Code</a>
       {% endif %}
       {% if post.citation %}
-        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="btn btn--info btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Cite</button>
+        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Show citation</button>
       {% endif %}
       {% if post.bibtex %}
-        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--info btn--small" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> BibTeX</button>
+        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Copy BibTeX to clipboard"><i class="fas fa-copy" aria-hidden="true"></i> Copy BibTeX</button>
       {% endif %}
     {% endif %}
 
@@ -101,7 +101,7 @@
     {% endif %}
 
     {% if post.lightning %}
-      <a href="{{ post.lightning }}" class="btn btn--info btn--small">Lightning Talk</a>
+      <a href="{{ post.lightning }}" class="btn btn--primary btn--small">Lightning Talk</a>
     {% endif %}
 
     {% if post.other %}
@@ -120,6 +120,15 @@
 </div>
 
 <style>
+.archive__item-title a {
+  color: #2c3e50; /* Darker blue color */
+  text-decoration: none;
+}
+
+.archive__item-title a:hover {
+  text-decoration: underline;
+}
+
 .btn {
   display: inline-block;
   padding: 0.25em 0.5em;
@@ -127,9 +136,6 @@
   font-weight: bold;
   text-align: center;
   text-decoration: none;
-  background-color: #f8f9fa;
-  color: #007bff;
-  border: 1px solid #007bff;
   border-radius: 0.25rem;
   cursor: pointer;
   transition: all 0.15s ease-in-out;
@@ -137,24 +143,20 @@
   margin-bottom: 0.5em;
 }
 
-.btn:hover {
-  background-color: #007bff;
-  color: #fff;
-}
-
 .btn--small {
   font-size: 0.75em;
   padding: 0.25em 0.5em;
 }
 
-.btn--info {
-  color: #17a2b8;
-  border-color: #17a2b8;
+.btn--primary {
+  color: #ffffff;
+  background-color: #007bff;
+  border: 1px solid #007bff;
 }
 
-.btn--info:hover {
-  background-color: #17a2b8;
-  color: #fff;
+.btn--primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
 }
 
 .citation-content {
