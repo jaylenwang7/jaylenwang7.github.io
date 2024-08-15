@@ -66,31 +66,25 @@
     {% if post.abstract or post.paperurl or post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %}
       <br>
       {% if post.abstract %}
-        <font color="#0000EE"><a href="{{ post.abstract }}">Abstract</a></font>
-        {% if post.paperurl or post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %} / {% endif %}
+        <a href="{{ post.abstract }}" class="btn btn--info btn--small">Abstract</a>
       {% endif %}
       {% if post.paperurl %}
-        <font color="#0000EE"><a href="{{ post.paperurl }}"><i class="fas fa-file-pdf" aria-hidden="true"></i> Full Text</a></font>
-        {% if post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %} / {% endif %}
+        <a href="{{ post.paperurl }}" class="btn btn--info btn--small"><i class="fas fa-file-pdf" aria-hidden="true"></i> Full Text</a>
       {% endif %}
       {% if post.slidesurl %}
-        <font color="#0000EE"><a href="{{ post.slidesurl }}"><i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides</a></font>
-        {% if post.doi or post.citation or post.artifact or post.bibtex %} / {% endif %}
+        <a href="{{ post.slidesurl }}" class="btn btn--info btn--small"><i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides</a>
       {% endif %}
       {% if post.doi %}
-        <font color="#0000EE"><a href="https://doi.org/{{ post.doi }}"><i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI</a></font>
-        {% if post.citation or post.artifact or post.bibtex %} / {% endif %}
+        <a href="https://doi.org/{{ post.doi }}" class="btn btn--info btn--small"><i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI</a>
       {% endif %}
       {% if post.artifact %}
-        <font color="#0000EE"><a href="{{ post.artifact }}"><i class="fas fa-code" aria-hidden="true"></i> Code</a></font>
-        {% if post.citation or post.bibtex %} / {% endif %}
+        <a href="{{ post.artifact }}" class="btn btn--info btn--small"><i class="fas fa-code" aria-hidden="true"></i> Code</a>
       {% endif %}
       {% if post.citation %}
-        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="citation-button" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i></button>
-        {% if post.bibtex %} / {% endif %}
+        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="btn btn--info btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Cite</button>
       {% endif %}
       {% if post.bibtex %}
-        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="bibtex-button" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> BibTeX</button>
+        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--info btn--small" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> BibTeX</button>
       {% endif %}
     {% endif %}
 
@@ -107,11 +101,7 @@
     {% endif %}
 
     {% if post.lightning %}
-      {% if post.abstract or post.paperurl or post.slidesurl or post.doi or post.artifact %}
-        / <font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
-      {% else %}
-        <font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
-      {% endif %}
+      <a href="{{ post.lightning }}" class="btn btn--info btn--small">Lightning Talk</a>
     {% endif %}
 
     {% if post.other %}
@@ -130,14 +120,43 @@
 </div>
 
 <style>
-.citation-button, .bibtex-button {
-  background: none;
-  border: none;
-  color: #0000EE;
+.btn {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  background-color: #f8f9fa;
+  color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 0.25rem;
   cursor: pointer;
-  padding: 0;
-  font-size: 0.9em;
+  transition: all 0.15s ease-in-out;
+  margin-right: 0.5em;
+  margin-bottom: 0.5em;
 }
+
+.btn:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn--small {
+  font-size: 0.75em;
+  padding: 0.25em 0.5em;
+}
+
+.btn--info {
+  color: #17a2b8;
+  border-color: #17a2b8;
+}
+
+.btn--info:hover {
+  background-color: #17a2b8;
+  color: #fff;
+}
+
 .citation-content {
   margin-top: 10px;
   background-color: #f8f8f8;
@@ -145,6 +164,7 @@
   padding: 10px;
   border-radius: 4px;
 }
+
 .citation-text {
   font-size: 0.9em;
   line-height: 1.4;
