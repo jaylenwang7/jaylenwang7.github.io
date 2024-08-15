@@ -28,8 +28,6 @@
       </div>
     {% endif %}
 
-    <!-- Print the title -->
-    <!-- <p class="archive__item-title" itemprop="headline"> -->
     <p>
       <strong>
       {% if post.link %}
@@ -39,11 +37,9 @@
       {% endif %}
     </strong>
 
-    <!-- Print Authors and Venue text -->
       {% if post.collection == 'teaching' %}
           {{ post.type }}, <i>{{ post.venue }}</i>, {{ post.term }} {{ post.date | default: "1900-01-01" | date: "%Y" }}
       {% elsif post.collection == 'publications' %} 
-	<!--<p>Published in <i>{{ post.venue }}</i>, {{ post.date | default: "1900-01-01" | date: "%Y" }} </p> -->
       <br>{{ post.authors }} 
       	{% if post.venue_type == 'conference' %}
 	   <br>
@@ -63,66 +59,67 @@
          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].date_label | default: "Published:" }}</strong> <time datetime="{{ post.date | default: "1900-01-01" | date_to_xmlschema }}">{{ post.date | default: "1900-01-01" | date: "%B %d, %Y" }}</time></p>
      {% endif %}
      
-
-    <!-- Acceptance Rate -->
     {% if post.acceptance_rate %}
       <br>Acceptance Rate: {{ post.acceptance_rate}}
     {% endif %}
 
-
-    <!-- PDF -->
-    {% if post.abstract and post.paperurl %}
+    {% if post.abstract or post.paperurl or post.slidesurl or post.doi %}
       <br>
-        <font color="#0000EE"><a href="{{ post.abstract }}">Abstract</a></font> 
-	/ 
-	<font color="#0000EE"><a href="{{ post.paperurl }}">Full Text</a></font>
-    {% elsif post.paperurl %}
-      <br>
-	<font color="#0000EE"><a href="{{ post.paperurl }}">Full Text</a></font>
+      {% if post.abstract %}
+        <font color="#0000EE"><a href="{{ post.abstract }}">Abstract</a></font>
+        {% if post.paperurl or post.slidesurl or post.doi %} / {% endif %}
+      {% endif %}
+      {% if post.paperurl %}
+        <font color="#0000EE"><a href="{{ post.paperurl }}"><i class="fas fa-file-pdf" aria-hidden="true"></i> Full Text</a></font>
+        {% if post.slidesurl or post.doi %} / {% endif %}
+      {% endif %}
+      {% if post.slidesurl %}
+        <font color="#0000EE"><a href="{{ post.slidesurl }}"><i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides</a></font>
+        {% if post.doi %} / {% endif %}
+      {% endif %}
+      {% if post.doi %}
+        <font color="#0000EE"><a href="https://doi.org/{{ post.doi }}"><i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI</a></font>
+      {% endif %}
     {% endif %}
 
-    <!-- Acceptance Rate -->
+    {% if post.citation %}
+      <br>
+      <button onclick="toggleCitation('citation-{{ post.id | slugify }}')"><i class="fas fa-quote-left" aria-hidden="true"></i> Show/Hide Citation</button>
+      <div id="citation-{{ post.id | slugify }}" style="display: none;">
+        <textarea rows="4" cols="50" readonly>{{ post.citation }}</textarea>
+      </div>
+    {% endif %}
+
     {% if post.lightning %}
-    	{% if post.abstract or post.paperurl %}
-
-		/ <font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
-    	{% else %}
-		<font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
-    	{% endif %}
+      {% if post.abstract or post.paperurl or post.slidesurl or post.doi %}
+        / <font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
+      {% else %}
+        <font color="#0000EE"><a href="{{ post.lightning}}">Lightning Talk</a></font>
+      {% endif %}
     {% endif %}
 
-
-
-    <!-- Other -->
     {% if post.other %}
       <br>{{ post.other }}
     {% endif %}
 
-
     </p>
    
-    <!-- Print supporting text -->
     {% if post.read_time %}
       <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> {% include read-time.html %}</p>
     {% endif %}
-
-    <!--
-    {% if post.citation and post.paperurl %}
-      <p>{{ post.citation }}</p>
-    {% elsif post.citation %}
-      <p>Recommended citation: {{ post.citation }} </p>
-    {% elsif post.paperurl %}
-      <p>Download <a href=" {{ post.paperurl }} "><u>here</u></a></p>
-    {% endif %}
-
-    {% if post.excerpt and site.read_more != 'enabled' %}
-    <p class="archive__item-excerpt" itemprop="description">{{ post.excerpt | markdownify }}</p>
-    {% elsif post.excerpt and site.read_more == 'enabled' %}
-    <p class="archive__item-excerpt" itemprop="description"><p>{{ post.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}<strong><a href="{{ base_path }}{{ post.url }}" rel="permalink"> Read more</a></strong></p></p>
-    {% endif %}
-	-->
 
     </li> 
   </article>
   </ul>
 </div>
+
+<script>
+function toggleCitation(id) {
+  var citation = document.getElementById(id);
+  if (citation.style.display === "none") {
+    citation.style.display = "block";
+  } else {
+    citation.style.display = "none";
+  }
+}
+</script>
