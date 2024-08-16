@@ -7,5 +7,11 @@ venue: '1st Workshop on NetZero Carbon Computing'
 conf_shorthand: 'NetZero'
 venue_type: 'workshop'
 paperurl: 'https://jaylenwang7.github.io/files/NetZero_23.pdf'
-citation: 'Jaylen Wang, Udit Gupta, Akshitha Sriraman. (2023). &quot;Characterizing Datacenter Server Generations for Lifetime Extension and Carbon Reduction.&quot; <i>NetZero 2023</i>.'
+bibtex: |
+    @inproceedings{wang2023characterizing,
+        title={Characterizing Datacenter Server Generations for Lifetime Extension and Carbon Reduction},
+        author={Wang, Jaylen and Gupta, Udit and Sriraman, Akshitha},
+        booktitle={Workshop on NetZero Carbon Computing},
+        year={2023}
+    }
 ---

@@ -35,6 +35,20 @@
       {% else %}
         <a href="{{ base_path }}{{ post.url }}" rel="permalink">{{ title }}</a>
       {% endif %}
+      {% if post.artifact_badges %}
+        <span class="artifact-badges">
+        {% for badge in post.artifact_badges %}
+          {% case badge %}
+            {% when 'available' %}
+              <img src="{{ base_path }}/images/artifacts_available.jpg" alt="Artifacts Available" title="Artifacts Available" class="artifact-badge">
+            {% when 'functional' %}
+              <img src="{{ base_path }}/images/artifacts_evaluated_functional.jpg" alt="Artifacts Evaluated - Functional" title="Artifacts Evaluated - Functional" class="artifact-badge">
+            {% when 'reproduced' %}
+              <img src="{{ base_path }}/images/results_reproduced.jpg" alt="Results Reproduced" title="Results Reproduced" class="artifact-badge">
+          {% endcase %}
+        {% endfor %}
+        </span>
+      {% endif %}
       </strong>
 
       {% if post.collection == 'teaching' %}
@@ -80,8 +94,8 @@
       {% if post.artifact %}
         <a href="{{ post.artifact }}" class="btn btn--primary btn--small"><i class="fas fa-code" aria-hidden="true"></i> Code</a>
       {% endif %}
-      {% if post.citation %}
-        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Show citation</button>
+      {% if post.citation or post.bibtex %}
+        <button onclick="toggleCitation('{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Show citation</button>
       {% endif %}
       {% if post.bibtex %}
         <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> Copy BibTeX</button>
@@ -91,6 +105,10 @@
     {% if post.citation %}
       <div id="citation-{{ post.id | slugify }}" class="citation-content" style="display: none;">
         <div class="citation-text">{{ post.citation }}</div>
+      </div>
+    {% elsif post.bibtex %}
+      <div id="citation-{{ post.id | slugify }}" class="citation-content" style="display: none;">
+        <div class="citation-text" id="formatted-citation-{{ post.id | slugify }}"></div>
       </div>
     {% endif %}
 
@@ -120,12 +138,24 @@
 </div>
 
 <style>
+  .artifact-badges {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 7px;
+  }
+
+  .artifact-badge {
+    width: 50px;
+    height: 50px;
+    margin-right: 5px;
+  }
+
   .archive__item-title {
     font-size: 1.2em;
   }
   
   .archive__item-title a {
-    color: #0056b3; /* Dark blue color */
+    color: #0056b3;
     text-decoration: none;
   }
   
@@ -180,12 +210,84 @@
   
   <script>
   function toggleCitation(id) {
-    var citation = document.getElementById(id);
-    if (citation.style.display === "none") {
-      citation.style.display = "block";
-    } else {
-      citation.style.display = "none";
+    console.log('Toggling citation for id:', id);
+    var citationContainer = document.getElementById('citation-' + id);
+    console.log('Citation container:', citationContainer);
+    
+    if (!citationContainer) {
+      console.error('Citation container not found for id:', id);
+      return;
     }
+
+    if (citationContainer.style.display === "none") {
+      citationContainer.style.display = "block";
+      var citationText = citationContainer.querySelector('.citation-text');
+      console.log('Citation text element:', citationText);
+      
+      if (citationText && !citationText.innerHTML.trim()) {
+        var bibtexElement = document.getElementById('bibtex-' + id);
+        console.log('BibTeX element:', bibtexElement);
+        
+        if (bibtexElement) {
+          var bibtex = bibtexElement.textContent;
+          console.log('BibTeX content:', bibtex);
+          
+          try {
+            var formattedCitation = formatCustomCitation(bibtex);
+            console.log('Formatted citation:', formattedCitation);
+            citationText.innerHTML = formattedCitation;
+          } catch (error) {
+            console.error('Error formatting citation:', error);
+            citationText.innerHTML = 'Error formatting citation. Please check the BibTeX data.';
+          }
+        } else {
+          console.error('BibTeX element not found for id:', id);
+          citationText.innerHTML = 'BibTeX data not found.';
+        }
+      }
+    } else {
+      citationContainer.style.display = "none";
+    }
+  }
+
+  function formatCustomCitation(bibtex) {
+    console.log('Formatting citation for BibTeX:', bibtex);
+    
+    // Parse BibTeX
+    var authorMatch = bibtex.match(/author\s*=\s*{([^}]*)}/);
+    var titleMatch = bibtex.match(/title\s*=\s*{([^}]*)}/);
+    var booktitleMatch = bibtex.match(/booktitle\s*=\s*{([^}]*)}/);
+    var yearMatch = bibtex.match(/year\s*=\s*{([^}]*)}/);
+
+    if (!authorMatch || !titleMatch || !booktitleMatch || !yearMatch) {
+      throw new Error('Required fields not found in BibTeX');
+    }
+
+    var authors = authorMatch[1].split(' and ');
+    var title = titleMatch[1];
+    var booktitle = booktitleMatch[1];
+    var year = yearMatch[1];
+
+    // Format authors
+    var formattedAuthors = authors.map(function(author) {
+      var names = author.split(',');
+      if (names.length > 1) {
+        // Last name, First name format
+        return names[1].trim()[0] + '. ' + names[0].trim();
+      } else {
+        // First name Last name format
+        var nameParts = names[0].trim().split(' ');
+        return nameParts[0][0] + '. ' + nameParts[nameParts.length - 1];
+      }
+    });
+
+    // Join authors
+    var authorString = formattedAuthors.join(', ');
+
+    // Construct the formatted citation
+    var citation = authorString + ', "' + title + '," in <i>' + booktitle + '</i>, ' + year + '.';
+
+    return citation;
   }
   
   function copyBibtex(id) {

@@ -9,5 +9,11 @@ venue: 'Young Architects Workshop'
 conf_shorthand: 'YArch'
 venue_type: 'workshop'
 paperurl: 'https://jaylenwang7.github.io/files/YArch_22.pdf'
-citation: 'Jaylen Wang, Abdulrahman Mahmoud, David Brooks, Gu-Yeon Wei. (2022). &quot;A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network Accelerators.&quot; <i>YArch 2022</i>.'
+bibtex: |
+    @inproceedings{wang2022dataflow,
+        title={A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network Accelerators},
+        author={Wang, Jaylen and Mahmoud, Abdulrahman and Brooks, David and Wei, Gu-Yeon},
+        booktitle={Young Architects Workshop},
+        year={2022}
+    }
 ---

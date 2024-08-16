@@ -8,5 +8,11 @@ venue: 'Career Workshop for Inclusion and Diversity in Computer Architecture'
 conf_shorthand: 'CWIDCA'
 venue_type: 'workshop'
 paperurl: 'https://jaylenwang7.github.io/files/CWIDCA_2022.pdf'
-citation: 'Sahana Rangarajan, Xuesi Chen, Pratyush Patel, Jaylen Wang, Akshitha Sriraman (2022). &quot;Designing Equitable Data Center Scheduling Systems.&quot; <i>CWIDCA 2022</i>.'
+bibtex: |
+    @inproceedings{rangarajan2022designing,
+        title={Designing Equitable Data Center Scheduling Systems},
+        author={Rangarajan, Sahana and Chen, Xuesi and Patel, Pratyush and Wang, Jaylen and Sriraman, Akshitha},
+        booktitle={Career Workshop for Inclusion and Diversity in Computer Architecture},
+        year={2022}
+    }
 ---

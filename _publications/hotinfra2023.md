@@ -7,5 +7,11 @@ venue: '1st Workshop on Hot Topics in System Infrastructure'
 conf_shorthand: 'HotInfra'
 venue_type: 'workshop'
 paperurl: 'https://jaylenwang7.github.io/files/HotInfra_23.pdf'
-citation: 'Jaylen Wang, Udit Gupta, Akshitha Sriraman. (2023). &quot;Giving Old Servers New Life at Hyperscale.&quot; <i>HotInfra 2023</i>.'
+bibtex: |
+    @inproceedings{wang2023giving,
+        title={Giving Old Servers New Life at Hyperscale},
+        author={Wang, Jaylen and Gupta, Udit and Sriraman, Akshitha},
+        booktitle={Workshop on Hot Topics in System Infrastructure},
+        year={2023}
+    }
 ---
