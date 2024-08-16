@@ -1,18 +1,20 @@
 ---
-title: "Designing Equitable Data Center Scheduling Systems"
-authors: "Sahana Rangarajan, Xuesi Chen, Pratyush Patel, <u>Jaylen Wang</u>, Akshitha Sriraman"
+authors: Sahana Rangarajan, Xuesi Chen, Pratyush Patel, <u>Jaylen Wang</u>, Akshitha
+  Sriraman
+bibtex: "@inproceedings{rangarajan2022designing,\n    title={Designing Equitable Data\
+  \ Center Scheduling Systems},\n    author={Rangarajan, Sahana and Chen, Xuesi and\
+  \ Patel, Pratyush and Wang, Jaylen and Sriraman, Akshitha},\n    booktitle={Career\
+  \ Workshop for Inclusion and Diversity in Computer Architecture},\n    year={2022}\n\
+  }\n"
+citation: S. Rangarajan, X. Chen, P. Patel, J. Wang, A. Sriraman, "Designing Equitable
+  Data Center Scheduling Systems," in <i>Career Workshop for Inclusion and Diversity
+  in Computer Architecture</i>, 2022.
 collection: publications
-permalink: /publication/cwidca2022
+conf_shorthand: CWIDCA
 date: 2022-10-02
-venue: 'Career Workshop for Inclusion and Diversity in Computer Architecture'
-conf_shorthand: 'CWIDCA'
-venue_type: 'workshop'
-paperurl: 'https://jaylenwang7.github.io/files/CWIDCA_2022.pdf'
-bibtex: |
-    @inproceedings{rangarajan2022designing,
-        title={Designing Equitable Data Center Scheduling Systems},
-        author={Rangarajan, Sahana and Chen, Xuesi and Patel, Pratyush and Wang, Jaylen and Sriraman, Akshitha},
-        booktitle={Career Workshop for Inclusion and Diversity in Computer Architecture},
-        year={2022}
-    }
+paperurl: https://jaylenwang7.github.io/files/CWIDCA_2022.pdf
+permalink: /publication/cwidca2022
+title: Designing Equitable Data Center Scheduling Systems
+venue: Career Workshop for Inclusion and Diversity in Computer Architecture
+venue_type: workshop
 ---
