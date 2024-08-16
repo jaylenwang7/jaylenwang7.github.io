@@ -4,7 +4,7 @@ bibtex: "@inproceedings{wang2023peeling,\n    title={Peeling Back the Carbon Cur
   \ Carbon Optimization Challenges in Cloud Computing},\n    author={Wang, Jaylen\
   \ and Gupta, Udit and Sriraman, Akshitha},\n    booktitle={Workshop on Sustainable\
   \ Computer Systems},\n    year={2023}\n}\n"
-citation: 'J. Wang, U. Gupta, A. Sriraman, "Peeling Back the Carbon Curtain: Carbon
+citation: 'J. Wang, U. Gupta, and A. Sriraman, "Peeling Back the Carbon Curtain: Carbon
   Optimization Challenges in Cloud Computing," in <i>Workshop on Sustainable Computer
   Systems</i>, 2023.'
 collection: publications

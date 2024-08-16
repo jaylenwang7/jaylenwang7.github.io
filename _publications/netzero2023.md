@@ -4,7 +4,7 @@ bibtex: "@inproceedings{wang2023characterizing,\n    title={Characterizing Datac
   \ Server Generations for Lifetime Extension and Carbon Reduction},\n    author={Wang,\
   \ Jaylen and Gupta, Udit and Sriraman, Akshitha},\n    booktitle={Workshop on NetZero\
   \ Carbon Computing},\n    year={2023}\n}\n"
-citation: J. Wang, U. Gupta, A. Sriraman, "Characterizing Datacenter Server Generations
+citation: J. Wang, U. Gupta, and A. Sriraman, "Characterizing Datacenter Server Generations
   for Lifetime Extension and Carbon Reduction," in <i>Workshop on NetZero Carbon Computing</i>,
   2023.
 collection: publications

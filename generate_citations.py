@@ -16,6 +16,9 @@ def format_authors(authors):
             # First name Last name format
             names = author.split()
             formatted_authors.append(f"{names[0][0]}. {names[-1]}")
+    # Add 'and' before the last author
+    if len(formatted_authors) > 1:
+        formatted_authors[-1] = 'and ' + formatted_authors[-1]
     return ', '.join(formatted_authors)
 
 def format_citation(entry):

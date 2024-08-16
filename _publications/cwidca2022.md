@@ -6,7 +6,7 @@ bibtex: "@inproceedings{rangarajan2022designing,\n    title={Designing Equitable
   \ Patel, Pratyush and Wang, Jaylen and Sriraman, Akshitha},\n    booktitle={Career\
   \ Workshop for Inclusion and Diversity in Computer Architecture},\n    year={2022}\n\
   }\n"
-citation: S. Rangarajan, X. Chen, P. Patel, J. Wang, A. Sriraman, "Designing Equitable
+citation: S. Rangarajan, X. Chen, P. Patel, J. Wang, and A. Sriraman, "Designing Equitable
   Data Center Scheduling Systems," in <i>Career Workshop for Inclusion and Diversity
   in Computer Architecture</i>, 2022.
 collection: publications

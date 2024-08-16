@@ -4,7 +4,7 @@ bibtex: "@inproceedings{wang2023giving,\n    title={Giving Old Servers New Life 
   \ Hyperscale},\n    author={Wang, Jaylen and Gupta, Udit and Sriraman, Akshitha},\n\
   \    booktitle={Workshop on Hot Topics in System Infrastructure},\n    year={2023}\n\
   }\n"
-citation: J. Wang, U. Gupta, A. Sriraman, "Giving Old Servers New Life at Hyperscale,"
+citation: J. Wang, U. Gupta, and A. Sriraman, "Giving Old Servers New Life at Hyperscale,"
   in <i>Workshop on Hot Topics in System Infrastructure</i>, 2023.
 collection: publications
 conf_shorthand: HotInfra

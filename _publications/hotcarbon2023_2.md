@@ -8,7 +8,7 @@ bibtex: "@inproceedings{lyu2023myths,\n    title={Myths and Misconceptions Aroun
   \ Daniel S},\n    booktitle={Workshop on Sustainable Computer Systems},\n    year={2023}\n\
   }\n"
 citation: J. Lyu, J. Wang, K. Frost, C. Zhang, C. Irvene, E. Choukse, R. Fonseca,
-  R. Bianchini, F. Kazhamiaka, D. Berger, "Myths and Misconceptions Around Reducing
+  R. Bianchini, F. Kazhamiaka, and D. Berger, "Myths and Misconceptions Around Reducing
   Carbon Embedded in Cloud Platforms," in <i>Workshop on Sustainable Computer Systems</i>,
   2023.
 collection: publications
