@@ -95,7 +95,9 @@
         <a href="{{ post.artifact }}" class="btn btn--primary btn--small"><i class="fas fa-code" aria-hidden="true"></i> Code</a>
       {% endif %}
       {% if post.citation %}
-        <button onclick="toggleCitation('citation-{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Show/Hide Citation"><i class="fas fa-quote-left" aria-hidden="true"></i> Show citation</button>
+        <button onclick="toggleCitation('citation-{{ post.id | slugify }}', this)" class="btn btn--primary btn--small" title="Show/Hide Citation">
+          <i class="fas fa-quote-left" aria-hidden="true"></i> <span class="citation-button-text">Show citation</span>
+        </button>
       {% endif %}
       {% if post.bibtex %}
         <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> Copy BibTeX</button>
@@ -205,12 +207,15 @@
   </style>
   
   <script>
-  function toggleCitation(id) {
+  function toggleCitation(id, button) {
     var citation = document.getElementById(id);
+    var buttonText = button.querySelector('.citation-button-text');
     if (citation.style.display === "none") {
       citation.style.display = "block";
+      buttonText.textContent = "Hide citation";
     } else {
       citation.style.display = "none";
+      buttonText.textContent = "Show citation";
     }
   }
   
