@@ -228,13 +228,8 @@
     // Log the formatted content
     console.log("Formatted content:", formattedBibtex);
     
-    // Use the Clipboard API to copy the text
-    navigator.clipboard.writeText(formattedBibtex).then(function() {
-        alert("BibTeX citation copied to clipboard!");
-    }).catch(function(err) {
-        console.error('Unable to copy to clipboard', err);
-        alert("Failed to copy BibTeX. See console for error.");
-    });
+    // Copy to clipboard
+    copyTextToClipboard(formattedBibtex);
   }
 
   function formatBibtex(text) {
@@ -248,5 +243,31 @@
       text = text.replace(/}$/, "\n}");
       
       return text;
+  }
+
+  function copyTextToClipboard(text) {
+      var textArea = document.createElement("textarea");
+      textArea.value = text;
+      
+      // Avoid scrolling to bottom
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+          var successful = document.execCommand('copy');
+          var msg = successful ? 'successful' : 'unsuccessful';
+          console.log('Copying text command was ' + msg);
+          alert("BibTeX citation copied to clipboard!");
+      } catch (err) {
+          console.error('Oops, unable to copy', err);
+          alert("Failed to copy BibTeX. Please copy it manually.");
+      }
+
+      document.body.removeChild(textArea);
   }
   </script>
