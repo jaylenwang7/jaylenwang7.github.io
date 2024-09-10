@@ -221,12 +221,32 @@
   
   function copyBibtex(id) {
     var bibtex = document.getElementById('bibtex-' + id);
-    var textArea = document.createElement("textarea");
-    textArea.value = bibtex.textContent;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand("Copy");
-    textArea.remove();
-    alert("BibTeX citation copied to clipboard!");
+    
+    // Clean up and format the BibTeX content
+    var formattedBibtex = formatBibtex(bibtex.innerText);
+    
+    // Log the formatted content
+    console.log("Formatted content:", formattedBibtex);
+    
+    // Use the Clipboard API to copy the text
+    navigator.clipboard.writeText(formattedBibtex).then(function() {
+        alert("BibTeX citation copied to clipboard!");
+    }).catch(function(err) {
+        console.error('Unable to copy to clipboard', err);
+        alert("Failed to copy BibTeX. See console for error.");
+    });
+  }
+
+  function formatBibtex(text) {
+      // Remove leading/trailing whitespace
+      text = text.trim();
+      
+      // Add newlines before each field
+      text = text.replace(/,\s+(\w+)\s+=\s+/g, ",\n  $1 = ");
+      
+      // Add newline before closing brace
+      text = text.replace(/}$/, "\n}");
+      
+      return text;
   }
   </script>
