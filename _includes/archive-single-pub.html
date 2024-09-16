@@ -231,13 +231,8 @@
   }
 
   function formatBibtex(text) {
-      // Remove leading/trailing whitespace
       text = text.trim();
-      
-      // Add newlines before each field
       text = text.replace(/,\s+(\w+)\s+=\s+/g, ",\n  $1 = ");
-      
-      // Add newline before closing brace
       text = text.replace(/}$/, "\n}");
       
       return text;
