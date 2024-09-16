@@ -221,15 +221,13 @@
   
   function copyBibtex(id) {
     var bibtex = document.getElementById('bibtex-' + id);
-    
-    // Clean up and format the BibTeX content
-    var formattedBibtex = formatBibtex(bibtex.innerText);
-    
-    // Log the formatted content
-    console.log("Formatted content:", formattedBibtex);
-    
-    // Copy to clipboard
-    copyTextToClipboard(formattedBibtex);
+    var textArea = document.createElement("textarea");
+    textArea.value = formatBibtex(bibtex.textContent);
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("Copy");
+    textArea.remove();
+    alert("BibTeX citation copied to clipboard!");
   }
 
   function formatBibtex(text) {
@@ -243,31 +241,5 @@
       text = text.replace(/}$/, "\n}");
       
       return text;
-  }
-
-  function copyTextToClipboard(text) {
-      var textArea = document.createElement("textarea");
-      textArea.value = text;
-      
-      // Avoid scrolling to bottom
-      textArea.style.top = "0";
-      textArea.style.left = "0";
-      textArea.style.position = "fixed";
-
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      try {
-          var successful = document.execCommand('copy');
-          var msg = successful ? 'successful' : 'unsuccessful';
-          console.log('Copying text command was ' + msg);
-          alert("BibTeX citation copied to clipboard!");
-      } catch (err) {
-          console.error('Oops, unable to copy', err);
-          alert("Failed to copy BibTeX. Please copy it manually.");
-      }
-
-      document.body.removeChild(textArea);
   }
   </script>
