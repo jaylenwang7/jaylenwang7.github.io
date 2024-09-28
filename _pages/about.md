@@ -12,7 +12,7 @@ Hello! I'm a third-year PhD <span style="text-decoration: line-through; opacity:
 
 Prior to starting my PhD, I graduated from Harvard University (Class of 2022), where I studied Electrical Engineering and Computer Science. I was fortunate to work with Profs. [David Brooks](https://www.eecs.harvard.edu/~dbrooks/) and [Gu-Yeon Wei](https://www.eecs.harvard.edu/~gywei/) on projects related to sustainable computing and fault analysis for machine learning.
 
-While you're here, participate in my anonymous, very scientific ✨**[data collection](https://forms.gle/NiYerAvgQ5JkidE5A)**✨. I'm trying to see some things.
+While you're here, participate in my anonymous, very scientific ✨**<a href="https://forms.gle/NiYerAvgQ5JkidE5A" target="_blank">data collection</a>**✨. I'm trying to see some things.
 
 The best way to contact me is through email: `jaylenw [at] andrew.cmu.edu`.
 
