@@ -48,9 +48,9 @@ def main():
     time_str = now.strftime('%I:%M%p').lower().lstrip('0')
     
     if now.date() == datetime.now(eastern).date():
-        timestamp = f"today as of {time_str} {timezone_abbr}"
+        timestamp = f"today at {time_str} {timezone_abbr}"
     elif now.date() == (datetime.now(eastern) - timedelta(days=1)).date():
-        timestamp = f"yesterday as of {time_str} {timezone_abbr}"
+        timestamp = f"yesterday at {time_str} {timezone_abbr}"
     else:
         timestamp = now.strftime(f"%b %d at {time_str} {timezone_abbr}")
     

@@ -2,7 +2,7 @@ name: Update Spotify Playlist Saves
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs at 00:00 UTC every day
+    - cron: '0 */8 * * *' # Every 8 hours
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
