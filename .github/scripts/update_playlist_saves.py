@@ -44,8 +44,9 @@ def main():
     is_dst = now.astimezone(eastern).dst() != timedelta(0)
     timezone_abbr = "EDT" if is_dst else "EST"
     
-    # Format the timestamp
-    time_str = now.strftime('%I:%M%p').lower()  # This will give us "2:30pm" format
+    # Format the timestamp without leading zero
+    time_str = now.strftime('%I:%M%p').lower().lstrip('0')
+    
     if now.date() == datetime.now(eastern).date():
         timestamp = f"today as of {time_str} {timezone_abbr}"
     elif now.date() == (datetime.now(eastern) - timedelta(days=1)).date():
