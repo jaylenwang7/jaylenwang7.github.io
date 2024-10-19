@@ -42,7 +42,6 @@ fetch('/assets/data/playlist_saves.yml')
     const playlistName = lines[1].split(':')[1].trim().replace(/'/g, '');
     const lastUpdated = lines[2].split(':')[1].trim().replace(/'/g, '');
     document.getElementById('playlist-saves').textContent = saves;
-    // document.getElementById('playlist-name').textContent = playlistName;
     document.getElementById('last-updated').textContent = lastUpdated;
   });
 </script>
