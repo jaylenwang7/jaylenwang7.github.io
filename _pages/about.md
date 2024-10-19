@@ -34,7 +34,7 @@ Hobbies/interests (not that you asked)
 * My proudest achievement is making a spotify playlist with <span id="playlist-saves"></span> saves as of <span id="last-updated"></span>. And one of the greatest gifts I've received is a [fun website](https://isamsiu.github.io/spotify_saves_tracker/) that tracks and plots the saves over time.
 
 <script>
-fetch('/data/playlist_saves.yml')
+fetch('/assets/data/playlist_saves.yml')
   .then(response => response.text())
   .then(text => {
     const lines = text.split('\n');

@@ -41,7 +41,8 @@ def main():
     now = datetime.now(eastern)
     timestamp = now.strftime("%b %d at %I:%M %p %Z")
     
-    with open('_data/playlist_saves.yml', 'w') as f:
+    # Update the file path to a public location
+    with open('assets/data/playlist_saves.yml', 'w') as f:
         f.write(f"saves: {saves}\n")
         f.write(f"playlist_name: '{playlist_name}'\n")
         f.write(f"last_updated: '{timestamp}'")
