@@ -2,7 +2,7 @@ import requests
 import base64
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 def get_access_token(client_id, client_secret):
@@ -39,7 +39,19 @@ def main():
     # Use Eastern Time
     eastern = pytz.timezone('US/Eastern')
     now = datetime.now(eastern)
-    timestamp = now.strftime("%b %d at %I:%M %p %Z")
+    
+    # Determine if it's EST or EDT
+    is_dst = now.astimezone(eastern).dst() != timedelta(0)
+    timezone_abbr = "EDT" if is_dst else "EST"
+    
+    # Format the timestamp
+    time_str = now.strftime('%I:%M%p').lower()  # This will give us "2:30pm" format
+    if now.date() == datetime.now(eastern).date():
+        timestamp = f"today as of {time_str} {timezone_abbr}"
+    elif now.date() == (datetime.now(eastern) - timedelta(days=1)).date():
+        timestamp = f"yesterday as of {time_str} {timezone_abbr}"
+    else:
+        timestamp = now.strftime(f"%b %d at {time_str} {timezone_abbr}")
     
     # Update the file path to a public location
     with open('assets/data/playlist_saves.yml', 'w') as f:
