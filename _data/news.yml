@@ -13,6 +13,21 @@ config:
     # grant: "#e67e22"         # Orange
 
 items:
+  - date: 2022-08-01
+    headline: "Awarded as Carnegie Institute of Technology Dean's Fellow"
+    content: "Chosen as a fellow to receive full support for a year towards tuition, stipend, and travel"
+    category: award
+
+  - date: 2022-04-21
+    headline: "Awarded the Harvard SEAS Dean's Engineering Design Award"
+    content: "Awarded $500 for having one of the top 7 (out of 43) best Senior thesis engineering design projects, big thanks to my mentor Abdulrahman Mahmoud!"
+    category: award
+
+  - date: 2022-04-21
+    headline: "Awarded the Sophia Freund Prize"
+    content: "Awarded $1000 as the highest ranking undergraduate in the Electrical Engineering department at Harvard"
+    category: award
+
   - date: 2024-04-29
     headline: "Officially a PhD candidate"
     content: "I passed my PhD Qualifying Exam and am now officially a PhD candidate in ECE at CMU! Thanks to my committee members and the rest of my lab for the support and feedback."
