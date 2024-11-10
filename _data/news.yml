@@ -13,6 +13,11 @@ config:
     # grant: "#e67e22"         # Orange
 
 items:
+  - date: 2024-04-29
+    headline: "Officially a PhD candidate"
+    content: "I passed my PhD Qualifying Exam and am now officially a PhD candidate in ECE at CMU! Thanks to my committee members and the rest of my lab for the support and feedback."
+    category: misc
+
   - date: 2024-10-30
     headline: "GreenSKU work featured in MSN news"
     content: "Our GreenSKU work was featured in an MSN article: 'Researchers discover new method to curb cloud computing's harmful impact'"
