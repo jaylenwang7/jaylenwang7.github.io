@@ -1,0 +1,208 @@
+# _data/news.yml
+
+# Configuration section
+config:
+  recent_window_days: 30  # Number of days to mark items as "recent"
+  categories:
+    publication: "#4a90e2"    # Blue
+    presentation: "#e74c3c"   # Red
+    award: "#f1c40f"         # Yellow
+    media: "#2ecc71"         # Green
+    service: "#9b59b6"       # Purple
+    misc: "#1abc9c"         # Teal  
+    # grant: "#e67e22"         # Orange
+
+items:
+  - date: 2024-10-30
+    headline: "GreenSKU work featured in MSN news"
+    content: "Our GreenSKU work was featured in an MSN article: 'Researchers discover new method to curb cloud computing's harmful impact'"
+    category: media
+    links:
+      url: "https://www.msn.com/en-us/news/technology/researchers-discover-new-method-to-curb-cloud-computings-harmful-impact-we-targeted-planned-obsolescence/ar-AA1sWhPZ"
+
+  - date: 2024-10-04
+    headline: "GreenSKU work featured in TechXplore article"
+    content: "Our GreenSKU work was featured in a TechXplore article: 'New methodology enables design of cloud servers for lower carbon'"
+    category: media
+    links:
+      url: "https://techxplore.com/news/2024-10-methodology-enables-cloud-servers-carbon.html"
+
+  - date: 2024-05-13
+    headline: "CMU News Coverage for GreenSKU work"
+    content: "Our research was highlighted in Carnegie Mellon University News: 'Designing Cloud Servers for Lower Carbon Emissions'"
+    category: media
+    links:
+      url: "https://www.ece.cmu.edu/news-and-events/story/2024/05/designing-cloud-servers-for-lower-carbon-emissions.html"
+
+  - date: 2024-11-04
+    headline: "Presented a poster at SOSP"
+    content: "I presented a poster 'Giving Old Servers New Life at Hyperscale' at SOSP 2024 along with Melissa Pan"
+    category: presentation
+
+  - date: 2024-11-05
+    headline: "Finalist at Student Research Competition at SOSP"
+    content: "I delivered a talk 'Making Multi-Cluster Scheduling Carbon-Aware' at the Student Research Competition at SOSP 2024 and was selected as a finalist. Thank you to the judges and organizers!"
+    category: presentation
+
+  - date: 2024-11-02
+    headline: "Invited to speak at the ACT Tutorial at MICRO 2024"
+    content: "I delivered a talk on the GreenSKU paper at a tutorial on ACT (Architectural Carbon Modeling Tool) at MICRO 2024. Thanks Udit and Leo for organizing and for the invitation!"
+    category: presentation
+    link:
+      url: "https://s4ai-cornelltech.github.io/ACT/"
+
+  - date: 2024-04-28
+    headline: "Co-founded the first HotEthics Workshop"
+    content: "I co-founded and organized the 1st Workshop on Hot Topics in Ethical Computer Systems (HotEthics 2024) at ASPLOS along with Akshitha Sriraman and Sara Mahdizadeh Shahri"
+    category: service
+    links:
+      url: "https://hotethics.github.io/"
+
+  - date: 2024-09-01
+    headline: "Served on the MICRO 2024 Artifact Evaluation Committee"
+    content: "I served on the Artifact Evaluation Committee for MICRO 2024, reviewing three amazing papers!"
+    category: service
+
+  - date: 2024-06-18
+    headline: "Served as an invited panelist at uArch 2024"
+    content: "I served as Graduate Student Panelist for Undergrad Architecture Mentoring Workshop (uArch) at ISCA 2024. Thanks to the organizers for the invitation!"
+    category: presentation
+    link:
+      url: "https://sites.google.com/view/6thuarchworkshop/isca-program"
+
+  - date: 2024-01-01
+    headline: "Won the Jack and Mildred Bowers Scholarship"
+    content: "Awarded the Jack and Mildred Bowers Scholarship in Engineering, providing full tuition support for the third year of my PhD"
+    category: award
+
+  - date: 2023-10-01
+    headline: "Served on ASPLOS 2024 Artifact Evaluation Committee"
+    content: "Served on the Artifact Evaluation Committee for ASPLOS 2024 and reviewed three papers"
+    category: service
+
+  - date: 2023-08-03
+    headline: "Blog post published to the ACM SIGARCH Blog"
+    content: "Co-authored ACM SIGARCH Computer Architecture Today blog article 'Reducing Embodied Carbon is Important'"
+    category: media
+    links:
+      url: "https://www.sigarch.org/reducing-embodied-carbon-is-important/"
+
+  - date: 2023-04-15
+    headline: "Awarded the NSF Graduate Research Fellowship"
+    content: "Awarded prestigious NSF Graduate Research Fellowship Program (GRFP) Award, providing $171,000 in funding"
+    category: award
+    links:
+      url: "https://www.research.gov/grfp/AwardeeList.do?method=loadAwardeeList"
+
+  - date: 2023-04-15
+    headline: "Ford Foundation Fellowship Honorable Mention"
+    content: "Received Honorable Mention in the Ford Foundation 2023 Predoctoral Fellowship Competition"
+    category: award
+    links:
+      url: "https://ra.nas.edu/FordFellows20/ExtRpts/PressReleaseRoster.aspx?RptMode=HM&CompYr=2023"
+
+  - date: 2023-04-01
+    headline: "Benjamin Garver Lamme/Westinghouse Fellowship"
+    content: "Awarded Benjamin Garver Lamme/Westinghouse Graduate Fellowship for full tuition support in second year of PhD"
+    category: award
+
+  - date: 2023-06-22
+    headline: "Panel co-organizer at HotOS"
+    content: "Co-organized Panel on Sustainable Systems at The 19th Workshop on Hot Topics in Operating Systems (HotOS 2023)"
+    category: service
+    links:
+      url: "https://sigops.org/s/conferences/hotos/2023/program.html"
+
+  - date: 2024-11-03
+    headline: "(other) Paper presented at SysDW'24 workshop"
+    content: "Presented 'Making Multi-Cluster Scheduling Carbon-Aware' at the 2nd Doctoral Workshop (SysDW 2024) at SOSP 2024"
+    category: publication
+
+  - date: 2024-11-03
+    headline: "Paper presented at SysDW'24 workshop"
+    content: "Presented 'Giving Old Servers New Life at Hyperscale' along with Melissa Pan at the 2nd Doctoral Workshop (SysDW 2024) at SOSP 2024"
+    category: publication
+
+  - date: 2024-11-03
+    headline: "Paper presented at HotInfra'24 workshop"
+    content: "Presented our accepted workshop paper 'Designing Cloud Servers for Lower Carbon' at HotInfra 2024 (co-located with SOSP), describing our GreenSKU work and its impact so far"
+    category: publication
+
+  - date: 2023-02-01
+    headline: "Paper presented at NetZero'23 workshop"
+    content: "Presented our accepted workshop paper 'Characterizing Datacenter Server Generations for Lifetime Extension and Carbon Reduction' at NetZero 2023 (co-located with HPCA)"
+    category: publication
+
+  - date: 2022-03-01
+    headline: "Paper presented at YArch'22 workshop"
+    content: "Presented our accepted workshop paper 'A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network Accelerators' at YArch 2022 (co-located with ASPLOS). Thanks to my mentor Prof. Abdulrahman Mahmoud!"
+    category: publication
+
+  - date: 2023-06-03
+    headline: "Paper presented at HotInfra'23 workshop"
+    content: "Presented our accepted workshop paper 'Giving Old Servers New Life at Hyperscale' at HotInfra 2023 (co-located with ISCA)"
+    category: publication
+
+  - date: 2024-10-28
+    headline: "Invited talk on GreenSKU at Intel Labs"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at Intel Labs, thanks to the invitation from Dr. Balachandran"
+    category: presentation
+
+  - date: 2024-10-24
+    headline: "Invited talk on GreenSKU at Princeton"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at Princeton's CS Department, thanks for the invitation from Prof. Martonosi!"
+    category: presentation
+
+  - date: 2024-10-23
+    headline: "Invited talk on GreenSKU at Rutgers"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at Rutgers' CS Department, thanks for the invitation from Profs. Nagarakatte and Martin!"
+    category: presentation
+
+  - date: 2024-09-04
+    headline: "Invited talk on GreenSKU at Google"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at Google to the SystemsResearch@Google (SRG) Group, thanks for the invitation from Dr. Culler!"
+    category: presentation
+
+  - date: 2024-06-01
+    headline: "Paper accepted and presented at ISCA 2024"
+    content: "Presented 'Designing Cloud Servers for Lower Carbon' at ISCA 2024 as the only student author. Congrats to my co-authors and collaborators!"
+    category: publication
+    important: "Our [artifact](https://github.com/Azure/AzurePublicDataset/tree/master/analysis/GreenSKU-Framework) also evaluated as functional, evaluated, and reproducible!"
+    links:
+      paper: "https://jaylenwang7.github.io/files/GreenSKU_ISCA24.pdf"
+      code: "https://github.com/Azure/AzurePublicDataset/tree/master/analysis/GreenSKU-Framework"
+
+  - date: 2024-06-01
+    headline: "Paper presented at YArch'24 workshop"
+    content: "Presented 'Giving Old Servers New Life at Hyperscale' at YArch 2024 at ASPLOS 2024"
+    category: presentation
+
+  - date: 2024-04-23
+    headline: "Invited talk on GreenSKU at UCSD"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at UCSD'S CSE Department, thanks for the invitation from Prof. Zhao!"
+    category: presentation
+
+  - date: 2024-04-26
+    headline: "Invited talk on GreenSKU at UC Riverside"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at UCR's ECE Department, thanks for the invitation from Prof. Ren!"
+    category: presentation
+
+  - date: 2024-04-25
+    headline: "Invited talk on GreenSKU at USC"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at USC's ECE Department, thanks for the invitation from Prof. Annavaram!"
+    category: presentation
+
+  - date: 2022-08-01
+    headline: "Started PhD at Carnegie Mellon University"
+    content: "I started my PhD in Electrical and Computer Engineering at Carnegie Mellon University, advised by Prof. Akshitha Sriraman"
+    category: misc
+
+  - date: 2022-05-01
+    headline: "Graduated from Harvard with B.S. in Electrical Engineering"
+    content: "I graduated from Harvard College with a B.S. in Electrical Engineering, summa cum laude. Goodbye Cambridge, hello Pittsburgh!"
+    category: misc
+
+  - date: 2024-06-17
+    headline: "Boston Celtics win the NBA Championship"
+    content: "My beloved Celtics won the NBA Championship, beating the Mavs in 5 games."
+    category: misc

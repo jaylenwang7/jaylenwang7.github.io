@@ -1,0 +1,110 @@
+{% assign categories = site.data.news.config.categories %}
+
+<div class="news-panel">
+  <div class="news-header">
+    <h2 class="news-title">Latest News</h2>
+    <div class="news-search">
+      <input type="text" id="newsSearch" placeholder="Search news..." class="search-input">
+    </div>
+  </div>
+  
+  <div class="news-filters">
+    <button class="category-filter active" data-category="all">
+      All <span class="category-count">0</span>
+    </button>
+    {% for category in categories %}
+      <button class="category-filter" 
+              data-category="{{ category[0] }}" 
+              style="--category-color: {{ category[1] }};">
+        {{ category[0] | capitalize }} <span class="category-count">0</span>
+      </button>
+    {% endfor %}
+  </div>
+
+  <div class="news-items-container">
+    {% assign news_items = site.data.news.items | sort: 'date' | reverse %}
+    {% assign recent_window = site.data.news.config.recent_window_days | default: 30 %}
+    {% assign current_date = 'now' | date: '%s' %}
+    
+    {% for item in news_items %}
+      {% assign item_date = item.date | date: '%s' %}
+      {% assign diff_seconds = current_date | minus: item_date %}
+      {% assign diff_days = diff_seconds | divided_by: 86400 %}
+      
+      <div class="news-item {% if diff_days < recent_window %}recent{% endif %}"
+           data-category="{{ item.category }}"
+           data-date="{{ item.date }}"
+           data-visible="true"
+           style="--category-color: {{ categories[item.category] }}">
+        <div class="news-item-header">
+          <div class="news-meta">
+            <span class="news-category">{{ item.category }}</span>
+            {% assign date_parts = item.date | date: "%Y-%m-%d" | split: "-" %}
+            {% assign year = date_parts[0] %}
+            {% assign month = date_parts[1] %}
+            {% assign day = date_parts[2] | plus: 0 %}
+            {% assign month_name = item.date | date: "%B" %}
+            
+            <span class="news-date">
+              {% if day == 0 %}
+                {{ month_name }} {{ year }}
+              {% else %}
+                {{ month_name }} {{ day }}, {{ year }}
+              {% endif %}
+            </span>
+          </div>
+          
+          {% if item.links %}
+          <div class="news-links">
+            {% if item.links.paper %}
+            <a href="{{ item.links.paper }}" class="news-link" title="View Paper" target="_blank" rel="noopener">
+              📄
+            </a>
+            {% endif %}
+            
+            {% if item.links.slides %}
+            <a href="{{ item.links.slides }}" class="news-link" title="View Slides" target="_blank" rel="noopener">
+              📊
+            </a>
+            {% endif %}
+            
+            {% if item.links.award %}
+            <a href="{{ item.links.award }}" class="news-link" title="View Award" target="_blank" rel="noopener">
+              🏆
+            </a>
+            {% endif %}
+            
+            {% if item.links.video %}
+            <a href="{{ item.links.video }}" class="news-link" title="Watch Video" target="_blank" rel="noopener">
+              🎥
+            </a>
+            {% endif %}
+            
+            {% if item.links.code %}
+            <a href="{{ item.links.code }}" class="news-link" title="View Code" target="_blank" rel="noopener">
+              💻
+            </a>
+            {% endif %}
+
+            {% if item.links.url %}
+            <a href="{{ item.links.url }}" 
+              class="news-link" 
+              title="Visit Website" 
+              target="_blank" 
+              rel="noopener"
+              aria-label="Visit Website (opens in new tab)">
+              🔗
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        
+        <h3 class="news-headline">{{ item.headline }}</h3>
+        <div class="news-content">{{ item.content }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script src="{{ '/assets/js/news-panel.js' | relative_url }}"></script>

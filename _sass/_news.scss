@@ -1,0 +1,401 @@
+// _sass/_news.scss
+
+// Variables
+$font-family-serif: "Times New Roman", Times, serif;
+$transition-speed: 0.3s;
+$border-radius: 4px;
+$shadow-light: 0 2px 4px rgba(0,0,0,0.1);
+$shadow-medium: 0 2px 5px rgba(0,0,0,0.15);
+$shadow-hover: 0 3px 6px rgba(0,0,0,0.3);
+
+// Main news panel container
+.news-panel {
+  // Beige color background
+  background: linear-gradient(45deg, 
+    #f9f9f9 0%, #f9f9f9 20%,
+    #f1f1f1 20%, #f1f1f1 40%,
+    #f9f9f9 40%, #f9f9f9 60%,
+    #f1f1f1 60%, #f1f1f1 80%,
+    #f9f9f9 80%, #f9f9f9 100%);
+  background-size: 300px;
+  border: 1px solid #c8c8c8;
+  border-radius: $border-radius;
+  padding: 1.2rem;
+  margin: 1.5rem auto;
+  max-height: 600px;
+  overflow-y: auto;
+  box-shadow: $shadow-light;
+  width: 100%;
+  max-width: 800px;
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.8);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+}
+
+// Header section
+.news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.1rem;
+  // border-bottom: 2px solid #000;
+  padding-bottom: 0.2rem;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.news-title {
+  font-family: $font-family-serif;
+  font-size: 1.8em;
+  margin: 0;
+  color: #1a1a1a;
+  flex: 1;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+
+// Search functionality
+.news-search {
+  flex: 0 1 300px;
+  
+  .search-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-family: $font-family-serif;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all $transition-speed ease;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--category-color, #4a90e2);
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+      background: white;
+    }
+  }
+}
+
+// Category filters
+.news-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: $border-radius;
+}
+
+.category-filter {
+  font-family: $font-family-serif;
+  padding: 0.3rem 0.75rem 0.3rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  color: #495057;
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: all $transition-speed ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  // Color indicator dot
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--category-color, #4a90e2);
+    transition: all $transition-speed ease;
+  }
+  
+  &:hover {
+    background: var(--category-color, #4a90e2);
+    color: white;
+    opacity: 0.9;
+    
+    &::before {
+      background-color: white;
+    }
+  }
+  
+  &.active {
+    background: var(--category-color, #4a90e2);
+    color: white;
+    border-color: transparent;
+    
+    &::before {
+      background-color: white;
+    }
+  }
+  
+  // Special case for "All" button
+  &[data-category="all"] {
+    &::before {
+      background: linear-gradient(45deg, 
+        #4a90e2 0%, #4a90e2 20%,    // Blue
+        #e74c3c 20%, #e74c3c 40%,   // Red
+        #f1c40f 40%, #f1c40f 60%,   // Yellow
+        #2ecc71 60%, #2ecc71 80%,   // Green
+        #9b59b6 80%, #9b59b6 100%); // Purple
+    }
+    
+    &:hover, &.active {
+      background: #555;
+      &::before {
+        background: white;
+      }
+    }
+  }
+  
+  .category-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    padding: 0.1rem 0.4rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 0.8em;
+    transition: all $transition-speed ease;
+  }
+  
+  &:hover .category-count, &.active .category-count {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// News items container
+.news-items-container {
+  display: grid;
+  gap: 0.1rem;
+}
+
+// Individual news items
+.news-item {
+  position: relative;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #c8c8c8;
+  border-radius: $border-radius;
+  background: rgba(255, 255, 255, 0.9);
+  transition: all $transition-speed ease;
+  box-shadow: $shadow-light;
+
+  .news-links {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+  }
+  
+  // Visibility states
+  &[data-visible="false"] {
+    display: none;
+  }
+  
+  &.hidden {
+    display: none;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-medium;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  &.recent {
+    background: rgba(255, 248, 220, 0.85);
+    border-left: 3px solid var(--category-color, #ffd700);
+    
+    &:hover {
+      background: rgba(255, 248, 220, 0.95);
+      box-shadow: $shadow-hover;
+    }
+
+    &::after {
+      content: 'NEW';
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--category-color, #ffd700);
+      color: #000;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.7em;
+      border-radius: 0 $border-radius 0 $border-radius; // Round only bottom-left corner
+      font-family: $font-family-serif;
+      font-weight: bold;
+    }
+  }
+
+  // Animation states
+  &.fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  
+  &.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// News item header section
+.news-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  margin-top: 0.2rem; // Add space at top to prevent overlap with NEW flag
+  padding-right: 3.5rem; // Add padding to accommodate NEW flag
+  position: relative;
+}
+
+// Adjust meta information layout
+.news-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+// Category label
+.news-category {
+  font-family: $font-family-serif;
+  font-size: 0.6em;
+  padding: 0.12rem 0.5rem;
+  border-radius: $border-radius;
+  color: white;
+  background: var(--category-color, #4a90e2);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// Date display
+.news-date {
+  font-family: $font-family-serif;
+  font-size: 0.8em;
+  color: #555;
+  font-style: italic;
+}
+
+// Links section
+.news-links {
+  display: flex;
+  gap: 0rem;
+  margin-left: 1rem;
+  flex-shrink: 0;
+  
+  .news-link {
+    padding: 0.4rem;
+    border-radius: $border-radius;
+    text-decoration: none;
+    transition: all $transition-speed ease;
+    font-size: 1.2em;
+    line-height: 1;
+    
+    &:hover {
+      background: rgba(74, 144, 226, 0.1);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Content styling
+.news-headline {
+  font-family: $font-family-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 0.35rem 0;
+  line-height: 1.3;
+  color: #1a1a1a;
+}
+
+.news-content {
+  font-family: $font-family-serif;
+  font-size: 0.95em;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 0rem;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .news-panel {
+    margin: 1rem;
+    padding: 1rem;
+    max-height: 500px;
+  }
+  
+  .news-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .news-search {
+    flex: 1 1 100%;
+  }
+  
+  .news-filters {
+    padding: 0.5rem;
+  }
+  
+  .category-filter {
+    flex: 1 1 calc(50% - 0.75rem);
+    text-align: center;
+  }
+
+  .news-item-header {
+    padding-right: 4rem; // Slightly more padding on mobile
+  }
+  
+  .news-item.recent::after {
+    font-size: 0.65em; // Slightly smaller on mobile
+    padding: 0.1rem 0.3rem;
+  }
+
+  .category-filter {
+    flex: 1 1 calc(50% - 0.75rem);
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    
+    &::before {
+      width: 0.4rem;
+      height: 0.4rem;
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.news-item {
+  animation: fadeIn $transition-speed ease-out;
+}
