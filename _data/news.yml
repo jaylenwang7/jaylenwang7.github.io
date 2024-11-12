@@ -48,7 +48,7 @@ items:
       url: "https://techxplore.com/news/2024-10-methodology-enables-cloud-servers-carbon.html"
 
   - date: 2024-05-13
-    headline: "CMU News Coverage for GreenSKU work"
+    headline: "CMU News coverage for GreenSKU work"
     content: "Our research was highlighted in Carnegie Mellon University News: 'Designing Cloud Servers for Lower Carbon Emissions'"
     category: media
     links:
@@ -224,5 +224,5 @@ items:
 
   - date: 2024-06-17
     headline: "Boston Celtics win the NBA Championship"
-    content: "My beloved Celtics won the NBA Championship, beating the Mavs in 5 games."
+    content: "My Celtics won the NBA Championship, beating the Mavs in 5 games. Anything is possible."
     category: misc

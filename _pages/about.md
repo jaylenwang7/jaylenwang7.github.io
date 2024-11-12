@@ -16,6 +16,8 @@ While you're here, participate in my anonymous, very scientific ✨**<a href="ht
 
 The best way to contact me is through email: `jaylenw [at] andrew.cmu.edu`.
 
+What've I been up to?
+======
 {% include news.html %}
 
 Research interests
