@@ -60,8 +60,8 @@ items:
     category: presentation
 
   - date: 2024-11-05
-    headline: "Finalist at Student Research Competition at SOSP"
-    content: "I delivered a talk 'Making Multi-Cluster Scheduling Carbon-Aware' at the Student Research Competition at SOSP 2024 and was selected as a finalist. Thank you to the judges and organizers!"
+    headline: "Second place finalist at Student Research Competition at SOSP"
+    content: "I delivered a talk 'Making Multi-Cluster Scheduling Carbon-Aware' at the Student Research Competition at SOSP 2024 and placed second! Thank you to the judges and organizers!"
     category: presentation
 
   - date: 2024-11-02
@@ -181,6 +181,16 @@ items:
   - date: 2024-09-04
     headline: "Invited talk on GreenSKU at Google"
     content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at Google to the SystemsResearch@Google (SRG) Group, thanks for the invitation from Dr. Culler!"
+    category: presentation
+
+  - date: 2024-11-12
+    headline: "Invited talk on GreenSKU at AMD Research"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at AMD, thanks for the invitation from Dr. Manne! And thanks to all the attendees for the great discussion!"
+    category: presentation
+
+  - date: 2024-11-12
+    headline: "Invited talk on GreenSKU at MSR India"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at MSR India, thanks for the invitation from Dr. Ramjee! Thanks for the great questions!"
     category: presentation
 
   - date: 2024-06-01

@@ -26,7 +26,6 @@ Research interests
 * Sustainable computing
 * Computer architecture
 * Hardware/software co-design
-* Machine learning hardware
 
 Hobbies/interests (not that you asked)
 ======
