@@ -13,7 +13,7 @@ config:
     # grant: "#e67e22"         # Orange
 
 items:
-  - date: 2024-10-30
+  - date: 2024-11-15
     headline: "GreenSKU work featured in IEEE Spectrum!"
     content: "Our GreenSKU work was featured in an IEEE Spectrum article: 'Servers Get a Second Life for Sustainability'"
     category: media
