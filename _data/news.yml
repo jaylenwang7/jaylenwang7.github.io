@@ -13,6 +13,13 @@ config:
     # grant: "#e67e22"         # Orange
 
 items:
+  - date: 2024-10-30
+    headline: "GreenSKU work featured in IEEE Spectrum!"
+    content: "Our GreenSKU work was featured in an IEEE Spectrum article: 'Servers Get a Second Life for Sustainability'"
+    category: media
+    links:
+      url: "https://spectrum.ieee.org/server-reuse"
+      
   - date: 2022-08-01
     headline: "Awarded as Carnegie Institute of Technology Dean's Fellow"
     content: "Chosen as a fellow to receive full support for a year towards tuition, stipend, and travel"
