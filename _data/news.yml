@@ -13,7 +13,7 @@ config:
     # grant: "#e67e22"         # Orange
 
 items:
-  - date: 2024-05-07
+  - date: 2025-02-07
     headline: "Our GreenSKU paper was selected to IEEE Micro Top Picks!"
     content: "The GreenSKU paper was selected as one of the top 12 computer architecture papers of 2024! Congrats to my collaborators!"
     category: award
