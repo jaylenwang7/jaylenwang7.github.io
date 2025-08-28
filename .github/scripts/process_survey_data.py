@@ -114,7 +114,7 @@ Shape:"""
     
     try:
         # Try llama3 first (often better at following instructions), fall back to mixtral
-        models_to_try = ["llama-3.1-70b-versatile", "mixtral-8x7b-32768"]
+        models_to_try = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"]
         
         for model in models_to_try:
             try:
