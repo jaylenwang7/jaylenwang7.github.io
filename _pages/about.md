@@ -34,10 +34,10 @@ Hobbies/interests (not that you asked)
 * 🍽️ I love making, talking about, and eating food. I may ask you questions such as "what fruit do you think is underrated?". I apologize in advance.
 * 🌲 I enjoy hiking and basically anything with fresh air. Always chasing the thrill of eating a day-old PB&J after reaching the top.
 * 🎧 I love listening to podcasts (of almost any kind) and reading books (especially non-fiction, memoirs, and poetry). Please give me recs :)
-* 🎵 My proudest achievement is making a [Spotify playlist](https://open.spotify.com/playlist/4XbLl7tRLmlxVxLR08Fxs2) with <span id="playlist-saves"></span> followers (<span id="delta-1d"></span> today, <span id="delta-7d"></span> past week) as of <span id="last-updated"></span>. And one of the greatest gifts I've received is a [fun website](https://isamsiu.github.io/spotify_saves_tracker/) that tracks and plots the saves over time.
+* 🎵 My proudest achievement is making a [Spotify playlist](https://open.spotify.com/playlist/4XbLl7tRLmlxVxLR08Fxs2) with <span id="playlist-saves"></span> followers<span id="deltas-wrapper" style="display: none;"> (<span id="delta-1d"></span> today, <span id="delta-7d"></span> past week)</span> as of <span id="last-updated"></span>. And one of the greatest gifts I've received is a [fun website](https://isamsiu.github.io/spotify_saves_tracker/) that tracks and plots the saves over time.
 
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
   function formatDelta(n) {
     if (typeof n !== 'number' || isNaN(n)) return '';
     return (n > 0 ? '+' : '') + n;
@@ -49,32 +49,26 @@ Hobbies/interests (not that you asked)
     const history = Array.isArray(data && data.history) ? data.history : [];
 
     if (saves !== null) {
-      document.getElementById('playlist-saves').textContent = saves;
+      document.getElementById('playlist-saves').textContent = ' ' + saves;
     }
     document.getElementById('last-updated').textContent = lastUpdated;
 
-    let delta1d = 0;
     if (history.length >= 2) {
-      delta1d = (history[history.length - 1].saves || 0) - (history[history.length - 2].saves || 0);
-    }
+      document.getElementById('deltas-wrapper').style.display = 'inline';
+      const delta1d = (history[history.length - 1].saves || 0) - (history[history.length - 2].saves || 0);
+      const delta7d = (history[history.length - 1].saves || 0) - (history[0].saves || 0);
 
-    let delta7d = 0;
-    if (history.length >= 2) {
-      delta7d = (history[history.length - 1].saves || 0) - (history[0].saves || 0);
+      document.getElementById('delta-1d').textContent = formatDelta(delta1d);
+      document.getElementById('delta-7d').textContent = formatDelta(delta7d);
     }
-
-    document.getElementById('delta-1d').textContent = formatDelta(delta1d);
-    document.getElementById('delta-7d').textContent = formatDelta(delta7d);
   }
 
   function renderFromYaml(text) { // fallback when JSON isn't available yet
     const lines = text.split('\n');
     const saves = lines[0].split(':')[1].trim();
     const lastUpdated = lines[2].split(': ')[1].trim().replace(/^'|'$/g, '');
-    document.getElementById('playlist-saves').textContent = saves;
+    document.getElementById('playlist-saves').textContent = ' ' + saves;
     document.getElementById('last-updated').textContent = lastUpdated;
-    document.getElementById('delta-1d').textContent = '';
-    document.getElementById('delta-7d').textContent = '';
   }
 
   fetch('/assets/data/playlist_saves.json')
@@ -85,5 +79,5 @@ Hobbies/interests (not that you asked)
         .then(function(r) { return r.text(); })
         .then(renderFromYaml);
     });
-})();
+});
 </script>
