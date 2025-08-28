@@ -54,6 +54,36 @@ def main():
     else:
         timestamp = now.strftime(f"%b %d at {time_str} {timezone_abbr}")
     
+    # Maintain a 7-day history in a JSON file for client-side deltas
+    data_dir = 'assets/data'
+    json_path = os.path.join(data_dir, 'playlist_saves.json')
+    history = []
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, 'r') as jf:
+                existing = json.load(jf)
+                if isinstance(existing, dict):
+                    history = existing.get('history', []) or []
+        except Exception:
+            history = []
+
+    today_str = now.strftime('%Y-%m-%d')
+    if history and isinstance(history[-1], dict) and history[-1].get('date') == today_str:
+        history[-1]['saves'] = saves
+    else:
+        history.append({'date': today_str, 'saves': saves})
+        if len(history) > 7:
+            history = history[-7:]
+
+    json_payload = {
+        'saves': saves,
+        'playlist_name': playlist_name,
+        'last_updated': timestamp,
+        'history': history,
+    }
+    with open(json_path, 'w') as jf:
+        json.dump(json_payload, jf, indent=2)
+
     # Update the file path to a public location
     with open('assets/data/playlist_saves.yml', 'w') as f:
         f.write(f"saves: {saves}\n")

@@ -11,6 +11,19 @@ function checkPasscode() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const passcodeInput = document.getElementById('passcode');
+    if (passcodeInput) {
+        passcodeInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                checkPasscode();
+            }
+        });
+        passcodeInput.focus();
+    }
+});
+
 async function loadSurveyData() {
     try {
         // Add cache-busting parameter for GitHub Pages
@@ -176,6 +189,7 @@ function createFruitChart(fruitData) {
     // Sort fruits by count (descending) for better readability
     const sortedEntries = Object.entries(fruitData)
         .sort(([,a], [,b]) => b - a);
+    const overallMaxValue = Math.max(0, ...sortedEntries.map(([, count]) => count));
     
     const ITEMS_PER_PAGE = 10;
     const totalPages = Math.ceil(sortedEntries.length / ITEMS_PER_PAGE);
@@ -252,9 +266,16 @@ function createFruitChart(fruitData) {
         const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, sortedEntries.length);
         const pageData = sortedEntries.slice(startIndex, endIndex);
         
-        const labels = pageData.map(([fruit, ]) => fruit);
-        const data = pageData.map(([, count]) => count);
-        const maxValue = Math.max(...data);
+        let labels = pageData.map(([fruit, ]) => fruit);
+        let data = pageData.map(([, count]) => count);
+        
+        // Pad data to maintain consistent bar height if paginating
+        if (totalPages > 1) {
+            while (labels.length < ITEMS_PER_PAGE) {
+                labels.push('');
+                data.push(null);
+            }
+        }
         
         // Update pagination info
         const startItem = startIndex + 1;
@@ -304,7 +325,7 @@ function createFruitChart(fruitData) {
                 scales: {
                     x: {
                         beginAtZero: true,
-                        max: maxValue + 1,
+                        max: overallMaxValue + 1,
                         title: {
                             display: true,
                             text: 'Number of Votes',
