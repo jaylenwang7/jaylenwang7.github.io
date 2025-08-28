@@ -2,7 +2,7 @@ name: Update Survey Data
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Run every hour
+    - cron: '0 0 * * *' # Run every day at midnight
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -33,6 +33,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add data/survey-stats.json
+        git add -f data/survey-stats.json
         git diff --staged --quiet || git commit -m "Update survey statistics"
         git push

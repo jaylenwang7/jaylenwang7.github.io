@@ -128,7 +128,7 @@ def process_survey_data():
     # Expected column names
     expected_columns = ['timestamp', 'fruit', 'grapes', 'eggs', 'sandwich', 
                        'trader_joes', 'plane_drink', 'potato', 'taco_shell', 
-                       'toast_level', 'pasta_shape']
+                       'toast_level', 'pasta_shape', 'feedback']
     
     print(f"Expected columns ({len(expected_columns)}): {expected_columns}")
     
