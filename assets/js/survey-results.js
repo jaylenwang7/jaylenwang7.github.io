@@ -178,19 +178,35 @@ function createFruitChart(fruitData) {
     chartDiv.appendChild(ctx);
     container.appendChild(chartDiv);
     
+    // Sort fruits by count (descending) for better readability
+    const sortedEntries = Object.entries(fruitData)
+        .sort(([,a], [,b]) => b - a);
+    
+    const labels = sortedEntries.map(([fruit, ]) => fruit);
+    const data = sortedEntries.map(([, count]) => count);
+    
+    // Generate a diverse color palette for many fruits
+    const colors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+        '#FF6384', '#C9CBCF', '#4BC0C0', '#36A2EB', '#FF9F40', '#9966FF',
+        '#FFB1C1', '#87CEEB', '#DDA0DD', '#98FB98', '#F0E68C', '#FFA07A',
+        '#20B2AA', '#87CEFA', '#DEB887', '#F5DEB3', '#FF69B4', '#CD853F'
+    ];
+    
     new Chart(ctx, {
-        type: 'doughnut',
+        type: 'bar',
         data: {
-            labels: Object.keys(fruitData),
+            labels: labels,
             datasets: [{
-                data: Object.values(fruitData),
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                    '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
-                ]
+                label: 'Votes',
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: colors.slice(0, labels.length).map(color => color + 'CC'),
+                borderWidth: 1
             }]
         },
         options: {
+            indexAxis: 'y', // This makes it horizontal
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
@@ -200,7 +216,28 @@ function createFruitChart(fruitData) {
                     font: { size: 16 }
                 },
                 legend: {
-                    position: 'bottom'
+                    display: false // Hide legend since colors aren't meaningful
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Votes',
+                        font: { size: 12 }
+                    }
+                },
+                y: {
+                    ticks: {
+                        font: { size: 12 }
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10
                 }
             }
         }
