@@ -135,6 +135,7 @@ RULES:
 - Singular form only ("Apple" not "Apples")  
 - Remove all parentheses, explanations, and extra text
 - Standard fruit names only (e.g., "Litchi" → "Lychee")
+- PROPER CAPITALIZATION: Title Case (e.g., "apple" → "Apple", "d'anjou pear" → "Pear")
 
 Input: {json.dumps(uncached_texts)}
 
@@ -148,6 +149,7 @@ RULES:
 - Remove parentheses and descriptions (e.g., "(the one without skin)" → remove)
 - Simple product names only for chart labels
 - No URLs - extract product name from links
+- PROPER CAPITALIZATION: Title Case Each Word (e.g., "chocolate pb cups" → "Chocolate Peanut Butter Cups")
 
 Input: {json.dumps(uncached_texts)}
 
@@ -161,6 +163,7 @@ RULES:
 - Remove all explanations and parentheses (e.g., "(only on American Airlines)" → remove)
 - Simple drink names for chart labels (e.g., "Diet Dr Pepper" not "Diet Dr. Pepper (Only Available...)")
 - "Nothing - I don't trust it" → "Nothing"
+- PROPER CAPITALIZATION: Title Case (e.g., "diet coke" → "Diet Coke", "orange juice" → "Orange Juice")
 
 Input: {json.dumps(uncached_texts)}
 
@@ -174,6 +177,7 @@ RULES:
 - For unique items, create simple category names (e.g., "Latkes")
 - Remove descriptions and explanations
 - "all the above" → "Mixed"
+- PROPER CAPITALIZATION: Title Case (e.g., "hash browns" → "Hash Browns", "french fries" → "French Fries")
 
 Input: {json.dumps(uncached_texts)}
 
@@ -186,6 +190,7 @@ RULES:
 - Standard pasta names only (Penne, Shells, Fusilli, Rigatoni, etc.)
 - Remove descriptions (e.g., "(spirally ones)" → remove)
 - Simple names for chart labels
+- PROPER CAPITALIZATION: Title Case (e.g., "penne" → "Penne", "macaroni" → "Macaroni")
 
 Input: {json.dumps(uncached_texts)}
 

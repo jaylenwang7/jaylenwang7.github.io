@@ -173,9 +173,27 @@ function createFruitChart(fruitData) {
     const chartDiv = document.createElement('div');
     chartDiv.className = 'chart-container';
     
+    // Add scrollable wrapper for the chart
+    const scrollWrapper = document.createElement('div');
+    scrollWrapper.style.cssText = `
+        max-height: 400px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        background: white;
+    `;
+    
     const ctx = document.createElement('canvas');
     ctx.id = 'fruitChart';
-    chartDiv.appendChild(ctx);
+    
+    // Calculate dynamic height based on number of items
+    const itemCount = Object.keys(fruitData).length;
+    const minHeight = Math.max(300, itemCount * 25); // 25px per item minimum
+    ctx.style.height = `${minHeight}px`;
+    
+    scrollWrapper.appendChild(ctx);
+    chartDiv.appendChild(scrollWrapper);
     container.appendChild(chartDiv);
     
     // Sort fruits by count (descending) for better readability
@@ -206,7 +224,7 @@ function createFruitChart(fruitData) {
             }]
         },
         options: {
-            indexAxis: 'y', // This makes it horizontal
+            indexAxis: 'y', // Horizontal bars
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
@@ -216,7 +234,7 @@ function createFruitChart(fruitData) {
                     font: { size: 16 }
                 },
                 legend: {
-                    display: false // Hide legend since colors aren't meaningful
+                    display: false
                 }
             },
             scales: {
@@ -254,14 +272,27 @@ function createGrapeChart(grapeData) {
     chartDiv.appendChild(ctx);
     container.appendChild(chartDiv);
     
+    // Map colors to specific grape types
+    const colorMapping = {
+        'Green': '#32CD32',   // Lime Green
+        'Red': '#DC143C',     // Crimson Red
+        'Other': '#808080'    // Gray
+    };
+    
+    const labels = Object.keys(grapeData);
+    const data = Object.values(grapeData);
+    const colors = labels.map(label => colorMapping[label] || '#808080');
+    
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: Object.keys(grapeData),
+            labels: labels,
             datasets: [{
                 label: 'Responses',
-                data: Object.values(grapeData),
-                backgroundColor: ['#32CD32', '#DC143C', '#808080']
+                data: data,
+                backgroundColor: colors,
+                borderColor: colors.map(color => color + 'CC'),
+                borderWidth: 1
             }]
         },
         options: {
@@ -279,7 +310,12 @@ function createGrapeChart(grapeData) {
             },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Votes',
+                        font: { size: 12 }
+                    }
                 }
             }
         }
