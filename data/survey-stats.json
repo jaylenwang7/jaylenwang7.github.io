@@ -149,9 +149,7 @@
   },
   "general": {
     "total_responses": 40,
-    "last_updated": "2025-08-28 17:31:10 UTC",
-    "new_rows_processed": 40,
-    "total_rows_processed": 40,
-    "cached_rows": 0
+    "last_updated": "2025-08-28 18:16:04 UTC",
+    "api_calls_saved": "Batched processing (estimated 95 cached items)"
   }
 }
