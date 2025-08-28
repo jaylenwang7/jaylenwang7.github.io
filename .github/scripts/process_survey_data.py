@@ -127,69 +127,69 @@ class LLMBatcher:
             return final_results
         
         prompts = {
-            'fruit': f"""Clean these fruit names to singular form with proper capitalization. Return EXACTLY the same number of items as input, in the same order.
+            'fruit': f"""You are cleaning survey data for data visualization. Convert these fruit responses to clean, singular fruit names suitable for charts.
 
-Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
+RULES:
+- Return exactly {len(uncached_texts)} items in the same order
+- One fruit name per response (no combinations like "apple and banana")
+- Singular form only ("Apple" not "Apples")  
+- Remove all parentheses, explanations, and extra text
+- Standard fruit names only (e.g., "Litchi" → "Lychee")
 
-Instructions:
-- Convert to singular form (e.g., "apples" → "Apple") 
-- Use proper Title Case
-- Remove parentheses and extra text
-- Keep each item separate even if similar
-- Return exactly {len(uncached_texts)} items
+Input: {json.dumps(uncached_texts)}
 
-Output format: {json.dumps(['Example1', 'Example2'][:len(uncached_texts)])}
+Return clean JSON array for graphing: """,
 
-JSON array with exactly {len(uncached_texts)} items:""",
+            'trader_joes': f"""You are cleaning survey data for charts. Clean these Trader Joe's product responses.
 
-            'trader_joes': f"""Clean these Trader Joe's responses. Return "SKIP" for non-responses like "idk" or "don't shop there". Return EXACTLY the same number of items as input.
+RULES:
+- Return exactly {len(uncached_texts)} items in the same order
+- "idk", "don't know", "don't shop there" → "SKIP" 
+- Remove parentheses and descriptions (e.g., "(the one without skin)" → remove)
+- Simple product names only for chart labels
+- No URLs - extract product name from links
 
-Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
+Input: {json.dumps(uncached_texts)}
 
-Instructions:
-- "idk", "don't know", "don't shop there" → "SKIP"
-- Clean product names with proper capitalization
-- Extract product names from URLs if needed
-- Keep each response separate
-- Return exactly {len(uncached_texts)} items
+Return clean JSON array for graphing: """,
 
-JSON array with exactly {len(uncached_texts)} items:""",
+            'plane_drink': f"""You are cleaning survey data for charts. Convert these airplane drink responses to simple drink names.
 
-            'plane_drink': f"""Clean these airplane drink names with proper capitalization. Return EXACTLY the same number of items as input, in the same order.
+RULES:
+- Return exactly {len(uncached_texts)} items in the same order
+- If multiple drinks mentioned (e.g., "tomato juice or ginger ale"), pick the FIRST one only
+- Remove all explanations and parentheses (e.g., "(only on American Airlines)" → remove)
+- Simple drink names for chart labels (e.g., "Diet Dr Pepper" not "Diet Dr. Pepper (Only Available...)")
+- "Nothing - I don't trust it" → "Nothing"
 
-Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
+Input: {json.dumps(uncached_texts)}
 
-Instructions:
-- Use standard drink names (Water, Diet Coke, etc.)
-- Keep each item separate even if similar
-- Return exactly {len(uncached_texts)} items
+Return clean JSON array for graphing: """,
 
-JSON array with exactly {len(uncached_texts)} items:""",
+            'potato': f"""You are cleaning survey data for charts. Categorize these fried potato responses into simple categories.
 
-            'potato': f"""Categorize these fried potato items. Use standard categories or create appropriate new ones. Return EXACTLY the same number of items as input.
+RULES:
+- Return exactly {len(uncached_texts)} items in the same order
+- Use standard categories: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips
+- For unique items, create simple category names (e.g., "Latkes")
+- Remove descriptions and explanations
+- "all the above" → "Mixed"
 
-Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
+Input: {json.dumps(uncached_texts)}
 
-Standard categories: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips
+Return clean JSON array for graphing: """,
 
-Instructions:
-- Use standard categories when appropriate
-- Create new categories for unique items (e.g., "Latkes")
-- Keep each item separate
-- Return exactly {len(uncached_texts)} items
+            'pasta': f"""You are cleaning survey data for charts. Convert these pasta responses to standard pasta shape names.
 
-JSON array with exactly {len(uncached_texts)} items:""",
+RULES:
+- Return exactly {len(uncached_texts)} items in the same order
+- Standard pasta names only (Penne, Shells, Fusilli, Rigatoni, etc.)
+- Remove descriptions (e.g., "(spirally ones)" → remove)
+- Simple names for chart labels
 
-            'pasta': f"""Standardize these pasta shape names. Return EXACTLY the same number of items as input.
+Input: {json.dumps(uncached_texts)}
 
-Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
-
-Instructions:
-- Use standard pasta names (Penne, Shells, Fusilli, etc.)
-- Keep each item separate even if similar
-- Return exactly {len(uncached_texts)} items
-
-JSON array with exactly {len(uncached_texts)} items:"""
+Return clean JSON array for graphing: """
         }
         
         if question_type not in prompts:
@@ -711,6 +711,32 @@ def process_survey_data(force_reprocess=False):
     
     # Process all items using the new batching system
     llm_results = llm_batcher.process_all_items(df, force_api=force_reprocess)
+    
+    # Debug: Check what we got back
+    print("\n=== RESULTS SUMMARY ===")
+    for key, values in llm_results.items():
+        print(f"{key}: {len(values)} items")
+        if values:
+            print(f"  Sample items: {values[:3]}")
+            print(f"  Item types: {[type(v).__name__ for v in values[:3]]}")
+    
+    # Ensure all results are strings (not dicts or other types)
+    for key in llm_results:
+        cleaned_items = []
+        for item in llm_results[key]:
+            if isinstance(item, str):
+                cleaned_items.append(item)
+            elif isinstance(item, dict):
+                print(f"WARNING: Found dict in {key} results: {item}")
+                # Try to extract string value from dict
+                if 'value' in item:
+                    cleaned_items.append(str(item['value']))
+                else:
+                    cleaned_items.append(str(item))
+            else:
+                print(f"WARNING: Found {type(item)} in {key} results: {item}")
+                cleaned_items.append(str(item))
+        llm_results[key] = cleaned_items
     
     stats = {}
     stats['fruits'] = dict(Counter(llm_results['fruits']))
