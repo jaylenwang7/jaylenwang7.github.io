@@ -184,7 +184,6 @@ Shape:"""
             # Wait for rate limit before making request
             self._wait_for_rate_limit()
             
-            # Try llama3 first (often better at following instructions), fall back to mixtral
             models_to_try = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"]
             
             for model in models_to_try:
