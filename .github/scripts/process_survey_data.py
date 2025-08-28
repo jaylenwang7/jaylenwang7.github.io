@@ -12,6 +12,53 @@ import argparse
 from datetime import datetime
 import pytz
 
+def normalize_text(text):
+    """Normalize input text for consistent matching."""
+    if text is None:
+        return ""
+    text_str = str(text).strip().lower()
+    # Collapse internal whitespace
+    text_str = re.sub(r'\s+', ' ', text_str)
+    return text_str
+
+def load_overrides(path='data/survey_overrides.json'):
+    """Load per-question overrides from JSON, normalizing keys for matching.
+
+    Expected structure:
+    {
+      "fruit": { "raw answer": "Mapped Value" },
+      "trader_joes": { ... },
+      "plane_drink": { ... },
+      "potato": { ... },
+      "pasta": { ... }
+    }
+    """
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        print(f"Warning: Could not load overrides from {path}: {e}")
+        return {}
+
+    # Support common aliases in override file keys
+    aliases = {
+        'pasta_shape': 'pasta',
+        'fruits': 'fruit',
+        'plane_drinks': 'plane_drink',
+        'potatoes': 'potato'
+    }
+
+    normalized = {}
+    for qtype, mapping in (data or {}).items():
+        if not isinstance(mapping, dict):
+            continue
+        qtype_std = aliases.get(qtype, qtype)
+        normalized[qtype_std] = {normalize_text(k): v for k, v in mapping.items()}
+
+    return normalized
+
 def setup_google_sheets():
     """Setup Google Sheets API connection"""
     scope = ['https://spreadsheets.google.com/feeds',
@@ -59,11 +106,13 @@ def get_row_hash(row_data):
 class LLMBatcher:
     """Batch LLM requests to respect rate limits and process multiple items at once"""
     
-    def __init__(self, requests_per_minute=25, batch_size=8):  # Reduced batch size
+    def __init__(self, requests_per_minute=25, batch_size=8, overrides=None):  # Reduced batch size
         self.requests_per_minute = requests_per_minute
         self.batch_size = batch_size
         self.request_times = []
         self.cache = {}
+        # Overrides are applied with highest priority
+        self.overrides = overrides or {}
         
     def _wait_for_rate_limit(self):
         """Wait if we're hitting rate limits"""
@@ -91,16 +140,35 @@ class LLMBatcher:
         
         for i, text in enumerate(texts):
             cache_key = f"{question_type}:{text}"
+
+            # Apply overrides first, regardless of cache or force_api
+            override_value = None
+            try:
+                q_overrides = self.overrides.get(question_type, {})
+                norm_text = normalize_text(text)
+                if norm_text in q_overrides:
+                    override_value = q_overrides[norm_text]
+            except Exception:
+                override_value = None
+
+            if override_value is not None:
+                cached_results[i] = override_value
+                # Update cache to reflect override choice
+                self.cache[cache_key] = override_value
+                print(f"  OVERRIDE: {question_type} '{str(text)[:50]}...' -> '{override_value}'")
+                continue
+
+            # Otherwise, use cache unless forced
             if not force_api and cache_key in self.cache:
                 cached_results[i] = self.cache[cache_key]
-                print(f"  CACHE HIT: {question_type} '{text[:50]}...' -> '{self.cache[cache_key]}'")
+                print(f"  CACHE HIT: {question_type} '{str(text)[:50]}...' -> '{self.cache[cache_key]}'")
             else:
                 uncached_texts.append(text)
                 uncached_indices.append(i)
                 if force_api:
-                    print(f"  CACHE SKIP (forced): {question_type} '{text[:50]}...'")
+                    print(f"  CACHE SKIP (forced): {question_type} '{str(text)[:50]}...'")
                 else:
-                    print(f"  CACHE MISS: {question_type} '{text[:50]}...'")
+                    print(f"  CACHE MISS: {question_type} '{str(text)[:50]}...'")
         
         print(f"  Batch summary: {len(cached_results)} cached, {len(uncached_texts)} need processing")
         
@@ -624,7 +692,11 @@ def process_survey_data(force_reprocess=False):
     cache = load_cache()
     
     # Initialize LLM batcher with smaller batch size for better reliability
-    llm_batcher = LLMBatcher(batch_size=8)
+    # Load overrides to apply with first priority
+    overrides = load_overrides()
+    if overrides:
+        print(f"Loaded overrides for: {list(overrides.keys())}")
+    llm_batcher = LLMBatcher(batch_size=8, overrides=overrides)
     
     # Load any cached LLM results into the batcher's cache (unless force reprocessing)
     if 'llm_cache' in cache and not force_reprocess:
@@ -760,7 +832,17 @@ def process_survey_data(force_reprocess=False):
     grapes = []
     for grape in df['grapes']:
         if pd.notna(grape) and grape != '':
-            mapped = grape_mapping.get(str(grape).lower().strip(), str(grape))
+            # Apply override first if present
+            override_val = None
+            try:
+                override_val = llm_batcher.overrides.get('grapes', {}).get(normalize_text(grape))
+            except Exception:
+                override_val = None
+            if override_val is not None:
+                mapped = override_val
+                print(f"  OVERRIDE (grapes): '{str(grape)}' -> '{mapped}'")
+            else:
+                mapped = grape_mapping.get(str(grape).lower().strip(), str(grape))
             grapes.append(mapped)
     stats['grapes'] = dict(Counter(grapes))
     
@@ -776,8 +858,19 @@ def process_survey_data(force_reprocess=False):
     }
     
     # Process sandwiches (these are radio buttons, no cleaning needed)
-    sandwiches = [str(sandwich) for sandwich in df['sandwich'] 
-                  if pd.notna(sandwich) and sandwich != '']
+    sandwiches = []
+    for sandwich in df['sandwich']:
+        if pd.notna(sandwich) and sandwich != '':
+            override_val = None
+            try:
+                override_val = llm_batcher.overrides.get('sandwich', {}).get(normalize_text(sandwich))
+            except Exception:
+                override_val = None
+            if override_val is not None:
+                sandwiches.append(override_val)
+                print(f"  OVERRIDE (sandwich): '{str(sandwich)}' -> '{override_val}'")
+            else:
+                sandwiches.append(str(sandwich))
     stats['sandwiches'] = dict(Counter(sandwiches))
     
     # Process taco shells (these are radio buttons, manual mapping)
@@ -789,7 +882,16 @@ def process_survey_data(force_reprocess=False):
     taco_shells = []
     for shell in df['taco_shell']:
         if pd.notna(shell) and shell != '':
-            mapped = taco_mapping.get(str(shell).lower().strip(), str(shell))
+            override_val = None
+            try:
+                override_val = llm_batcher.overrides.get('taco_shell', {}).get(normalize_text(shell))
+            except Exception:
+                override_val = None
+            if override_val is not None:
+                mapped = override_val
+                print(f"  OVERRIDE (taco_shell): '{str(shell)}' -> '{mapped}'")
+            else:
+                mapped = taco_mapping.get(str(shell).lower().strip(), str(shell))
             taco_shells.append(mapped)
     stats['taco_shells'] = dict(Counter(taco_shells))
     
@@ -798,7 +900,16 @@ def process_survey_data(force_reprocess=False):
         toast_levels = []
         for toast in df['toast_level']:
             if pd.notna(toast) and toast != '':
-                toast_levels.append(str(toast))
+                override_val = None
+                try:
+                    override_val = llm_batcher.overrides.get('toast_level', {}).get(normalize_text(toast))
+                except Exception:
+                    override_val = None
+                if override_val is not None:
+                    toast_levels.append(override_val)
+                    print(f"  OVERRIDE (toast_level): '{str(toast)}' -> '{override_val}'")
+                else:
+                    toast_levels.append(str(toast))
         if toast_levels:
             stats['toast_levels'] = dict(Counter(toast_levels))
     

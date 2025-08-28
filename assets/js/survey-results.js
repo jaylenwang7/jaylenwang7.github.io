@@ -173,93 +173,187 @@ function createFruitChart(fruitData) {
     const chartDiv = document.createElement('div');
     chartDiv.className = 'chart-container';
     
-    // Add scrollable wrapper for the chart
-    const scrollWrapper = document.createElement('div');
-    scrollWrapper.style.cssText = `
-        max-height: 400px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        border: 1px solid #e9ecef;
-        border-radius: 4px;
-        background: white;
-    `;
-    
-    const ctx = document.createElement('canvas');
-    ctx.id = 'fruitChart';
-    
-    // Calculate dynamic height based on number of items
-    const itemCount = Object.keys(fruitData).length;
-    const minHeight = Math.max(300, itemCount * 25); // 25px per item minimum
-    ctx.style.height = `${minHeight}px`;
-    
-    scrollWrapper.appendChild(ctx);
-    chartDiv.appendChild(scrollWrapper);
-    container.appendChild(chartDiv);
-    
     // Sort fruits by count (descending) for better readability
     const sortedEntries = Object.entries(fruitData)
         .sort(([,a], [,b]) => b - a);
     
-    const labels = sortedEntries.map(([fruit, ]) => fruit);
-    const data = sortedEntries.map(([, count]) => count);
+    const ITEMS_PER_PAGE = 10;
+    const totalPages = Math.ceil(sortedEntries.length / ITEMS_PER_PAGE);
+    let currentPage = 0;
+    let chart = null;
     
-    // Generate a diverse color palette for many fruits
+    // Create pagination controls
+    const controlsDiv = document.createElement('div');
+    controlsDiv.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+    `;
+    
+    const prevButton = document.createElement('button');
+    prevButton.innerHTML = '← Previous';
+    prevButton.style.cssText = `
+        padding: 8px 16px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.2s;
+    `;
+    prevButton.onmouseover = () => prevButton.style.background = '#0056b3';
+    prevButton.onmouseout = () => prevButton.style.background = '#007bff';
+    
+    const pageInfo = document.createElement('div');
+    pageInfo.style.cssText = `
+        font-weight: bold;
+        font-size: 14px;
+        color: #495057;
+        text-align: center;
+        min-width: 120px;
+    `;
+    
+    const nextButton = document.createElement('button');
+    nextButton.innerHTML = 'Next →';
+    nextButton.style.cssText = prevButton.style.cssText;
+    nextButton.onmouseover = () => nextButton.style.background = '#0056b3';
+    nextButton.onmouseout = () => nextButton.style.background = '#007bff';
+    
+    controlsDiv.appendChild(prevButton);
+    controlsDiv.appendChild(pageInfo);
+    controlsDiv.appendChild(nextButton);
+    chartDiv.appendChild(controlsDiv);
+    
+    // Create canvas
+    const ctx = document.createElement('canvas');
+    ctx.id = 'fruitChart';
+    ctx.style.cssText = `
+        width: 100% !important;
+        height: 400px !important;
+    `;
+    
+    chartDiv.appendChild(ctx);
+    container.appendChild(chartDiv);
+    
+    // Generate a diverse color palette
     const colors = [
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-        '#FF6384', '#C9CBCF', '#4BC0C0', '#36A2EB', '#FF9F40', '#9966FF',
-        '#FFB1C1', '#87CEEB', '#DDA0DD', '#98FB98', '#F0E68C', '#FFA07A',
-        '#20B2AA', '#87CEFA', '#DEB887', '#F5DEB3', '#FF69B4', '#CD853F'
+        '#FFB1C1', '#87CEEB', '#DDA0DD', '#98FB98', '#F0E68C', '#FFA07A'
     ];
     
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Votes',
-                data: data,
-                backgroundColor: colors.slice(0, labels.length),
-                borderColor: colors.slice(0, labels.length).map(color => color + 'CC'),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y', // Horizontal bars
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '🍎 Favorite Fruits',
-                    font: { size: 16 }
-                },
-                legend: {
-                    display: false
-                }
+    function renderChart() {
+        const startIndex = currentPage * ITEMS_PER_PAGE;
+        const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, sortedEntries.length);
+        const pageData = sortedEntries.slice(startIndex, endIndex);
+        
+        const labels = pageData.map(([fruit, ]) => fruit);
+        const data = pageData.map(([, count]) => count);
+        const maxValue = Math.max(...data);
+        
+        // Update pagination info
+        const startItem = startIndex + 1;
+        const endItem = endIndex;
+        pageInfo.innerHTML = `${startItem}-${endItem} of ${sortedEntries.length}`;
+        
+        // Update button states
+        prevButton.disabled = currentPage === 0;
+        nextButton.disabled = currentPage === totalPages - 1;
+        prevButton.style.opacity = prevButton.disabled ? '0.5' : '1';
+        nextButton.style.opacity = nextButton.disabled ? '0.5' : '1';
+        prevButton.style.cursor = prevButton.disabled ? 'not-allowed' : 'pointer';
+        nextButton.style.cursor = nextButton.disabled ? 'not-allowed' : 'pointer';
+        
+        // Destroy existing chart
+        if (chart) {
+            chart.destroy();
+        }
+        
+        // Create new chart
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Votes',
+                    data: data,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderColor: colors.slice(0, labels.length).map(color => color + 'CC'),
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                x: {
-                    beginAtZero: true,
+            options: {
+                indexAxis: 'y',
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
                     title: {
                         display: true,
-                        text: 'Number of Votes',
-                        font: { size: 12 }
+                        text: '🍎 Favorite Fruits',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        display: false
                     }
                 },
-                y: {
-                    ticks: {
-                        font: { size: 12 }
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: maxValue + 1,
+                        title: {
+                            display: true,
+                            text: 'Number of Votes',
+                            font: { size: 12 }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            display: true
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            font: { size: 12 },
+                            maxRotation: 0
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 15,
+                        top: 10,
+                        bottom: 10
                     }
                 }
-            },
-            layout: {
-                padding: {
-                    left: 10,
-                    right: 10
-                }
             }
+        });
+    }
+    
+    // Event listeners
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 0) {
+            currentPage--;
+            renderChart();
         }
     });
+    
+    nextButton.addEventListener('click', () => {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            renderChart();
+        }
+    });
+    
+    // Initial render
+    renderChart();
 }
 
 function createGrapeChart(grapeData) {
