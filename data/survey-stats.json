@@ -2,24 +2,19 @@
   "fruits": {
     "Lychee": 2,
     "Satsuma": 1,
-    "Apple": 2,
+    "Apple": 5,
     "Mango": 11,
-    "Strawberry": 1,
+    "Strawberry": 2,
     "Dragonfruit": 2,
     "Mandarin": 1,
-    "Peaches": 1,
-    "Cherries": 1,
+    "Peach": 3,
+    "Cherry": 2,
     "Blackberry (Because It Is Tasty And Healthy": 1,
-    "Peach": 2,
     "Watermelon": 1,
     "Banana": 3,
-    "Apples": 2,
-    "Grapes": 1,
+    "Grape": 1,
     "Pear": 1,
-    "Cherry": 1,
     "Orange": 1,
-    "Humble Apple": 1,
-    "Strawberries": 1,
     "Kiwi": 2,
     "Pineapple": 1
   },
@@ -81,26 +76,25 @@
     "PB&J": 4
   },
   "trader_joes": {
-    "Don't Shop There": 8,
     "Ube Mochi Ice Cream": 1,
-    "Burrata Filling (The One Without The Skin In A Flat Looking Container)": 1,
+    "Burrata Filling": 1,
     "Brownie Bite Ice Cream Sandwiches": 1,
     "Frozen Mango": 1,
     "Frozen Soup Dumplings": 1,
-    "Dark Chocolate Pb Cups": 1,
+    "Dark Chocolateolate Peanut Butter Cups": 1,
     "Chili Dried Mango": 1,
-    "Chocolate Covered Anything": 1,
+    "Chocolateolate Covered Anything": 1,
     "Pork Gyoza": 1,
-    "The Lava Cakes": 1,
+    "Lava Cakes": 1,
     "Scandinavian Swimmers": 1,
     "Crunchy Curls": 1,
     "Cheese Selection": 1,
-    "Orange Juice (Unpasteurized)": 1,
+    "Orange Juice": 1,
     "Frozen Spanakopita": 1,
     "Https://Www.Traderjoes.Com/Home/Products/Pdp/Maple-Leaf-Cookies-098740": 1,
-    "Chocolate Peanut Butter Cups": 1,
+    "Chocolateolate Peanut Butter Cups": 1,
     "Flowers": 1,
-    "Chocolate Brooklyn Babka": 1,
+    "Chocolateolate Brooklyn Babka": 1,
     "Garlic Pizza Dough": 1,
     "Organic Coconut Smoothie": 1,
     "Elote Corn Dippers": 1,
@@ -108,13 +102,20 @@
     "Mango Yogurt": 1
   },
   "plane_drinks": {
-    "Juice": 8,
-    "Water": 10,
-    "Other": 5,
-    "Soda": 6,
+    "Orange Juice": 3,
+    "Sparkling Water": 1,
+    "Water": 9,
+    "Ginger Ale": 6,
+    "Mango Juice": 1,
+    "Apple Juice": 1,
+    "Diet Dr Pepper": 1,
+    "Tomato Juice": 1,
+    "Diet Coke": 3,
     "Nothing": 1,
     "Coffee": 1,
-    "Tea": 1
+    "Iced Tea": 1,
+    "Sprite": 2,
+    "Cranberry Juice": 1
   },
   "potatoes": {
     "Curly Fries": 6,
@@ -122,7 +123,8 @@
     "Waffle Fries": 4,
     "French Fries": 6,
     "Other": 1,
-    "Hash Browns": 3,
+    "Hash Browns": 2,
+    "Latkes": 1,
     "Tater Tots": 3
   },
   "taco_shells": {
@@ -145,6 +147,6 @@
   },
   "general": {
     "total_responses": 40,
-    "last_updated": "2025-08-28 16:10:05 UTC"
+    "last_updated": "2025-08-28 16:11:24 UTC"
   }
 }
