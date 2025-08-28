@@ -1,5 +1,10 @@
 {
     "trader_joes": {
-      "dark chocolate pb cups": "Chocolate Peanut Butter Cups"
+      "dark chocolate pb cups": "Chocolate Peanut Butter Cups",
+      "The Lava Cakes": "Lava Cakes"
+    },
+    "plane_drink": {
+        "sparking water": "Sparkling Water",
+        "bottled water": "Water"
     }
-  }
+}

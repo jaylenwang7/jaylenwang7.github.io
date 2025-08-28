@@ -295,6 +295,24 @@ function createFruitChart(fruitData) {
             chart.destroy();
         }
         
+        // Clear any existing dimensions
+        ctx.style.width = '';
+        ctx.style.height = '';
+        ctx.width = 0;
+        ctx.height = 0;
+        
+        // Force a reflow
+        ctx.offsetHeight;
+        
+        // Set dimensions properly
+        const containerWidth = chartDiv.clientWidth - 30; // Account for padding
+        const chartHeight = 400;
+        
+        ctx.width = containerWidth;
+        ctx.height = chartHeight;
+        ctx.style.width = containerWidth + 'px';
+        ctx.style.height = chartHeight + 'px';
+        
         // Create new chart
         chart = new Chart(ctx, {
             type: 'bar',
