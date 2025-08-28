@@ -24,38 +24,75 @@ def clean_with_llm(text, question_type):
     """Use Groq API to clean and categorize responses"""
     api_key = os.environ.get('GROQ_API_KEY')
     if not api_key:
-        return text.lower().strip()
+        print("No GROQ_API_KEY found, using fallback cleaning")
+        return fallback_clean(text, question_type)
     
     prompts = {
-        'fruit': f"""Standardize this fruit name: '{text}'
-Return only the common English fruit name (e.g., "Apple", "Mango", "Strawberry").
-Examples: "The humble Apple" → "Apple", "litchi" → "Lychee", "D'Anjou Pear" → "Pear"
-Answer:""",
+        'fruit': f"""Clean this fruit name: "{text}"
 
-        'trader_joes': f"""Categorize this Trader Joe's item: '{text}'
-If it's "idk" or "don't shop there" or similar → "Don't Shop There"
-If it's a specific product → keep the main product name clean and short
-Examples: "Ube Mochi Ice Cream" → "Ube Mochi Ice Cream", "idk" → "Don't Shop There"
-Answer:""",
+Return ONLY the standardized fruit name in Title Case. Remove any explanations, parentheses, or extra words.
 
-        'plane_drink': f"""Standardize this airplane drink: '{text}'
-Common options: Water, Coffee, Tea, Soda, Juice, Alcohol, Other
-Examples: "bottled water"/"worter" → "Water", "diet coke"/"coke zero" → "Soda", "orange juice" → "Juice"
-Answer:""",
+Examples:
+- "The humble Apple" → Apple
+- "blackberry (because it is tasty and healthy" → Blackberry  
+- "d'anjou pear" → Pear
+- "litchi" → Lychee
+- "golden kiwi" → Kiwi
 
-        'potato': f"""Categorize this fried potato: '{text}'
-Return one of: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips, Other
-Examples: "Standard french fry" → "French Fries", "Crinkle cut fries" → "French Fries", "Latkes" → "Hash Browns"
-Answer:""",
+Standardized fruit name:""",
 
-        'pasta': f"""Standardize this pasta shape: '{text}'
-Common shapes: Penne, Shells, Fusilli, Rigatoni, Macaroni, Spaghetti, Other
-Examples: "Fusilli (spirally ones)" → "Fusilli", "shells" → "Shells"
-Answer:"""
+        'trader_joes': f"""Clean this Trader Joe's response: "{text}"
+
+If it's "idk", "don't know", or "don't shop there" → return "Don't Shop There"
+Otherwise, return the main product name cleanly formatted.
+
+Examples:
+- "idk" → Don't Shop There
+- "Ube Mochi Ice Cream" → Ube Mochi Ice Cream
+- "chocolate pb cups" → Chocolate Peanut Butter Cups
+
+Clean response:""",
+
+        'plane_drink': f"""Standardize this drink: "{text}"
+
+Return one of these standard categories: Water, Coffee, Tea, Soda, Juice, Alcohol, Nothing, Other
+
+Examples:
+- "bottled water" → Water
+- "worter" → Water
+- "diet dr. pepper (only available on american airlines; coke zero elsewhere)" → Soda
+- "diet coke" → Soda
+- "orange juice" → Juice
+- "nothing - i don't trust it" → Nothing
+
+Standard drink:""",
+
+        'potato': f"""Categorize this fried potato: "{text}"
+
+Return exactly one of: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips, Other
+
+Examples:
+- "standard french fry" → French Fries
+- "crinkle cut fries" → French Fries
+- "parboil the potatoes first..." → Other
+- "latkes" → Hash Browns
+- "tater tot" → Tater Tots
+
+Category:""",
+
+        'pasta': f"""Standardize this pasta shape: "{text}"
+
+Return one of: Penne, Shells, Fusilli, Rigatoni, Macaroni, Spaghetti, Other
+
+Examples:
+- "fusilli (spirally ones)" → Fusilli
+- "shells" → Shells
+
+Shape:"""
     }
     
     if question_type not in prompts:
-        return text.lower().strip()
+        return fallback_clean(text, question_type)
     
     try:
         response = requests.post(
@@ -67,23 +104,111 @@ Answer:"""
             json={
                 "model": "mixtral-8x7b-32768",
                 "messages": [{"role": "user", "content": prompts[question_type]}],
-                "temperature": 0.1,
-                "max_tokens": 30
+                "temperature": 0.0,
+                "max_tokens": 20
             },
-            timeout=10
+            timeout=15
         )
         
         if response.status_code == 200:
             cleaned = response.json()['choices'][0]['message']['content'].strip()
-            # Remove "Answer:" if the model includes it
-            cleaned = cleaned.replace("Answer:", "").strip()
-            return cleaned
+            
+            # Remove common prefixes the model might add
+            for prefix in ["Answer:", "Standardized fruit name:", "Clean response:", "Standard drink:", "Category:", "Shape:"]:
+                if cleaned.startswith(prefix):
+                    cleaned = cleaned[len(prefix):].strip()
+            
+            # Validate the response isn't empty or too similar to original
+            if cleaned and len(cleaned) > 0:
+                print(f"LLM cleaned '{text}' → '{cleaned}'")
+                return cleaned
+            else:
+                print(f"LLM returned empty response for '{text}', using fallback")
+                return fallback_clean(text, question_type)
         else:
-            return text.lower().strip()
+            print(f"API error {response.status_code} for '{text}': {response.text}")
+            return fallback_clean(text, question_type)
             
     except Exception as e:
         print(f"LLM cleaning failed for '{text}': {e}")
-        return text.lower().strip()
+        return fallback_clean(text, question_type)
+
+def fallback_clean(text, question_type):
+    """Fallback cleaning when LLM is unavailable"""
+    text = str(text).strip()
+    
+    if question_type == 'fruit':
+        # Basic fruit cleaning
+        text = re.sub(r'\([^)]*\)', '', text)  # Remove parentheses
+        text = re.sub(r'^the ', '', text, flags=re.IGNORECASE)  # Remove "the"
+        text = text.split(',')[0].strip()  # Take first word if comma-separated
+        # Common fruit mappings
+        mappings = {
+            'litchi': 'Lychee',
+            'd\'anjou pear': 'Pear', 
+            'golden kiwi': 'Kiwi',
+            'black cherry': 'Cherry'
+        }
+        text_lower = text.lower()
+        for key, value in mappings.items():
+            if key in text_lower:
+                return value
+        return text.title()
+        
+    elif question_type == 'trader_joes':
+        if any(phrase in text.lower() for phrase in ['idk', 'don\'t shop', 'don\'t know']):
+            return "Don't Shop There"
+        return text.title()
+        
+    elif question_type == 'plane_drink':
+        text_lower = text.lower()
+        if any(word in text_lower for word in ['water', 'worter']):
+            return 'Water'
+        elif any(word in text_lower for word in ['coke', 'pepsi', 'sprite', 'soda', 'dr pepper']):
+            return 'Soda'  
+        elif 'juice' in text_lower:
+            return 'Juice'
+        elif any(word in text_lower for word in ['coffee', 'espresso']):
+            return 'Coffee'
+        elif 'tea' in text_lower:
+            return 'Tea'
+        elif any(phrase in text_lower for phrase in ['nothing', 'don\'t trust']):
+            return 'Nothing'
+        return 'Other'
+        
+    elif question_type == 'potato':
+        text_lower = text.lower()
+        if 'curly' in text_lower:
+            return 'Curly Fries'
+        elif 'waffle' in text_lower:
+            return 'Waffle Fries'
+        elif any(word in text_lower for word in ['tater tot', 'tot']):
+            return 'Tater Tots'
+        elif any(word in text_lower for word in ['hash brown', 'latke']):
+            return 'Hash Browns'
+        elif any(word in text_lower for word in ['chip', 'crisp']):
+            return 'Potato Chips'
+        elif any(word in text_lower for word in ['fries', 'fry', 'french']):
+            return 'French Fries'
+        return 'Other'
+        
+    elif question_type == 'pasta':
+        text_lower = text.lower()
+        if 'shell' in text_lower:
+            return 'Shells'
+        elif any(word in text_lower for word in ['fusilli', 'spiral']):
+            return 'Fusilli'
+        elif 'penne' in text_lower:
+            return 'Penne'
+        elif 'rigatoni' in text_lower:
+            return 'Rigatoni'
+        elif 'macaroni' in text_lower:
+            return 'Macaroni'
+        elif 'spaghetti' in text_lower:
+            return 'Spaghetti'
+        return 'Other'
+    
+    return text.strip()
 
 def extract_number(text):
     """Extract numeric value from egg responses"""
