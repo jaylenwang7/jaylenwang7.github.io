@@ -244,21 +244,24 @@ function createFruitChart(fruitData) {
     controlsDiv.appendChild(nextButton);
     chartDiv.appendChild(controlsDiv);
     
-    // CREATE SEPARATE CANVAS CONTAINER - This is the key fix!
+    // Create canvas container with proper sizing
     const canvasContainer = document.createElement('div');
     canvasContainer.style.cssText = `
         width: 100%;
-        height: 400px;
+        height: 350px;
         position: relative;
+        box-sizing: border-box;
     `;
     
-    // Create canvas
-    let ctx = document.createElement('canvas');
+    // Create canvas - let Chart.js handle sizing
+    const ctx = document.createElement('canvas');
     ctx.id = 'fruitChart';
+    ctx.style.cssText = `
+        width: 100% !important;
+        height: 100% !important;
+    `;
     
-    // Add canvas to its own container
     canvasContainer.appendChild(ctx);
-    // Add the canvas container to the main chart div
     chartDiv.appendChild(canvasContainer);
     container.appendChild(chartDiv);
     
@@ -302,35 +305,7 @@ function createFruitChart(fruitData) {
             chart.destroy();
         }
         
-        // CRITICAL FIX: Properly reset and size canvas for Chart.js
-        // Remove the canvas and create a new one to ensure clean state
-        const oldCanvas = ctx;
-        const newCanvas = document.createElement('canvas');
-        newCanvas.id = 'fruitChart';
-        
-        // Replace the old canvas
-        oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
-        ctx = newCanvas; // Update reference
-        
-        // Get dimensions from the canvas container, not the full chartDiv
-        const canvasContainer = ctx.parentNode;
-        const containerWidth = canvasContainer.clientWidth - 20; // Small padding
-        const chartHeight = 400;
-        const dpr = window.devicePixelRatio || 1;
-        
-        // Set CSS dimensions (what the user sees)
-        ctx.style.width = containerWidth + 'px';
-        ctx.style.height = chartHeight + 'px';
-        
-        // Set canvas internal dimensions (accounting for device pixel ratio)
-        ctx.width = containerWidth * dpr;
-        ctx.height = chartHeight * dpr;
-        
-        // Scale the context to match device pixel ratio
-        const context = ctx.getContext('2d');
-        context.scale(dpr, dpr);
-        
-        // Create new chart
+        // Create new chart with proper responsive settings
         chart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -345,9 +320,8 @@ function createFruitChart(fruitData) {
             },
             options: {
                 indexAxis: 'y',
-                responsive: false,
+                responsive: true,
                 maintainAspectRatio: false,
-                devicePixelRatio: window.devicePixelRatio || 1,
                 plugins: {
                     title: {
                         display: true,
