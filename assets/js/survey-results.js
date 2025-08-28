@@ -247,10 +247,6 @@ function createFruitChart(fruitData) {
     // Create canvas
     const ctx = document.createElement('canvas');
     ctx.id = 'fruitChart';
-    ctx.style.cssText = `
-        width: 100% !important;
-        height: 400px !important;
-    `;
     
     chartDiv.appendChild(ctx);
     container.appendChild(chartDiv);
@@ -295,23 +291,32 @@ function createFruitChart(fruitData) {
             chart.destroy();
         }
         
-        // Clear any existing dimensions
-        ctx.style.width = '';
-        ctx.style.height = '';
-        ctx.width = 0;
-        ctx.height = 0;
+        // CRITICAL FIX: Properly reset and size canvas for Chart.js
+        // Remove the canvas and create a new one to ensure clean state
+        const oldCanvas = ctx;
+        const newCanvas = document.createElement('canvas');
+        newCanvas.id = 'fruitChart';
         
-        // Force a reflow
-        ctx.offsetHeight;
+        // Replace the old canvas
+        oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+        ctx = newCanvas; // Update reference
         
-        // Set dimensions properly
+        // Get container dimensions
         const containerWidth = chartDiv.clientWidth - 30; // Account for padding
         const chartHeight = 400;
+        const dpr = window.devicePixelRatio || 1;
         
-        ctx.width = containerWidth;
-        ctx.height = chartHeight;
+        // Set CSS dimensions (what the user sees)
         ctx.style.width = containerWidth + 'px';
         ctx.style.height = chartHeight + 'px';
+        
+        // Set canvas internal dimensions (accounting for device pixel ratio)
+        ctx.width = containerWidth * dpr;
+        ctx.height = chartHeight * dpr;
+        
+        // Scale the context to match device pixel ratio
+        const context = ctx.getContext('2d');
+        context.scale(dpr, dpr);
         
         // Create new chart
         chart = new Chart(ctx, {
@@ -330,6 +335,7 @@ function createFruitChart(fruitData) {
                 indexAxis: 'y',
                 responsive: false,
                 maintainAspectRatio: false,
+                devicePixelRatio: window.devicePixelRatio || 1,
                 plugins: {
                     title: {
                         display: true,
