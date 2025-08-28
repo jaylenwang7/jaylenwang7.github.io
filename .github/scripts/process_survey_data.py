@@ -10,6 +10,7 @@ import re
 from oauth2client.service_account import ServiceAccountCredentials
 import argparse
 from datetime import datetime
+import pytz
 
 def setup_google_sheets():
     """Setup Google Sheets API connection"""
@@ -78,23 +79,30 @@ class LLMBatcher:
                 time.sleep(wait_time)
                 self._wait_for_rate_limit()  # Recursive call to check again
     
-    def clean_batch_with_llm(self, texts, question_type):
+    def clean_batch_with_llm(self, texts, question_type, force_api=False):
         """Process a batch of texts with a single API call"""
         if not texts:
             return []
         
-        # Check cache for all items first
+        # Check cache for all items first (unless forcing API calls)
         cached_results = {}
         uncached_texts = []
         uncached_indices = []
         
         for i, text in enumerate(texts):
             cache_key = f"{question_type}:{text}"
-            if cache_key in self.cache:
+            if not force_api and cache_key in self.cache:
                 cached_results[i] = self.cache[cache_key]
+                print(f"  CACHE HIT: {question_type} '{text[:50]}...' -> '{self.cache[cache_key]}'")
             else:
                 uncached_texts.append(text)
                 uncached_indices.append(i)
+                if force_api:
+                    print(f"  CACHE SKIP (forced): {question_type} '{text[:50]}...'")
+                else:
+                    print(f"  CACHE MISS: {question_type} '{text[:50]}...'")
+        
+        print(f"  Batch summary: {len(cached_results)} cached, {len(uncached_texts)} need processing")
         
         # If all items are cached, return cached results
         if not uncached_texts:
@@ -108,6 +116,7 @@ class LLMBatcher:
             for i, text in enumerate(uncached_texts):
                 cache_key = f"{question_type}:{text}"
                 self.cache[cache_key] = fallback_results[i]
+                print(f"    FALLBACK CACHED: '{text[:50]}...' -> '{fallback_results[i]}'")
             
             # Merge cached and fallback results
             final_results = [None] * len(texts)
@@ -215,12 +224,13 @@ Return only the JSON array:"""
                                 
                                 # Validate response length matches input
                                 if len(cleaned_batch) == len(uncached_texts):
-                                    print(f"LLM batch processed {len(uncached_texts)} {question_type} items")
+                                    print(f"    API SUCCESS: Processed {len(uncached_texts)} {question_type} items")
                                     
                                     # Cache individual results
                                     for i, text in enumerate(uncached_texts):
                                         cache_key = f"{question_type}:{text}"
                                         self.cache[cache_key] = cleaned_batch[i]
+                                        print(f"    CACHED: '{text[:50]}...' -> '{cleaned_batch[i]}'")
                                     
                                     # Merge cached and new results
                                     final_results = [None] * len(texts)
@@ -288,7 +298,7 @@ Return only the JSON array:"""
                 final_results[idx] = fallback_results[i]
             return final_results
 
-    def process_all_items(self, df):
+    def process_all_items(self, df, force_api=False):
         """Process all survey items by question type in batches"""
         results = {
             'fruits': [],
@@ -325,13 +335,14 @@ Return only the JSON array:"""
             if not items:
                 continue
                 
-            print(f"Processing {len(items)} {question_type} items...")
+            print(f"\n=== Processing {len(items)} {question_type} items ===")
             
             # Process in batches
             all_results = []
             for i in range(0, len(items), self.batch_size):
                 batch = items[i:i + self.batch_size]
-                batch_results = self.clean_batch_with_llm(batch, question_type)
+                print(f"  Batch {i//self.batch_size + 1}: Processing items {i+1}-{min(i+self.batch_size, len(items))}")
+                batch_results = self.clean_batch_with_llm(batch, question_type, force_api)
                 all_results.extend(batch_results)
             
             # Store results
@@ -545,10 +556,12 @@ def process_survey_data(force_reprocess=False):
     # Initialize LLM batcher with larger batch size
     llm_batcher = LLMBatcher(batch_size=15)
     
-    # Load any cached LLM results into the batcher's cache
-    if 'llm_cache' in cache:
+    # Load any cached LLM results into the batcher's cache (unless force reprocessing)
+    if 'llm_cache' in cache and not force_reprocess:
         llm_batcher.cache = cache['llm_cache']
         print(f"Loaded {len(llm_batcher.cache)} cached LLM results")
+    elif force_reprocess:
+        print("Force reprocessing enabled - clearing LLM cache")
     
     # Load data from Google Sheets
     sheet = setup_google_sheets()
@@ -592,26 +605,47 @@ def process_survey_data(force_reprocess=False):
     if missing_columns:
         raise ValueError(f"Missing required columns: {missing_columns}")
     
-    # Determine if we need to reprocess (for now, process all batches since we changed the logic)
-    if not force_reprocess:
+    # Determine if we need to reprocess
+    if force_reprocess:
+        print("Force reprocessing all items - clearing row hashes")
+        cache['row_hashes'] = {}  # Clear row hashes to force reprocessing
+        rows_changed = True
+    else:
         # Check if we need to reprocess by comparing data hashes
         rows_changed = False
+        new_rows = 0
+        changed_rows = 0
+        unchanged_rows = 0
+        
+        print("\n=== Checking row-level cache ===")
         for index, row in df.iterrows():
             row_hash = get_row_hash(row)
             row_id = f"row_{index}"
-            if row_id not in cache['row_hashes'] or cache['row_hashes'][row_id] != row_hash:
+            
+            if row_id not in cache['row_hashes']:
+                print(f"ROW {index}: NEW (not in cache)")
                 rows_changed = True
-                break
+                new_rows += 1
+            elif cache['row_hashes'][row_id] != row_hash:
+                print(f"ROW {index}: CHANGED (hash mismatch)")
+                print(f"  Old hash: {cache['row_hashes'][row_id][:12]}...")
+                print(f"  New hash: {row_hash[:12]}...")
+                rows_changed = True
+                changed_rows += 1
+            else:
+                print(f"ROW {index}: UNCHANGED (hash match)")
+                unchanged_rows += 1
+        
+        print(f"Row summary: {new_rows} new, {changed_rows} changed, {unchanged_rows} unchanged")
         
         if not rows_changed:
-            print("No changes detected, using cached results")
-            # Still need to rebuild stats from cache
-            # This part would need to be implemented if we want to skip processing entirely
+            print("No row changes detected - could use cached results")
+            # Note: We'll still process to demonstrate the text-level caching
     
     print("Processing all items with batched API calls...")
     
     # Process all items using the new batching system
-    llm_results = llm_batcher.process_all_items(df)
+    llm_results = llm_batcher.process_all_items(df, force_api=force_reprocess)
     
     stats = {}
     stats['fruits'] = dict(Counter(llm_results['fruits']))
@@ -679,10 +713,13 @@ def process_survey_data(force_reprocess=False):
         cache['row_hashes'][row_id] = row_hash
     
     # Add general stats
+    et_tz = pytz.timezone('US/Eastern')
+    current_time_et = datetime.now(et_tz)
+    
     stats['general'] = {
         'total_responses': len(df),
-        'last_updated': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'),
-        'api_calls_saved': f"Batched processing (estimated {len(llm_batcher.cache)} cached items)"
+        'last_updated': current_time_et.strftime('%Y-%m-%d %H:%M:%S %Z'),
+        'processing_info': f"Force reprocessed: {force_reprocess}, Cached items: {len(llm_batcher.cache)}"
     }
     
     # Save updated cache with LLM results
