@@ -30,7 +30,7 @@ def clean_with_llm(text, question_type):
     prompts = {
         'fruit': f"""Clean this fruit name: "{text}"
 
-Return ONLY the standardized fruit name in Title Case. Remove any explanations, parentheses, or extra words.
+Return ONLY the singular form of the fruit name in Title Case. Remove explanations, parentheses, and extra words. Always use singular form.
 
 Examples:
 - "The humble Apple" → Apple
@@ -38,55 +38,73 @@ Examples:
 - "d'anjou pear" → Pear
 - "litchi" → Lychee
 - "golden kiwi" → Kiwi
+- "strawberries" → Strawberry
+- "apples" → Apple
+- "cherries" → Cherry
 
-Standardized fruit name:""",
+Answer with just the singular fruit name:""",
 
         'trader_joes': f"""Clean this Trader Joe's response: "{text}"
 
-If it's "idk", "don't know", or "don't shop there" → return "Don't Shop There"
-Otherwise, return the main product name cleanly formatted.
+If it's "idk", "don't know", or "don't shop there" → return "SKIP"
+Otherwise, return the product name cleanly formatted with proper capitalization and clear naming.
+If a link is provided, extract the likely product name from the URL.
 
 Examples:
-- "idk" → Don't Shop There
+- "idk" → SKIP
+- "don't shop there" → SKIP
 - "Ube Mochi Ice Cream" → Ube Mochi Ice Cream
 - "chocolate pb cups" → Chocolate Peanut Butter Cups
+- "burrata filling (the one without the skin in a flat looking container)" → Burrata Filling
+- "scandinavian swimmers" → Scandinavian Swimmers
+- "the lava cakes" → Lava Cakes
 
-Clean response:""",
+Clean product name:""",
 
-        'plane_drink': f"""Standardize this drink: "{text}"
+        'plane_drink': f"""Clean this drink name: "{text}"
 
-Return one of these standard categories: Water, Coffee, Tea, Soda, Juice, Alcohol, Nothing, Other
+Keep specific drink names but clean them up. Only use broad categories for unclear responses.
 
 Examples:
 - "bottled water" → Water
-- "worter" → Water
-- "diet dr. pepper (only available on american airlines; coke zero elsewhere)" → Soda
-- "diet coke" → Soda
-- "orange juice" → Juice
+- "worter" → Water  
+- "diet dr. pepper (only available on american airlines; coke zero elsewhere)" → Diet Dr Pepper
+- "diet coke" → Diet Coke
+- "orange juice" → Orange Juice
+- "ginger ale" → Ginger Ale
+- "sprite" → Sprite
 - "nothing - i don't trust it" → Nothing
+- "sparking water" → Sparkling Water
 
-Standard drink:""",
+Clean drink name:""",
 
         'potato': f"""Categorize this fried potato: "{text}"
 
-Return exactly one of: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips, Other
+Use one of these common categories if it fits well: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips
+
+If it doesn't fit well into any of these, create an appropriate new category name (e.g., "Latkes" for latkes, "Rösti" for rösti, etc.)
 
 Examples:
 - "standard french fry" → French Fries
 - "crinkle cut fries" → French Fries
+- "latkes" → Latkes
 - "parboil the potatoes first..." → Other
-- "latkes" → Hash Browns
 - "tater tot" → Tater Tots
+- "rösti" → Rösti
 
 Category:""",
 
         'pasta': f"""Standardize this pasta shape: "{text}"
 
-Return one of: Penne, Shells, Fusilli, Rigatoni, Macaroni, Spaghetti, Other
+Use one of these common shapes if it fits: Penne, Shells, Fusilli, Rigatoni, Macaroni, Spaghetti
+
+If it's a different pasta shape, use the proper name for that shape (e.g., "Farfalle" for bow ties, "Linguine" for linguine, etc.)
 
 Examples:
 - "fusilli (spirally ones)" → Fusilli
 - "shells" → Shells
+- "bow ties" → Farfalle
+- "linguine" → Linguine
 
 Shape:"""
     }
@@ -95,39 +113,56 @@ Shape:"""
         return fallback_clean(text, question_type)
     
     try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "mixtral-8x7b-32768",
-                "messages": [{"role": "user", "content": prompts[question_type]}],
-                "temperature": 0.0,
-                "max_tokens": 20
-            },
-            timeout=15
-        )
+        # Try llama3 first (often better at following instructions), fall back to mixtral
+        models_to_try = ["llama-3.1-70b-versatile", "mixtral-8x7b-32768"]
         
-        if response.status_code == 200:
-            cleaned = response.json()['choices'][0]['message']['content'].strip()
-            
-            # Remove common prefixes the model might add
-            for prefix in ["Answer:", "Standardized fruit name:", "Clean response:", "Standard drink:", "Category:", "Shape:"]:
-                if cleaned.startswith(prefix):
-                    cleaned = cleaned[len(prefix):].strip()
-            
-            # Validate the response isn't empty or too similar to original
-            if cleaned and len(cleaned) > 0:
-                print(f"LLM cleaned '{text}' → '{cleaned}'")
-                return cleaned
-            else:
-                print(f"LLM returned empty response for '{text}', using fallback")
-                return fallback_clean(text, question_type)
-        else:
-            print(f"API error {response.status_code} for '{text}': {response.text}")
-            return fallback_clean(text, question_type)
+        for model in models_to_try:
+            try:
+                response = requests.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "messages": [{"role": "user", "content": prompts[question_type]}],
+                        "temperature": 0.0,
+                        "max_tokens": 25
+                    },
+                    timeout=15
+                )
+                
+                if response.status_code == 200:
+                    cleaned = response.json()['choices'][0]['message']['content'].strip()
+                    
+                    # Remove common prefixes the model might add
+                    for prefix in ["Answer:", "Answer with just the singular fruit name:", "Clean drink name:", "Category:", "Shape:"]:
+                        if cleaned.startswith(prefix):
+                            cleaned = cleaned[len(prefix):].strip()
+                    
+                    # Remove quotes if present
+                    cleaned = cleaned.strip('"\'')
+                    
+                    # Validate the response isn't empty
+                    if cleaned and len(cleaned) > 0:
+                        print(f"LLM ({model}) cleaned '{text}' → '{cleaned}'")
+                        return cleaned
+                        
+                elif response.status_code == 429:
+                    print(f"Rate limited on {model}, trying next model...")
+                    continue
+                else:
+                    print(f"API error {response.status_code} on {model}: {response.text}")
+                    continue
+                    
+            except Exception as e:
+                print(f"Model {model} failed for '{text}': {e}")
+                continue
+        
+        # If all models failed, use fallback
+        print(f"All LLM attempts failed for '{text}', using fallback")
+        return fallback_clean(text, question_type)
             
     except Exception as e:
         print(f"LLM cleaning failed for '{text}': {e}")
@@ -142,39 +177,98 @@ def fallback_clean(text, question_type):
         text = re.sub(r'\([^)]*\)', '', text)  # Remove parentheses
         text = re.sub(r'^the ', '', text, flags=re.IGNORECASE)  # Remove "the"
         text = text.split(',')[0].strip()  # Take first word if comma-separated
-        # Common fruit mappings
-        mappings = {
+        
+        # Convert to singular form
+        singular_mappings = {
+            'apples': 'Apple',
+            'strawberries': 'Strawberry', 
+            'cherries': 'Cherry',
+            'grapes': 'Grape',
+            'peaches': 'Peach',
+            'mangoes': 'Mango',
             'litchi': 'Lychee',
+            'lychees': 'Lychee',
             'd\'anjou pear': 'Pear', 
             'golden kiwi': 'Kiwi',
-            'black cherry': 'Cherry'
+            'black cherry': 'Cherry',
+            'humble apple': 'Apple'
         }
-        text_lower = text.lower()
-        for key, value in mappings.items():
-            if key in text_lower:
+        
+        text_lower = text.lower().strip()
+        for key, value in singular_mappings.items():
+            if key == text_lower or key in text_lower:
                 return value
+        
+        # General plural to singular conversion
+        if text_lower.endswith('ies'):
+            return text[:-3] + 'y'
+        elif text_lower.endswith('s') and len(text) > 3:
+            return text[:-1].title()
+            
         return text.title()
         
     elif question_type == 'trader_joes':
         if any(phrase in text.lower() for phrase in ['idk', 'don\'t shop', 'don\'t know']):
-            return "Don't Shop There"
-        return text.title()
+            return "SKIP"
+        
+        # Clean up common abbreviations and improve formatting
+        text = re.sub(r'\([^)]*\)', '', text)  # Remove parentheses content
+        text = re.sub(r'^the ', '', text, flags=re.IGNORECASE)  # Remove "the" prefix
+        
+        # Common Trader Joe's abbreviation expansions
+        expansions = {
+            ' pb ': ' Peanut Butter ',
+            'pb ': 'Peanut Butter ',
+            ' tj': ' Trader Joe\'s',
+            'choc': 'Chocolate'
+        }
+        
+        text_lower = text.lower()
+        for abbrev, expansion in expansions.items():
+            if abbrev in text_lower:
+                text = re.sub(re.escape(abbrev), expansion, text, flags=re.IGNORECASE)
+        
+        return text.strip().title()
         
     elif question_type == 'plane_drink':
-        text_lower = text.lower()
-        if any(word in text_lower for word in ['water', 'worter']):
+        text_lower = text.lower().strip()
+        
+        # Keep specific drink names, don't over-categorize
+        if any(word in text_lower for word in ['water', 'worter']) and 'sparkling' not in text_lower:
             return 'Water'
-        elif any(word in text_lower for word in ['coke', 'pepsi', 'sprite', 'soda', 'dr pepper']):
-            return 'Soda'  
-        elif 'juice' in text_lower:
-            return 'Juice'
-        elif any(word in text_lower for word in ['coffee', 'espresso']):
+        elif 'sparkling water' in text_lower or 'sparking water' in text_lower:
+            return 'Sparkling Water'
+        elif 'diet dr pepper' in text_lower or 'diet dr. pepper' in text_lower:
+            return 'Diet Dr Pepper'
+        elif 'diet coke' in text_lower:
+            return 'Diet Coke'
+        elif 'ginger ale' in text_lower:
+            return 'Ginger Ale' 
+        elif 'sprite' in text_lower:
+            return 'Sprite'
+        elif 'orange juice' in text_lower:
+            return 'Orange Juice'
+        elif 'apple juice' in text_lower:
+            return 'Apple Juice'
+        elif 'cranberry juice' in text_lower:
+            return 'Cranberry Juice'
+        elif 'mango juice' in text_lower:
+            return 'Mango Juice'
+        elif 'tomato juice' in text_lower:
+            return 'Tomato Juice'
+        elif 'coffee' in text_lower:
             return 'Coffee'
+        elif 'iced tea' in text_lower:
+            return 'Iced Tea'
         elif 'tea' in text_lower:
             return 'Tea'
         elif any(phrase in text_lower for phrase in ['nothing', 'don\'t trust']):
             return 'Nothing'
-        return 'Other'
+        elif 'juice' in text_lower:
+            return 'Juice'
+        elif any(word in text_lower for word in ['coke', 'pepsi', 'soda']):
+            return 'Soda'
+        return text.title()
         
     elif question_type == 'potato':
         text_lower = text.lower()
@@ -184,29 +278,50 @@ def fallback_clean(text, question_type):
             return 'Waffle Fries'
         elif any(word in text_lower for word in ['tater tot', 'tot']):
             return 'Tater Tots'
-        elif any(word in text_lower for word in ['hash brown', 'latke']):
+        elif 'hash brown' in text_lower:
             return 'Hash Browns'
+        elif 'latke' in text_lower:
+            return 'Latkes'  # Let latkes be their own category
         elif any(word in text_lower for word in ['chip', 'crisp']):
             return 'Potato Chips'
-        elif any(word in text_lower for word in ['fries', 'fry', 'french']):
+        elif any(word in text_lower for word in ['fries', 'fry', 'french']) and 'curly' not in text_lower and 'waffle' not in text_lower:
             return 'French Fries'
-        return 'Other'
+        elif 'all the above' in text_lower or 'all of the above' in text_lower:
+            return 'Other'
+        elif len(text.strip()) > 50:  # Long descriptions probably don't fit standard categories
+            return 'Other'
+        else:
+            # For short, specific items that don't match common categories, keep them as-is
+            return text.title()
         
     elif question_type == 'pasta':
         text_lower = text.lower()
-        if 'shell' in text_lower:
-            return 'Shells'
-        elif any(word in text_lower for word in ['fusilli', 'spiral']):
-            return 'Fusilli'
-        elif 'penne' in text_lower:
-            return 'Penne'
-        elif 'rigatoni' in text_lower:
-            return 'Rigatoni'
-        elif 'macaroni' in text_lower:
-            return 'Macaroni'
-        elif 'spaghetti' in text_lower:
-            return 'Spaghetti'
-        return 'Other'
+        # Common pasta shape mappings
+        pasta_mappings = {
+            'shell': 'Shells',
+            'fusilli': 'Fusilli', 
+            'spiral': 'Fusilli',
+            'penne': 'Penne',
+            'rigatoni': 'Rigatoni', 
+            'macaroni': 'Macaroni',
+            'spaghetti': 'Spaghetti',
+            'linguine': 'Linguine',
+            'farfalle': 'Farfalle',
+            'bow tie': 'Farfalle',
+            'bowtie': 'Farfalle',
+            'angel hair': 'Angel Hair',
+            'fettuccine': 'Fettuccine',
+            'lasagna': 'Lasagna',
+            'ravioli': 'Ravioli',
+            'tortellini': 'Tortellini'
+        }
+        
+        for key, value in pasta_mappings.items():
+            if key in text_lower:
+                return value
+        
+        # If no match found, return cleaned version of original
+        return text.title()
     
     return text.strip()
 
@@ -324,12 +439,13 @@ def process_survey_data():
                   if pd.notna(sandwich) and sandwich != '']
     stats['sandwiches'] = dict(Counter(sandwiches))
     
-    # Process Trader Joe's items (LLM cleaned)
+    # Process Trader Joe's items (LLM cleaned, filter out non-responses)
     trader_joes = []
     for item in df['trader_joes']:
         if pd.notna(item) and item != '':
             cleaned = clean_with_llm(str(item), 'trader_joes')
-            trader_joes.append(cleaned)
+            if cleaned != "SKIP":  # Don't include "idk" or "don't shop there" responses
+                trader_joes.append(cleaned)
     stats['trader_joes'] = dict(Counter(trader_joes))
     
     # Process plane drinks (LLM cleaned)
