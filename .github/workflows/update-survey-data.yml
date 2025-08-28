@@ -1,0 +1,38 @@
+name: Update Survey Data
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Run every hour
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        pip install pandas gspread oauth2client openai requests python-dotenv
+        
+    - name: Process survey data
+      env:
+        GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
+        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      run: python .github/scripts/process_survey_data.py
+      
+    - name: Commit and push if changed
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data/survey-stats.json
+        git diff --staged --quiet || git commit -m "Update survey statistics"
+        git push
