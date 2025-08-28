@@ -9,7 +9,7 @@
     "Mandarin": 1,
     "Peach": 3,
     "Cherry": 2,
-    "Blackberry (Because It Is Tasty And Healthy": 1,
+    "Blackberry": 1,
     "Watermelon": 1,
     "Banana": 3,
     "Grape": 1,
@@ -91,7 +91,7 @@
     "Cheese Selection": 1,
     "Orange Juice": 1,
     "Frozen Spanakopita": 1,
-    "Https://Www.Traderjoes.Com/Home/Products/Pdp/Maple-Leaf-Cookies-098740": 1,
+    "The provided link is: https://www.traderjoes.com/home/products/pdp/maple-leaf-cookies-098": 1,
     "Chocolateolate Peanut Butter Cups": 1,
     "Flowers": 1,
     "Chocolateolate Brooklyn Babka": 1,
@@ -147,6 +147,6 @@
   },
   "general": {
     "total_responses": 40,
-    "last_updated": "2025-08-28 16:11:24 UTC"
+    "last_updated": "2025-08-28 16:16:20 UTC"
   }
 }
