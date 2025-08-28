@@ -3,9 +3,13 @@ import json
 import gspread
 import os
 import requests
-from collections import Counter
+import time
+import hashlib
+from collections import Counter, defaultdict
 import re
 from oauth2client.service_account import ServiceAccountCredentials
+import argparse
+from datetime import datetime
 
 def setup_google_sheets():
     """Setup Google Sheets API connection"""
@@ -20,15 +24,77 @@ def setup_google_sheets():
     spreadsheet_id = os.environ['SPREADSHEET_ID']
     return client.open_by_key(spreadsheet_id).sheet1
 
-def clean_with_llm(text, question_type):
-    """Use Groq API to clean and categorize responses"""
-    api_key = os.environ.get('GROQ_API_KEY')
-    if not api_key:
-        print("No GROQ_API_KEY found, using fallback cleaning")
-        return fallback_clean(text, question_type)
+def load_cache():
+    """Load the cache of processed rows"""
+    cache_file = 'data/processing_cache.json'
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, 'r') as f:
+                return json.load(f)
+        except:
+            print("Warning: Could not load cache file, starting fresh")
+            return {'row_hashes': {}, 'cleaned_values': {}}
+    return {'row_hashes': {}, 'cleaned_values': {}}
+
+def save_cache(cache):
+    """Save the cache of processed rows"""
+    os.makedirs('data', exist_ok=True)
+    with open('data/processing_cache.json', 'w') as f:
+        json.dump(cache, f, indent=2)
+
+def get_row_hash(row_data):
+    """Generate a hash for a row to detect changes"""
+    # Create a string representation of the row data for relevant columns
+    relevant_data = {
+        'fruit': str(row_data.get('fruit', '')),
+        'trader_joes': str(row_data.get('trader_joes', '')),
+        'plane_drink': str(row_data.get('plane_drink', '')),
+        'potato': str(row_data.get('potato', '')),
+        'pasta_shape': str(row_data.get('pasta_shape', ''))
+    }
+    row_str = json.dumps(relevant_data, sort_keys=True)
+    return hashlib.md5(row_str.encode()).hexdigest()
+
+class LLMBatcher:
+    """Batch LLM requests to respect rate limits"""
     
-    prompts = {
-        'fruit': f"""Clean this fruit name: "{text}"
+    def __init__(self, requests_per_minute=25):  # Slightly under the 30 limit for safety
+        self.requests_per_minute = requests_per_minute
+        self.request_times = []
+        self.cache = {}
+        
+    def _wait_for_rate_limit(self):
+        """Wait if we're hitting rate limits"""
+        now = time.time()
+        # Remove requests older than 1 minute
+        self.request_times = [t for t in self.request_times if now - t < 60]
+        
+        if len(self.request_times) >= self.requests_per_minute:
+            # Need to wait until the oldest request is over a minute old
+            wait_time = 61 - (now - self.request_times[0])
+            if wait_time > 0:
+                print(f"Rate limit reached, waiting {wait_time:.1f} seconds...")
+                time.sleep(wait_time)
+                self._wait_for_rate_limit()  # Recursive call to check again
+    
+    def clean_with_llm_batched(self, text, question_type, force_api=False):
+        """Use Groq API with rate limiting and caching"""
+        # Create cache key
+        cache_key = f"{question_type}:{text}"
+        
+        # Check cache first (unless forcing API)
+        if not force_api and cache_key in self.cache:
+            return self.cache[cache_key]
+        
+        api_key = os.environ.get('GROQ_API_KEY')
+        if not api_key:
+            print("No GROQ_API_KEY found, using fallback cleaning")
+            result = fallback_clean(text, question_type)
+            self.cache[cache_key] = result
+            return result
+        
+        prompts = {
+            'fruit': f"""Clean this fruit name: "{text}"
 
 Return ONLY the singular form of the fruit name in Title Case. Remove explanations, parentheses, and extra words. Always use singular form.
 
@@ -44,7 +110,7 @@ Examples:
 
 Answer with just the singular fruit name:""",
 
-        'trader_joes': f"""Clean this Trader Joe's response: "{text}"
+            'trader_joes': f"""Clean this Trader Joe's response: "{text}"
 
 If it's "idk", "don't know", or "don't shop there" → return "SKIP"
 Otherwise, return the product name cleanly formatted with proper capitalization and clear naming.
@@ -61,7 +127,7 @@ Examples:
 
 Clean product name:""",
 
-        'plane_drink': f"""Clean this drink name: "{text}"
+            'plane_drink': f"""Clean this drink name: "{text}"
 
 Keep specific drink names but clean them up. Only use broad categories for unclear responses.
 
@@ -78,7 +144,7 @@ Examples:
 
 Clean drink name:""",
 
-        'potato': f"""Categorize this fried potato: "{text}"
+            'potato': f"""Categorize this fried potato: "{text}"
 
 Use one of these common categories if it fits well: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips
 
@@ -94,7 +160,7 @@ Examples:
 
 Category:""",
 
-        'pasta': f"""Standardize this pasta shape: "{text}"
+            'pasta': f"""Standardize this pasta shape: "{text}"
 
 Use one of these common shapes if it fits: Penne, Shells, Fusilli, Rigatoni, Macaroni, Spaghetti
 
@@ -107,66 +173,80 @@ Examples:
 - "linguine" → Linguine
 
 Shape:"""
-    }
-    
-    if question_type not in prompts:
-        return fallback_clean(text, question_type)
-    
-    try:
-        # Try llama3 first (often better at following instructions), fall back to mixtral
-        models_to_try = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"]
+        }
         
-        for model in models_to_try:
-            try:
-                response = requests.post(
-                    "https://api.groq.com/openai/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "model": model,
-                        "messages": [{"role": "user", "content": prompts[question_type]}],
-                        "temperature": 0.0,
-                        "max_tokens": 25
-                    },
-                    timeout=15
-                )
-                
-                if response.status_code == 200:
-                    cleaned = response.json()['choices'][0]['message']['content'].strip()
-                    
-                    # Remove common prefixes the model might add
-                    for prefix in ["Answer:", "Answer with just the singular fruit name:", "Clean drink name:", "Category:", "Shape:"]:
-                        if cleaned.startswith(prefix):
-                            cleaned = cleaned[len(prefix):].strip()
-                    
-                    # Remove quotes if present
-                    cleaned = cleaned.strip('"\'')
-                    
-                    # Validate the response isn't empty
-                    if cleaned and len(cleaned) > 0:
-                        print(f"LLM ({model}) cleaned '{text}' → '{cleaned}'")
-                        return cleaned
-                        
-                elif response.status_code == 429:
-                    print(f"Rate limited on {model}, trying next model...")
-                    continue
-                else:
-                    print(f"API error {response.status_code} on {model}: {response.text}")
-                    continue
-                    
-            except Exception as e:
-                print(f"Model {model} failed for '{text}': {e}")
-                continue
+        if question_type not in prompts:
+            result = fallback_clean(text, question_type)
+            self.cache[cache_key] = result
+            return result
         
-        # If all models failed, use fallback
-        print(f"All LLM attempts failed for '{text}', using fallback")
-        return fallback_clean(text, question_type)
+        try:
+            # Wait for rate limit before making request
+            self._wait_for_rate_limit()
             
-    except Exception as e:
-        print(f"LLM cleaning failed for '{text}': {e}")
-        return fallback_clean(text, question_type)
+            # Try llama3 first (often better at following instructions), fall back to mixtral
+            models_to_try = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"]
+            
+            for model in models_to_try:
+                try:
+                    # Record the request time
+                    self.request_times.append(time.time())
+                    
+                    response = requests.post(
+                        "https://api.groq.com/openai/v1/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {api_key}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "model": model,
+                            "messages": [{"role": "user", "content": prompts[question_type]}],
+                            "temperature": 0.0,
+                            "max_tokens": 25
+                        },
+                        timeout=15
+                    )
+                    
+                    if response.status_code == 200:
+                        cleaned = response.json()['choices'][0]['message']['content'].strip()
+                        
+                        # Remove common prefixes the model might add
+                        for prefix in ["Answer:", "Answer with just the singular fruit name:", "Clean drink name:", "Category:", "Shape:"]:
+                            if cleaned.startswith(prefix):
+                                cleaned = cleaned[len(prefix):].strip()
+                        
+                        # Remove quotes if present
+                        cleaned = cleaned.strip('"\'')
+                        
+                        # Validate the response isn't empty
+                        if cleaned and len(cleaned) > 0:
+                            print(f"LLM ({model}) cleaned '{text}' → '{cleaned}'")
+                            self.cache[cache_key] = cleaned
+                            return cleaned
+                            
+                    elif response.status_code == 429:
+                        print(f"Rate limited on {model}, waiting and trying next model...")
+                        time.sleep(2)  # Brief wait before trying next model
+                        continue
+                    else:
+                        print(f"API error {response.status_code} on {model}: {response.text}")
+                        continue
+                        
+                except Exception as e:
+                    print(f"Model {model} failed for '{text}': {e}")
+                    continue
+            
+            # If all models failed, use fallback
+            print(f"All LLM attempts failed for '{text}', using fallback")
+            result = fallback_clean(text, question_type)
+            self.cache[cache_key] = result
+            return result
+                
+        except Exception as e:
+            print(f"LLM cleaning failed for '{text}': {e}")
+            result = fallback_clean(text, question_type)
+            self.cache[cache_key] = result
+            return result
 
 def fallback_clean(text, question_type):
     """Fallback cleaning when LLM is unavailable"""
@@ -355,8 +435,21 @@ def extract_number(text):
     
     return None
 
-def process_survey_data():
-    """Main function to process survey data"""
+def process_survey_data(force_reprocess=False):
+    """Main function to process survey data with caching"""
+    print(f"Starting processing (force_reprocess={force_reprocess})")
+    
+    # Load cache
+    cache = load_cache()
+    
+    # Initialize LLM batcher
+    llm_batcher = LLMBatcher()
+    
+    # Load any cached LLM results into the batcher's cache
+    if 'llm_cache' in cache:
+        llm_batcher.cache = cache['llm_cache']
+        print(f"Loaded {len(llm_batcher.cache)} cached LLM results")
+    
     # Load data from Google Sheets
     sheet = setup_google_sheets()
     data = sheet.get_all_records()
@@ -399,15 +492,80 @@ def process_survey_data():
     if missing_columns:
         raise ValueError(f"Missing required columns: {missing_columns}")
     
+    # Determine which rows need processing
+    rows_to_process = []
+    new_rows = 0
+    cached_rows = 0
+    
+    for index, row in df.iterrows():
+        row_hash = get_row_hash(row)
+        row_id = f"row_{index}"
+        
+        if force_reprocess or row_id not in cache['row_hashes'] or cache['row_hashes'][row_id] != row_hash:
+            rows_to_process.append((index, row, row_hash, row_id))
+            if row_id not in cache['row_hashes']:
+                new_rows += 1
+        else:
+            cached_rows += 1
+    
+    print(f"Processing status: {new_rows} new rows, {len(rows_to_process) - new_rows} changed rows, {cached_rows} cached rows")
+    print(f"Will process {len(rows_to_process)} total rows")
+    
+    if len(rows_to_process) > 50:
+        estimated_time = len(rows_to_process) * 5 / 25  # 5 API calls per row, 25 per minute
+        print(f"Estimated processing time: {estimated_time:.1f} minutes (due to rate limits)")
+    
     stats = {}
     
-    # Process fruits (LLM cleaned)
+    # Process rows that need updates
+    for i, (index, row, row_hash, row_id) in enumerate(rows_to_process):
+        if i % 10 == 0:
+            print(f"Processing row {i+1}/{len(rows_to_process)}")
+        
+        # Update the cache with the new hash
+        cache['row_hashes'][row_id] = row_hash
+    
+    # Collect all data for final stats (from both processed and cached rows)
     fruits = []
-    for fruit in df['fruit']:
-        if pd.notna(fruit) and fruit != '':
-            cleaned = clean_with_llm(str(fruit), 'fruit')
+    trader_joes = []
+    plane_drinks = []
+    potatoes = []
+    pasta_shapes = []
+    
+    for index, row in df.iterrows():
+        row_id = f"row_{index}"
+        
+        # Process fruits (LLM cleaned)
+        if pd.notna(row['fruit']) and row['fruit'] != '':
+            cleaned = llm_batcher.clean_with_llm_batched(str(row['fruit']), 'fruit')
             fruits.append(cleaned)
+        
+        # Process Trader Joe's items (LLM cleaned, filter out non-responses)
+        if pd.notna(row['trader_joes']) and row['trader_joes'] != '':
+            cleaned = llm_batcher.clean_with_llm_batched(str(row['trader_joes']), 'trader_joes')
+            if cleaned != "SKIP":  # Don't include "idk" or "don't shop there" responses
+                trader_joes.append(cleaned)
+        
+        # Process plane drinks (LLM cleaned)
+        if pd.notna(row['plane_drink']) and row['plane_drink'] != '':
+            cleaned = llm_batcher.clean_with_llm_batched(str(row['plane_drink']), 'plane_drink')
+            plane_drinks.append(cleaned)
+        
+        # Process potatoes (LLM cleaned)
+        if pd.notna(row['potato']) and row['potato'] != '':
+            cleaned = llm_batcher.clean_with_llm_batched(str(row['potato']), 'potato')
+            potatoes.append(cleaned)
+        
+        # Process pasta shapes (LLM cleaned)
+        if pd.notna(row['pasta_shape']) and row['pasta_shape'] != '':
+            cleaned = llm_batcher.clean_with_llm_batched(str(row['pasta_shape']), 'pasta')
+            pasta_shapes.append(cleaned)
+    
     stats['fruits'] = dict(Counter(fruits))
+    stats['trader_joes'] = dict(Counter(trader_joes))
+    stats['plane_drinks'] = dict(Counter(plane_drinks))
+    stats['potatoes'] = dict(Counter(potatoes))
+    stats['pasta_shapes'] = dict(Counter(pasta_shapes))
     
     # Process grapes (manual mapping - these are radio buttons)
     grape_mapping = {
@@ -439,31 +597,6 @@ def process_survey_data():
                   if pd.notna(sandwich) and sandwich != '']
     stats['sandwiches'] = dict(Counter(sandwiches))
     
-    # Process Trader Joe's items (LLM cleaned, filter out non-responses)
-    trader_joes = []
-    for item in df['trader_joes']:
-        if pd.notna(item) and item != '':
-            cleaned = clean_with_llm(str(item), 'trader_joes')
-            if cleaned != "SKIP":  # Don't include "idk" or "don't shop there" responses
-                trader_joes.append(cleaned)
-    stats['trader_joes'] = dict(Counter(trader_joes))
-    
-    # Process plane drinks (LLM cleaned)
-    plane_drinks = []
-    for drink in df['plane_drink']:
-        if pd.notna(drink) and drink != '':
-            cleaned = clean_with_llm(str(drink), 'plane_drink')
-            plane_drinks.append(cleaned)
-    stats['plane_drinks'] = dict(Counter(plane_drinks))
-    
-    # Process potatoes (LLM cleaned)
-    potatoes = []
-    for potato in df['potato']:
-        if pd.notna(potato) and potato != '':
-            cleaned = clean_with_llm(str(potato), 'potato')
-            potatoes.append(cleaned)
-    stats['potatoes'] = dict(Counter(potatoes))
-    
     # Process taco shells (these are radio buttons, manual mapping)
     taco_mapping = {
         'hard': 'Hard',
@@ -477,14 +610,6 @@ def process_survey_data():
             taco_shells.append(mapped)
     stats['taco_shells'] = dict(Counter(taco_shells))
     
-    # Process pasta shapes (LLM cleaned)
-    pasta_shapes = []
-    for pasta in df['pasta_shape']:
-        if pd.notna(pasta) and pasta != '':
-            cleaned = clean_with_llm(str(pasta), 'pasta')
-            pasta_shapes.append(cleaned)
-    stats['pasta_shapes'] = dict(Counter(pasta_shapes))
-    
     # Process toast level if it exists (optional processing)
     if 'toast_level' in df.columns:
         toast_levels = []
@@ -497,8 +622,15 @@ def process_survey_data():
     # Add general stats
     stats['general'] = {
         'total_responses': len(df),
-        'last_updated': pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S UTC')
+        'last_updated': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'),
+        'new_rows_processed': new_rows,
+        'total_rows_processed': len(rows_to_process),
+        'cached_rows': cached_rows
     }
+    
+    # Save updated cache with LLM results
+    cache['llm_cache'] = llm_batcher.cache
+    save_cache(cache)
     
     # Save to JSON file
     os.makedirs('data', exist_ok=True)
@@ -507,6 +639,16 @@ def process_survey_data():
     
     print(f"Processed {len(df)} responses successfully!")
     print(f"LLM cleaned: {len(fruits)} fruits, {len(trader_joes)} Trader Joe's items, {len(plane_drinks)} drinks, {len(potatoes)} potatoes, {len(pasta_shapes)} pasta shapes")
+    print(f"Cache contains {len(llm_batcher.cache)} LLM results")
 
 if __name__ == "__main__":
-    process_survey_data()
+    parser = argparse.ArgumentParser(description='Process survey data with caching')
+    parser.add_argument('--force', action='store_true', 
+                       help='Force reprocessing of all rows (ignore cache)')
+    
+    args = parser.parse_args()
+    
+    # Also check for environment variable (useful for GitHub Actions)
+    force_reprocess = args.force or os.environ.get('FORCE_REPROCESS', '').lower() == 'true'
+    
+    process_survey_data(force_reprocess=force_reprocess)
