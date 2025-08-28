@@ -59,7 +59,7 @@ def get_row_hash(row_data):
 class LLMBatcher:
     """Batch LLM requests to respect rate limits and process multiple items at once"""
     
-    def __init__(self, requests_per_minute=25, batch_size=10):
+    def __init__(self, requests_per_minute=25, batch_size=8):  # Reduced batch size
         self.requests_per_minute = requests_per_minute
         self.batch_size = batch_size
         self.request_times = []
@@ -127,40 +127,69 @@ class LLMBatcher:
             return final_results
         
         prompts = {
-            'fruit': f"""Clean these fruit names to singular form with proper capitalization.
+            'fruit': f"""Clean these fruit names to singular form with proper capitalization. Return EXACTLY the same number of items as input, in the same order.
 
-Input: {json.dumps(uncached_texts)}
-Output format: ["Apple", "Banana", "Cherry"]
+Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
 
-Return only the JSON array of cleaned singular fruit names:""",
+Instructions:
+- Convert to singular form (e.g., "apples" → "Apple") 
+- Use proper Title Case
+- Remove parentheses and extra text
+- Keep each item separate even if similar
+- Return exactly {len(uncached_texts)} items
 
-            'trader_joes': f"""Clean these Trader Joe's responses. Return "SKIP" for non-responses like "idk" or "don't shop there".
+Output format: {json.dumps(['Example1', 'Example2'][:len(uncached_texts)])}
 
-Input: {json.dumps(uncached_texts)}
-Output format: ["Product Name", "SKIP", "Another Product"]
+JSON array with exactly {len(uncached_texts)} items:""",
 
-Return only the JSON array:""",
+            'trader_joes': f"""Clean these Trader Joe's responses. Return "SKIP" for non-responses like "idk" or "don't shop there". Return EXACTLY the same number of items as input.
 
-            'plane_drink': f"""Clean these airplane drink names with proper capitalization.
+Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
 
-Input: {json.dumps(uncached_texts)}
-Output format: ["Water", "Diet Coke", "Orange Juice"]
+Instructions:
+- "idk", "don't know", "don't shop there" → "SKIP"
+- Clean product names with proper capitalization
+- Extract product names from URLs if needed
+- Keep each response separate
+- Return exactly {len(uncached_texts)} items
 
-Return only the JSON array:""",
+JSON array with exactly {len(uncached_texts)} items:""",
 
-            'potato': f"""Categorize these fried potato items. Use standard categories: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips, or create appropriate new categories.
+            'plane_drink': f"""Clean these airplane drink names with proper capitalization. Return EXACTLY the same number of items as input, in the same order.
 
-Input: {json.dumps(uncached_texts)}
-Output format: ["French Fries", "Tater Tots", "Hash Browns"]
+Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
 
-Return only the JSON array:""",
+Instructions:
+- Use standard drink names (Water, Diet Coke, etc.)
+- Keep each item separate even if similar
+- Return exactly {len(uncached_texts)} items
 
-            'pasta': f"""Standardize these pasta shape names.
+JSON array with exactly {len(uncached_texts)} items:""",
 
-Input: {json.dumps(uncached_texts)}
-Output format: ["Penne", "Shells", "Fusilli"]
+            'potato': f"""Categorize these fried potato items. Use standard categories or create appropriate new ones. Return EXACTLY the same number of items as input.
 
-Return only the JSON array:"""
+Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
+
+Standard categories: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips
+
+Instructions:
+- Use standard categories when appropriate
+- Create new categories for unique items (e.g., "Latkes")
+- Keep each item separate
+- Return exactly {len(uncached_texts)} items
+
+JSON array with exactly {len(uncached_texts)} items:""",
+
+            'pasta': f"""Standardize these pasta shape names. Return EXACTLY the same number of items as input.
+
+Input ({len(uncached_texts)} items): {json.dumps(uncached_texts)}
+
+Instructions:
+- Use standard pasta names (Penne, Shells, Fusilli, etc.)
+- Keep each item separate even if similar
+- Return exactly {len(uncached_texts)} items
+
+JSON array with exactly {len(uncached_texts)} items:"""
         }
         
         if question_type not in prompts:
@@ -207,44 +236,80 @@ Return only the JSON array:"""
                     if response.status_code == 200:
                         response_text = response.json()['choices'][0]['message']['content'].strip()
                         
-                        # Parse JSON response
+                        print(f"    RAW LLM RESPONSE ({model}):")
+                        print(f"    " + "="*80)
+                        print(f"    {response_text}")
+                        print(f"    " + "="*80)
+                        
+                        # Parse JSON response with multiple attempts
                         try:
                             # Clean response text - remove any prefixes/suffixes
+                            original_response = response_text
                             if '```json' in response_text:
                                 response_text = response_text.split('```json')[1].split('```')[0].strip()
                             elif '```' in response_text:
                                 response_text = response_text.split('```')[1].split('```')[0].strip()
                             
-                            # Find JSON array in the response
+                            # Try multiple JSON extraction methods
+                            json_attempts = []
+                            
+                            # Method 1: Find JSON array brackets
                             start_idx = response_text.find('[')
                             end_idx = response_text.rfind(']') + 1
                             if start_idx != -1 and end_idx != 0:
-                                json_str = response_text[start_idx:end_idx]
-                                cleaned_batch = json.loads(json_str)
-                                
-                                # Validate response length matches input
-                                if len(cleaned_batch) == len(uncached_texts):
-                                    print(f"    API SUCCESS: Processed {len(uncached_texts)} {question_type} items")
-                                    
-                                    # Cache individual results
-                                    for i, text in enumerate(uncached_texts):
-                                        cache_key = f"{question_type}:{text}"
-                                        self.cache[cache_key] = cleaned_batch[i]
-                                        print(f"    CACHED: '{text[:50]}...' -> '{cleaned_batch[i]}'")
-                                    
-                                    # Merge cached and new results
-                                    final_results = [None] * len(texts)
-                                    for i, result in cached_results.items():
-                                        final_results[i] = result
-                                    for i, idx in enumerate(uncached_indices):
-                                        final_results[idx] = cleaned_batch[i]
-                                    
-                                    return final_results
-                                else:
-                                    print(f"Response length mismatch: expected {len(uncached_texts)}, got {len(cleaned_batch)}")
+                                json_attempts.append(response_text[start_idx:end_idx])
+                            
+                            # Method 2: Try the whole response if no brackets found
+                            if not json_attempts:
+                                json_attempts.append(response_text.strip())
+                            
+                            # Method 3: Look for arrays in the original response
+                            if '[' in original_response and ']' in original_response:
+                                start_orig = original_response.find('[')
+                                end_orig = original_response.rfind(']') + 1
+                                json_attempts.append(original_response[start_orig:end_orig])
+                            
+                            cleaned_batch = None
+                            for attempt_idx, json_str in enumerate(json_attempts):
+                                try:
+                                    cleaned_batch = json.loads(json_str)
+                                    print(f"    JSON parsed successfully on attempt {attempt_idx + 1}")
+                                    break
+                                except json.JSONDecodeError as e:
+                                    print(f"    JSON attempt {attempt_idx + 1} failed: {e}")
                                     continue
+                            
+                            if cleaned_batch is None:
+                                print(f"    All JSON parsing attempts failed")
+                                print(f"    Original response: {original_response[:200]}...")
+                                continue
+                                
+                            if len(cleaned_batch) == len(uncached_texts):
+                                print(f"    ✅ API SUCCESS: Processed {len(uncached_texts)} {question_type} items")
+                                print(f"    INPUT->OUTPUT MAPPING:")
+                                for i in range(min(5, len(uncached_texts))):  # Show first 5 mappings
+                                    print(f"      '{uncached_texts[i][:40]}...' -> '{cleaned_batch[i]}'")
+                                if len(uncached_texts) > 5:
+                                    print(f"      ... and {len(uncached_texts) - 5} more")
+                                
+                                # Cache individual results
+                                for i, text in enumerate(uncached_texts):
+                                    cache_key = f"{question_type}:{text}"
+                                    self.cache[cache_key] = cleaned_batch[i]
+                                
+                                # Merge cached and new results
+                                final_results = [None] * len(texts)
+                                for i, result in cached_results.items():
+                                    final_results[i] = result
+                                for i, idx in enumerate(uncached_indices):
+                                    final_results[idx] = cleaned_batch[i]
+                                
+                                return final_results
                             else:
-                                print("Could not find JSON array in response")
+                                print(f"    ❌ LENGTH MISMATCH: expected {len(uncached_texts)}, got {len(cleaned_batch)}")
+                                print(f"    INPUT ({len(uncached_texts)} items): {[t[:20]+'...' for t in uncached_texts]}")
+                                print(f"    OUTPUT ({len(cleaned_batch)} items): {cleaned_batch}")
+                                print(f"    PROBLEM: LLM returned different number of items than input")
                                 continue
                                 
                         except json.JSONDecodeError as e:
@@ -553,8 +618,8 @@ def process_survey_data(force_reprocess=False):
     # Load cache
     cache = load_cache()
     
-    # Initialize LLM batcher with larger batch size
-    llm_batcher = LLMBatcher(batch_size=15)
+    # Initialize LLM batcher with smaller batch size for better reliability
+    llm_batcher = LLMBatcher(batch_size=8)
     
     # Load any cached LLM results into the batcher's cache (unless force reprocessing)
     if 'llm_cache' in cache and not force_reprocess:
