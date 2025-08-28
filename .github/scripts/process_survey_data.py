@@ -122,10 +122,42 @@ def process_survey_data():
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
     
-    # Clean column names
-    df.columns = ['timestamp', 'fruit', 'grapes', 'eggs', 'sandwich', 
-                  'trader_joes', 'plane_drink', 'potato', 'taco_shell', 
-                  'toast_level', 'pasta_shape']
+    # Debug: Print actual columns and their count
+    print(f"Actual columns ({len(df.columns)}): {list(df.columns)}")
+    
+    # Expected column names
+    expected_columns = ['timestamp', 'fruit', 'grapes', 'eggs', 'sandwich', 
+                       'trader_joes', 'plane_drink', 'potato', 'taco_shell', 
+                       'toast_level', 'pasta_shape']
+    
+    print(f"Expected columns ({len(expected_columns)}): {expected_columns}")
+    
+    # Handle column count mismatch more gracefully
+    if len(df.columns) != len(expected_columns):
+        print(f"Warning: Column count mismatch. Expected {len(expected_columns)}, got {len(df.columns)}")
+        print("Using original column names from sheet")
+        # Map columns by position instead of reassigning all names
+        if len(df.columns) >= len(expected_columns):
+            # If we have extra columns, just use the first ones we need
+            column_mapping = {}
+            for i, expected_col in enumerate(expected_columns):
+                if i < len(df.columns):
+                    column_mapping[df.columns[i]] = expected_col
+            df = df.rename(columns=column_mapping)
+        else:
+            # If we have fewer columns than expected, this is a bigger problem
+            raise ValueError(f"Sheet has fewer columns ({len(df.columns)}) than expected ({len(expected_columns)})")
+    else:
+        # Clean column names as originally intended
+        df.columns = expected_columns
+    
+    # Ensure we have the columns we need for processing
+    required_columns = ['fruit', 'grapes', 'eggs', 'sandwich', 'trader_joes', 
+                       'plane_drink', 'potato', 'taco_shell', 'pasta_shape']
+    
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        raise ValueError(f"Missing required columns: {missing_columns}")
     
     stats = {}
     
@@ -211,6 +243,15 @@ def process_survey_data():
             cleaned = clean_with_llm(str(pasta), 'pasta')
             pasta_shapes.append(cleaned)
     stats['pasta_shapes'] = dict(Counter(pasta_shapes))
+    
+    # Process toast level if it exists (optional processing)
+    if 'toast_level' in df.columns:
+        toast_levels = []
+        for toast in df['toast_level']:
+            if pd.notna(toast) and toast != '':
+                toast_levels.append(str(toast))
+        if toast_levels:
+            stats['toast_levels'] = dict(Counter(toast_levels))
     
     # Add general stats
     stats['general'] = {
