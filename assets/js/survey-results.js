@@ -244,11 +244,22 @@ function createFruitChart(fruitData) {
     controlsDiv.appendChild(nextButton);
     chartDiv.appendChild(controlsDiv);
     
+    // CREATE SEPARATE CANVAS CONTAINER - This is the key fix!
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.cssText = `
+        width: 100%;
+        height: 400px;
+        position: relative;
+    `;
+    
     // Create canvas
-    const ctx = document.createElement('canvas');
+    let ctx = document.createElement('canvas');
     ctx.id = 'fruitChart';
     
-    chartDiv.appendChild(ctx);
+    // Add canvas to its own container
+    canvasContainer.appendChild(ctx);
+    // Add the canvas container to the main chart div
+    chartDiv.appendChild(canvasContainer);
     container.appendChild(chartDiv);
     
     // Generate a diverse color palette
@@ -301,8 +312,9 @@ function createFruitChart(fruitData) {
         oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
         ctx = newCanvas; // Update reference
         
-        // Get container dimensions
-        const containerWidth = chartDiv.clientWidth - 30; // Account for padding
+        // Get dimensions from the canvas container, not the full chartDiv
+        const canvasContainer = ctx.parentNode;
+        const containerWidth = canvasContainer.clientWidth - 20; // Small padding
         const chartHeight = 400;
         const dpr = window.devicePixelRatio || 1;
         
