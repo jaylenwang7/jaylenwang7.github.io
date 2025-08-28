@@ -56,10 +56,11 @@ def get_row_hash(row_data):
     return hashlib.md5(row_str.encode()).hexdigest()
 
 class LLMBatcher:
-    """Batch LLM requests to respect rate limits"""
+    """Batch LLM requests to respect rate limits and process multiple items at once"""
     
-    def __init__(self, requests_per_minute=25):  # Slightly under the 30 limit for safety
+    def __init__(self, requests_per_minute=25, batch_size=10):
         self.requests_per_minute = requests_per_minute
+        self.batch_size = batch_size
         self.request_times = []
         self.cache = {}
         
@@ -77,108 +78,96 @@ class LLMBatcher:
                 time.sleep(wait_time)
                 self._wait_for_rate_limit()  # Recursive call to check again
     
-    def clean_with_llm_batched(self, text, question_type, force_api=False):
-        """Use Groq API with rate limiting and caching"""
-        # Create cache key
-        cache_key = f"{question_type}:{text}"
+    def clean_batch_with_llm(self, texts, question_type):
+        """Process a batch of texts with a single API call"""
+        if not texts:
+            return []
         
-        # Check cache first (unless forcing API)
-        if not force_api and cache_key in self.cache:
-            return self.cache[cache_key]
+        # Check cache for all items first
+        cached_results = {}
+        uncached_texts = []
+        uncached_indices = []
+        
+        for i, text in enumerate(texts):
+            cache_key = f"{question_type}:{text}"
+            if cache_key in self.cache:
+                cached_results[i] = self.cache[cache_key]
+            else:
+                uncached_texts.append(text)
+                uncached_indices.append(i)
+        
+        # If all items are cached, return cached results
+        if not uncached_texts:
+            return [cached_results[i] for i in range(len(texts))]
         
         api_key = os.environ.get('GROQ_API_KEY')
         if not api_key:
             print("No GROQ_API_KEY found, using fallback cleaning")
-            result = fallback_clean(text, question_type)
-            self.cache[cache_key] = result
-            return result
+            fallback_results = [fallback_clean(text, question_type) for text in uncached_texts]
+            # Cache fallback results
+            for i, text in enumerate(uncached_texts):
+                cache_key = f"{question_type}:{text}"
+                self.cache[cache_key] = fallback_results[i]
+            
+            # Merge cached and fallback results
+            final_results = [None] * len(texts)
+            for i, result in cached_results.items():
+                final_results[i] = result
+            for i, idx in enumerate(uncached_indices):
+                final_results[idx] = fallback_results[i]
+            return final_results
         
         prompts = {
-            'fruit': f"""Clean this fruit name: "{text}"
+            'fruit': f"""Clean these fruit names to singular form with proper capitalization.
 
-Return ONLY the singular form of the fruit name in Title Case. Remove explanations, parentheses, and extra words. Always use singular form.
+Input: {json.dumps(uncached_texts)}
+Output format: ["Apple", "Banana", "Cherry"]
 
-Examples:
-- "The humble Apple" → Apple
-- "blackberry (because it is tasty and healthy" → Blackberry  
-- "d'anjou pear" → Pear
-- "litchi" → Lychee
-- "golden kiwi" → Kiwi
-- "strawberries" → Strawberry
-- "apples" → Apple
-- "cherries" → Cherry
+Return only the JSON array of cleaned singular fruit names:""",
 
-Answer with just the singular fruit name:""",
+            'trader_joes': f"""Clean these Trader Joe's responses. Return "SKIP" for non-responses like "idk" or "don't shop there".
 
-            'trader_joes': f"""Clean this Trader Joe's response: "{text}"
+Input: {json.dumps(uncached_texts)}
+Output format: ["Product Name", "SKIP", "Another Product"]
 
-If it's "idk", "don't know", or "don't shop there" → return "SKIP"
-Otherwise, return the product name cleanly formatted with proper capitalization and clear naming.
-If a link is provided, extract the likely product name from the URL.
+Return only the JSON array:""",
 
-Examples:
-- "idk" → SKIP
-- "don't shop there" → SKIP
-- "Ube Mochi Ice Cream" → Ube Mochi Ice Cream
-- "chocolate pb cups" → Chocolate Peanut Butter Cups
-- "burrata filling (the one without the skin in a flat looking container)" → Burrata Filling
-- "scandinavian swimmers" → Scandinavian Swimmers
-- "the lava cakes" → Lava Cakes
+            'plane_drink': f"""Clean these airplane drink names with proper capitalization.
 
-Clean product name:""",
+Input: {json.dumps(uncached_texts)}
+Output format: ["Water", "Diet Coke", "Orange Juice"]
 
-            'plane_drink': f"""Clean this drink name: "{text}"
+Return only the JSON array:""",
 
-Keep specific drink names but clean them up. Only use broad categories for unclear responses.
+            'potato': f"""Categorize these fried potato items. Use standard categories: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips, or create appropriate new categories.
 
-Examples:
-- "bottled water" → Water
-- "worter" → Water  
-- "diet dr. pepper (only available on american airlines; coke zero elsewhere)" → Diet Dr Pepper
-- "diet coke" → Diet Coke
-- "orange juice" → Orange Juice
-- "ginger ale" → Ginger Ale
-- "sprite" → Sprite
-- "nothing - i don't trust it" → Nothing
-- "sparking water" → Sparkling Water
+Input: {json.dumps(uncached_texts)}
+Output format: ["French Fries", "Tater Tots", "Hash Browns"]
 
-Clean drink name:""",
+Return only the JSON array:""",
 
-            'potato': f"""Categorize this fried potato: "{text}"
+            'pasta': f"""Standardize these pasta shape names.
 
-Use one of these common categories if it fits well: French Fries, Curly Fries, Waffle Fries, Tater Tots, Hash Browns, Potato Chips
+Input: {json.dumps(uncached_texts)}
+Output format: ["Penne", "Shells", "Fusilli"]
 
-If it doesn't fit well into any of these, create an appropriate new category name (e.g., "Latkes" for latkes, "Rösti" for rösti, etc.)
-
-Examples:
-- "standard french fry" → French Fries
-- "crinkle cut fries" → French Fries
-- "latkes" → Latkes
-- "parboil the potatoes first..." → Other
-- "tater tot" → Tater Tots
-- "rösti" → Rösti
-
-Category:""",
-
-            'pasta': f"""Standardize this pasta shape: "{text}"
-
-Use one of these common shapes if it fits: Penne, Shells, Fusilli, Rigatoni, Macaroni, Spaghetti
-
-If it's a different pasta shape, use the proper name for that shape (e.g., "Farfalle" for bow ties, "Linguine" for linguine, etc.)
-
-Examples:
-- "fusilli (spirally ones)" → Fusilli
-- "shells" → Shells
-- "bow ties" → Farfalle
-- "linguine" → Linguine
-
-Shape:"""
+Return only the JSON array:"""
         }
         
         if question_type not in prompts:
-            result = fallback_clean(text, question_type)
-            self.cache[cache_key] = result
-            return result
+            fallback_results = [fallback_clean(text, question_type) for text in uncached_texts]
+            # Cache results
+            for i, text in enumerate(uncached_texts):
+                cache_key = f"{question_type}:{text}"
+                self.cache[cache_key] = fallback_results[i]
+            
+            # Merge results
+            final_results = [None] * len(texts)
+            for i, result in cached_results.items():
+                final_results[i] = result
+            for i, idx in enumerate(uncached_indices):
+                final_results[idx] = fallback_results[i]
+            return final_results
         
         try:
             # Wait for rate limit before making request
@@ -201,51 +190,163 @@ Shape:"""
                             "model": model,
                             "messages": [{"role": "user", "content": prompts[question_type]}],
                             "temperature": 0.0,
-                            "max_tokens": 25
+                            "max_tokens": 500  # Increased for batch responses
                         },
-                        timeout=15
+                        timeout=30
                     )
                     
                     if response.status_code == 200:
-                        cleaned = response.json()['choices'][0]['message']['content'].strip()
+                        response_text = response.json()['choices'][0]['message']['content'].strip()
                         
-                        # Remove common prefixes the model might add
-                        for prefix in ["Answer:", "Answer with just the singular fruit name:", "Clean drink name:", "Category:", "Shape:"]:
-                            if cleaned.startswith(prefix):
-                                cleaned = cleaned[len(prefix):].strip()
-                        
-                        # Remove quotes if present
-                        cleaned = cleaned.strip('"\'')
-                        
-                        # Validate the response isn't empty
-                        if cleaned and len(cleaned) > 0:
-                            print(f"LLM ({model}) cleaned '{text}' → '{cleaned}'")
-                            self.cache[cache_key] = cleaned
-                            return cleaned
+                        # Parse JSON response
+                        try:
+                            # Clean response text - remove any prefixes/suffixes
+                            if '```json' in response_text:
+                                response_text = response_text.split('```json')[1].split('```')[0].strip()
+                            elif '```' in response_text:
+                                response_text = response_text.split('```')[1].split('```')[0].strip()
+                            
+                            # Find JSON array in the response
+                            start_idx = response_text.find('[')
+                            end_idx = response_text.rfind(']') + 1
+                            if start_idx != -1 and end_idx != 0:
+                                json_str = response_text[start_idx:end_idx]
+                                cleaned_batch = json.loads(json_str)
+                                
+                                # Validate response length matches input
+                                if len(cleaned_batch) == len(uncached_texts):
+                                    print(f"LLM batch processed {len(uncached_texts)} {question_type} items")
+                                    
+                                    # Cache individual results
+                                    for i, text in enumerate(uncached_texts):
+                                        cache_key = f"{question_type}:{text}"
+                                        self.cache[cache_key] = cleaned_batch[i]
+                                    
+                                    # Merge cached and new results
+                                    final_results = [None] * len(texts)
+                                    for i, result in cached_results.items():
+                                        final_results[i] = result
+                                    for i, idx in enumerate(uncached_indices):
+                                        final_results[idx] = cleaned_batch[i]
+                                    
+                                    return final_results
+                                else:
+                                    print(f"Response length mismatch: expected {len(uncached_texts)}, got {len(cleaned_batch)}")
+                                    continue
+                            else:
+                                print("Could not find JSON array in response")
+                                continue
+                                
+                        except json.JSONDecodeError as e:
+                            print(f"JSON parsing failed: {e}")
+                            print(f"Response text: {response_text[:200]}...")
+                            continue
                             
                     elif response.status_code == 429:
                         print(f"Rate limited on {model}, waiting and trying next model...")
-                        time.sleep(2)  # Brief wait before trying next model
+                        time.sleep(2)
                         continue
                     else:
                         print(f"API error {response.status_code} on {model}: {response.text}")
                         continue
                         
                 except Exception as e:
-                    print(f"Model {model} failed for '{text}': {e}")
+                    print(f"Model {model} failed: {e}")
                     continue
             
-            # If all models failed, use fallback
-            print(f"All LLM attempts failed for '{text}', using fallback")
-            result = fallback_clean(text, question_type)
-            self.cache[cache_key] = result
-            return result
+            # If all API attempts failed, use fallback
+            print(f"All LLM attempts failed for batch of {len(uncached_texts)} items, using fallback")
+            fallback_results = [fallback_clean(text, question_type) for text in uncached_texts]
+            
+            # Cache fallback results
+            for i, text in enumerate(uncached_texts):
+                cache_key = f"{question_type}:{text}"
+                self.cache[cache_key] = fallback_results[i]
+            
+            # Merge results
+            final_results = [None] * len(texts)
+            for i, result in cached_results.items():
+                final_results[i] = result
+            for i, idx in enumerate(uncached_indices):
+                final_results[idx] = fallback_results[i]
+            return final_results
                 
         except Exception as e:
-            print(f"LLM cleaning failed for '{text}': {e}")
-            result = fallback_clean(text, question_type)
-            self.cache[cache_key] = result
-            return result
+            print(f"Batch LLM cleaning failed: {e}")
+            fallback_results = [fallback_clean(text, question_type) for text in uncached_texts]
+            
+            # Cache fallback results
+            for i, text in enumerate(uncached_texts):
+                cache_key = f"{question_type}:{text}"
+                self.cache[cache_key] = fallback_results[i]
+            
+            # Merge results
+            final_results = [None] * len(texts)
+            for i, result in cached_results.items():
+                final_results[i] = result
+            for i, idx in enumerate(uncached_indices):
+                final_results[idx] = fallback_results[i]
+            return final_results
+
+    def process_all_items(self, df):
+        """Process all survey items by question type in batches"""
+        results = {
+            'fruits': [],
+            'trader_joes': [],
+            'plane_drinks': [],
+            'potatoes': [],
+            'pasta_shapes': []
+        }
+        
+        # Collect all items by type
+        items_by_type = {
+            'fruit': [],
+            'trader_joes': [],
+            'plane_drink': [],
+            'potato': [],
+            'pasta': []
+        }
+        
+        # Build lists of items to process
+        for index, row in df.iterrows():
+            if pd.notna(row['fruit']) and row['fruit'] != '':
+                items_by_type['fruit'].append(str(row['fruit']))
+            if pd.notna(row['trader_joes']) and row['trader_joes'] != '':
+                items_by_type['trader_joes'].append(str(row['trader_joes']))
+            if pd.notna(row['plane_drink']) and row['plane_drink'] != '':
+                items_by_type['plane_drink'].append(str(row['plane_drink']))
+            if pd.notna(row['potato']) and row['potato'] != '':
+                items_by_type['potato'].append(str(row['potato']))
+            if pd.notna(row['pasta_shape']) and row['pasta_shape'] != '':
+                items_by_type['pasta'].append(str(row['pasta_shape']))
+        
+        # Process each type in batches
+        for question_type, items in items_by_type.items():
+            if not items:
+                continue
+                
+            print(f"Processing {len(items)} {question_type} items...")
+            
+            # Process in batches
+            all_results = []
+            for i in range(0, len(items), self.batch_size):
+                batch = items[i:i + self.batch_size]
+                batch_results = self.clean_batch_with_llm(batch, question_type)
+                all_results.extend(batch_results)
+            
+            # Store results
+            if question_type == 'fruit':
+                results['fruits'] = all_results
+            elif question_type == 'trader_joes':
+                results['trader_joes'] = [r for r in all_results if r != "SKIP"]
+            elif question_type == 'plane_drink':
+                results['plane_drinks'] = all_results
+            elif question_type == 'potato':
+                results['potatoes'] = all_results
+            elif question_type == 'pasta':
+                results['pasta_shapes'] = all_results
+        
+        return results
 
 def fallback_clean(text, question_type):
     """Fallback cleaning when LLM is unavailable"""
@@ -441,8 +542,8 @@ def process_survey_data(force_reprocess=False):
     # Load cache
     cache = load_cache()
     
-    # Initialize LLM batcher
-    llm_batcher = LLMBatcher()
+    # Initialize LLM batcher with larger batch size
+    llm_batcher = LLMBatcher(batch_size=15)
     
     # Load any cached LLM results into the batcher's cache
     if 'llm_cache' in cache:
@@ -491,80 +592,33 @@ def process_survey_data(force_reprocess=False):
     if missing_columns:
         raise ValueError(f"Missing required columns: {missing_columns}")
     
-    # Determine which rows need processing
-    rows_to_process = []
-    new_rows = 0
-    cached_rows = 0
-    
-    for index, row in df.iterrows():
-        row_hash = get_row_hash(row)
-        row_id = f"row_{index}"
+    # Determine if we need to reprocess (for now, process all batches since we changed the logic)
+    if not force_reprocess:
+        # Check if we need to reprocess by comparing data hashes
+        rows_changed = False
+        for index, row in df.iterrows():
+            row_hash = get_row_hash(row)
+            row_id = f"row_{index}"
+            if row_id not in cache['row_hashes'] or cache['row_hashes'][row_id] != row_hash:
+                rows_changed = True
+                break
         
-        if force_reprocess or row_id not in cache['row_hashes'] or cache['row_hashes'][row_id] != row_hash:
-            rows_to_process.append((index, row, row_hash, row_id))
-            if row_id not in cache['row_hashes']:
-                new_rows += 1
-        else:
-            cached_rows += 1
+        if not rows_changed:
+            print("No changes detected, using cached results")
+            # Still need to rebuild stats from cache
+            # This part would need to be implemented if we want to skip processing entirely
     
-    print(f"Processing status: {new_rows} new rows, {len(rows_to_process) - new_rows} changed rows, {cached_rows} cached rows")
-    print(f"Will process {len(rows_to_process)} total rows")
+    print("Processing all items with batched API calls...")
     
-    if len(rows_to_process) > 50:
-        estimated_time = len(rows_to_process) * 5 / 25  # 5 API calls per row, 25 per minute
-        print(f"Estimated processing time: {estimated_time:.1f} minutes (due to rate limits)")
+    # Process all items using the new batching system
+    llm_results = llm_batcher.process_all_items(df)
     
     stats = {}
-    
-    # Process rows that need updates
-    for i, (index, row, row_hash, row_id) in enumerate(rows_to_process):
-        if i % 10 == 0:
-            print(f"Processing row {i+1}/{len(rows_to_process)}")
-        
-        # Update the cache with the new hash
-        cache['row_hashes'][row_id] = row_hash
-    
-    # Collect all data for final stats (from both processed and cached rows)
-    fruits = []
-    trader_joes = []
-    plane_drinks = []
-    potatoes = []
-    pasta_shapes = []
-    
-    for index, row in df.iterrows():
-        row_id = f"row_{index}"
-        
-        # Process fruits (LLM cleaned)
-        if pd.notna(row['fruit']) and row['fruit'] != '':
-            cleaned = llm_batcher.clean_with_llm_batched(str(row['fruit']), 'fruit')
-            fruits.append(cleaned)
-        
-        # Process Trader Joe's items (LLM cleaned, filter out non-responses)
-        if pd.notna(row['trader_joes']) and row['trader_joes'] != '':
-            cleaned = llm_batcher.clean_with_llm_batched(str(row['trader_joes']), 'trader_joes')
-            if cleaned != "SKIP":  # Don't include "idk" or "don't shop there" responses
-                trader_joes.append(cleaned)
-        
-        # Process plane drinks (LLM cleaned)
-        if pd.notna(row['plane_drink']) and row['plane_drink'] != '':
-            cleaned = llm_batcher.clean_with_llm_batched(str(row['plane_drink']), 'plane_drink')
-            plane_drinks.append(cleaned)
-        
-        # Process potatoes (LLM cleaned)
-        if pd.notna(row['potato']) and row['potato'] != '':
-            cleaned = llm_batcher.clean_with_llm_batched(str(row['potato']), 'potato')
-            potatoes.append(cleaned)
-        
-        # Process pasta shapes (LLM cleaned)
-        if pd.notna(row['pasta_shape']) and row['pasta_shape'] != '':
-            cleaned = llm_batcher.clean_with_llm_batched(str(row['pasta_shape']), 'pasta')
-            pasta_shapes.append(cleaned)
-    
-    stats['fruits'] = dict(Counter(fruits))
-    stats['trader_joes'] = dict(Counter(trader_joes))
-    stats['plane_drinks'] = dict(Counter(plane_drinks))
-    stats['potatoes'] = dict(Counter(potatoes))
-    stats['pasta_shapes'] = dict(Counter(pasta_shapes))
+    stats['fruits'] = dict(Counter(llm_results['fruits']))
+    stats['trader_joes'] = dict(Counter(llm_results['trader_joes']))
+    stats['plane_drinks'] = dict(Counter(llm_results['plane_drinks']))
+    stats['potatoes'] = dict(Counter(llm_results['potatoes']))
+    stats['pasta_shapes'] = dict(Counter(llm_results['pasta_shapes']))
     
     # Process grapes (manual mapping - these are radio buttons)
     grape_mapping = {
@@ -618,13 +672,17 @@ def process_survey_data(force_reprocess=False):
         if toast_levels:
             stats['toast_levels'] = dict(Counter(toast_levels))
     
+    # Update row hashes in cache
+    for index, row in df.iterrows():
+        row_hash = get_row_hash(row)
+        row_id = f"row_{index}"
+        cache['row_hashes'][row_id] = row_hash
+    
     # Add general stats
     stats['general'] = {
         'total_responses': len(df),
         'last_updated': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'),
-        'new_rows_processed': new_rows,
-        'total_rows_processed': len(rows_to_process),
-        'cached_rows': cached_rows
+        'api_calls_saved': f"Batched processing (estimated {len(llm_batcher.cache)} cached items)"
     }
     
     # Save updated cache with LLM results
@@ -637,7 +695,7 @@ def process_survey_data(force_reprocess=False):
         json.dump(stats, f, indent=2)
     
     print(f"Processed {len(df)} responses successfully!")
-    print(f"LLM cleaned: {len(fruits)} fruits, {len(trader_joes)} Trader Joe's items, {len(plane_drinks)} drinks, {len(potatoes)} potatoes, {len(pasta_shapes)} pasta shapes")
+    print(f"Results: {len(llm_results['fruits'])} fruits, {len(llm_results['trader_joes'])} Trader Joe's items, {len(llm_results['plane_drinks'])} drinks, {len(llm_results['potatoes'])} potatoes, {len(llm_results['pasta_shapes'])} pasta shapes")
     print(f"Cache contains {len(llm_batcher.cache)} LLM results")
 
 if __name__ == "__main__":
