@@ -9,8 +9,11 @@ permalink: /survey-results/
   <p style="margin: 20px 0; color: #666;">
     Need the access code? 
     <a href="https://forms.gle/MUb6fduRtoqTf79t5" target="_blank" style="color: #007cba; text-decoration: none; font-weight: bold;">
-      Fill out the fun survey first! 📝
+      Fill out the survey first! 📝
     </a>
+  </p>
+  <p style="margin: 10px 0; color: #999; font-style: italic; font-size: 14px;">
+    (If you've filled out the survey already and just want to see the results, just shoot me an email).
   </p>
   <div style="margin: 20px 0;">
     <input type="password" id="passcode" placeholder="Enter passcode" style="
@@ -35,7 +38,7 @@ permalink: /survey-results/
 </div>
 
 <div id="survey-results" style="display: none;">
-  <h1>Fun Survey Results! 📊</h1>
+  <h1>Survey Results! 📊</h1>
   <div id="loading">Loading latest results...</div>
   <div id="general-stats"></div>
   <div id="stats-container"></div>
