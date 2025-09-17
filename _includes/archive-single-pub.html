@@ -12,10 +12,8 @@
   {% assign title = post.title %}
 {% endif %}
 
-<div class="{{ include.type | default: "list" }}__item">
-  <ul>
+<div class="{{ include.type | default: "list" }}__item publication-item">
   <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
-    <li> 
     {% if include.type == "grid" and teaser %}
       <div class="archive__item-teaser">
         <img src=
@@ -28,128 +26,202 @@
       </div>
     {% endif %}
 
-    <p>
-      <strong class="archive__item-title">
-      {% if post.link %}
-        <a href="{{ post.link }}">{{ title }}</a> <a href="{{ base_path }}{{ post.url }}" rel="permalink"><i class="fa fa-link" aria-hidden="true" title="permalink"></i><span class="sr-only">Permalink</span></a>
-      {% else %}
-        <a href="{{ base_path }}{{ post.url }}" rel="permalink">{{ title }}</a>
-      {% endif %}
-      {% if post.artifact_badges %}
-        <span class="artifact-badges">
-        {% for badge in post.artifact_badges %}
-          {% case badge %}
-            {% when 'available' %}
-              <img src="{{ base_path }}/images/artifacts_available.png" alt="Artifacts Available" title="Artifacts Available" class="artifact-badge">
-            {% when 'functional' %}
-              <img src="{{ base_path }}/images/artifacts_evaluated_functional.png" alt="Artifacts Evaluated - Functional" title="Artifacts Evaluated - Functional" class="artifact-badge">
-            {% when 'reproduced' %}
-              <img src="{{ base_path }}/images/results_reproduced.png" alt="Results Reproduced" title="Results Reproduced" class="artifact-badge">
-          {% endcase %}
-        {% endfor %}
-        </span>
-      {% endif %}
-      </strong>
+    <div class="publication-content">
+      <h3 class="archive__item-title">
+        {% if post.link %}
+          <a href="{{ post.link }}">{{ title }}</a> <a href="{{ base_path }}{{ post.url }}" rel="permalink"><i class="fa fa-link" aria-hidden="true" title="permalink"></i><span class="sr-only">Permalink</span></a>
+        {% else %}
+          <a href="{{ base_path }}{{ post.url }}" rel="permalink">{{ title }}</a>
+        {% endif %}
+        {% if post.artifact_badges %}
+          <span class="artifact-badges">
+          {% for badge in post.artifact_badges %}
+            {% case badge %}
+              {% when 'available' %}
+                <img src="{{ base_path }}/images/artifacts_available.png" alt="Artifacts Available" title="Artifacts Available" class="artifact-badge">
+              {% when 'functional' %}
+                <img src="{{ base_path }}/images/artifacts_evaluated_functional.png" alt="Artifacts Evaluated - Functional" title="Artifacts Evaluated - Functional" class="artifact-badge">
+              {% when 'reproduced' %}
+                <img src="{{ base_path }}/images/results_reproduced.png" alt="Results Reproduced" title="Results Reproduced" class="artifact-badge">
+            {% endcase %}
+          {% endfor %}
+          </span>
+        {% endif %}
+      </h3>
 
       {% if post.collection == 'teaching' %}
+        <div class="publication-meta">
           {{ post.type }}, <i>{{ post.venue }}</i>, {{ post.term }} {{ post.date | default: "1900-01-01" | date: "%Y" }}
+        </div>
       {% elsif post.collection == 'publications' %} 
-      <br>{{ post.authors }} 
-      	{% if post.venue_type == 'conference' %}
-	   <br>
-	   <strong><font color="green"> {{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</font></strong> 
-        {% elsif post.venue_type == 'workshop' %}
-	   <br>
-	   <strong><font color="purple"> {{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</font></strong>
-        {% elsif post.venue_type == 'journal' %}
-        <br>
-        <strong><font color="#ff8c00"> {{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</font></strong>
-        {% else %}
-	   <br>
-	    <strong>{{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</strong>. 
-        {% endif %}
-
+        <div class="publication-authors">{{ post.authors }}</div>
+        <div class="publication-venue">
+          {% if post.venue_type == 'conference' %}
+             <strong><font color="green">{{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</font></strong> 
+          {% elsif post.venue_type == 'workshop' %}
+             <strong><font color="purple">{{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</font></strong>
+          {% elsif post.venue_type == 'journal' %}
+            <strong><font color="#ff8c00">{{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</font></strong>
+          {% else %}
+            <strong>{{ post.conf_shorthand }} {{ post.date | default: "1900-01-01" | date: "%Y" }}</strong>
+          {% endif %}
+        </div>
       {% elsif post.date %}
-         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].date_label | default: "Published:" }}</strong> <time datetime="{{ post.date | default: "1900-01-01" | date_to_xmlschema }}">{{ post.date | default: "1900-01-01" | date: "%B %d, %Y" }}</time></p>
-     {% endif %}
-     
-    {% if post.acceptance_rate %}
-      <br>Acceptance Rate: {{ post.acceptance_rate}}
-    {% endif %}
+        <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].date_label | default: "Published:" }}</strong> <time datetime="{{ post.date | default: "1900-01-01" | date_to_xmlschema }}">{{ post.date | default: "1900-01-01" | date: "%B %d, %Y" }}</time></p>
+      {% endif %}
+      
+      {% if post.acceptance_rate %}
+        <div class="acceptance-rate">Acceptance Rate: {{ post.acceptance_rate}}</div>
+      {% endif %}
 
-    {% if post.abstract or post.paperurl or post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %}
-      <br>
-      {% if post.abstract %}
-        <a href="{{ post.abstract }}" class="btn btn--primary btn--small">Abstract</a>
+      <!-- Awards and Special Notes -->
+      {% if post.awards %}
+        <div class="awards-section">
+          {% for award in post.awards %}
+            {% case award.type %}
+              {% when 'best_paper' %}
+                <span class="award-badge award-best-paper">
+                  <i class="fas fa-trophy" aria-hidden="true"></i> {{ award.name | default: "Best Paper Award" }}
+                </span>
+              {% when 'top_pick' %}
+                <span class="award-badge award-top-pick">
+                  <i class="fas fa-star" aria-hidden="true"></i> {{ award.name | default: "Top Pick" }}
+                </span>
+              {% when 'honorable_mention' %}
+                <span class="award-badge award-honorable">
+                  <i class="fas fa-medal" aria-hidden="true"></i> {{ award.name | default: "Honorable Mention" }}
+                </span>
+              {% when 'spotlight' %}
+                <span class="award-badge award-spotlight">
+                  <i class="fas fa-lightbulb" aria-hidden="true"></i> {{ award.name | default: "Spotlight" }}
+                </span>
+              {% else %}
+                <span class="award-badge award-other">
+                  <i class="fas fa-award" aria-hidden="true"></i> {{ award.name }}
+                </span>
+            {% endcase %}
+          {% endfor %}
+        </div>
       {% endif %}
-      {% if post.paperurl %}
-        <a href="{{ post.paperurl }}" class="btn btn--primary btn--small"><i class="fas fa-file-pdf" aria-hidden="true"></i> Full Text</a>
+
+      <!-- Action buttons -->
+      {% if post.abstract or post.paperurl or post.slidesurl or post.doi or post.citation or post.artifact or post.bibtex %}
+        <div class="publication-buttons">
+          {% if post.abstract %}
+            <a href="{{ post.abstract }}" class="btn btn--primary btn--small">
+              <i class="fas fa-file-alt" aria-hidden="true"></i> Abstract
+            </a>
+          {% endif %}
+          {% if post.paperurl %}
+            <a href="{{ post.paperurl }}" class="btn btn--primary btn--small">
+              <i class="fas fa-file-pdf" aria-hidden="true"></i> PDF
+            </a>
+          {% endif %}
+          {% if post.slidesurl %}
+            <a href="{{ post.slidesurl }}" class="btn btn--primary btn--small">
+              <i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides
+            </a>
+          {% endif %}
+          {% if post.doi %}
+            <a href="https://doi.org/{{ post.doi }}" class="btn btn--primary btn--small">
+              <i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI
+            </a>
+          {% endif %}
+          {% if post.artifact %}
+            <a href="{{ post.artifact }}" class="btn btn--primary btn--small">
+              <i class="fas fa-code" aria-hidden="true"></i> Code
+            </a>
+          {% endif %}
+          {% if post.citation %}
+            <button onclick="toggleCitation('citation-{{ post.id | slugify }}', this)" class="btn btn--secondary btn--small" title="Show/Hide Citation">
+              <i class="fas fa-quote-left" aria-hidden="true"></i> <span class="citation-button-text">Citation</span>
+            </button>
+          {% endif %}
+          {% if post.bibtex %}
+            <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--secondary btn--small" title="Copy BibTeX">
+              <i class="fas fa-copy" aria-hidden="true"></i> BibTeX
+            </button>
+          {% endif %}
+          {% if post.lightning %}
+            <a href="{{ post.lightning }}" class="btn btn--primary btn--small">
+              <i class="fas fa-bolt" aria-hidden="true"></i> Lightning Talk
+            </a>
+          {% endif %}
+        </div>
       {% endif %}
-      {% if post.slidesurl %}
-        <a href="{{ post.slidesurl }}" class="btn btn--primary btn--small"><i class="fas fa-file-powerpoint" aria-hidden="true"></i> Slides</a>
-      {% endif %}
-      {% if post.doi %}
-        <a href="https://doi.org/{{ post.doi }}" class="btn btn--primary btn--small"><i class="fas fa-external-link-alt" aria-hidden="true"></i> DOI</a>
-      {% endif %}
-      {% if post.artifact %}
-        <a href="{{ post.artifact }}" class="btn btn--primary btn--small"><i class="fas fa-code" aria-hidden="true"></i> Code</a>
-      {% endif %}
+
       {% if post.citation %}
-        <button onclick="toggleCitation('citation-{{ post.id | slugify }}', this)" class="btn btn--primary btn--small" title="Show/Hide Citation">
-          <i class="fas fa-quote-left" aria-hidden="true"></i> <span class="citation-button-text">Show citation</span>
-        </button>
+        <div id="citation-{{ post.id | slugify }}" class="citation-content" style="display: none;">
+          <div class="citation-text">{{ post.citation }}</div>
+        </div>
       {% endif %}
+
       {% if post.bibtex %}
-        <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--primary btn--small" title="Copy BibTeX"><i class="fas fa-copy" aria-hidden="true"></i> Copy BibTeX</button>
+        <div id="bibtex-{{ post.id | slugify }}" style="display: none;">
+          {{ post.bibtex }}
+        </div>
       {% endif %}
-    {% endif %}
 
-    {% if post.citation %}
-      <div id="citation-{{ post.id | slugify }}" class="citation-content" style="display: none;">
-        <div class="citation-text">{{ post.citation }}</div>
-      </div>
-    {% endif %}
+      {% if post.other %}
+        <div class="other-info">{{ post.other }}</div>
+      {% endif %}
+    </div>
 
-    {% if post.bibtex %}
-      <div id="bibtex-{{ post.id | slugify }}" style="display: none;">
-        {{ post.bibtex }}
-      </div>
-    {% endif %}
-
-    {% if post.lightning %}
-      <a href="{{ post.lightning }}" class="btn btn--primary btn--small">Lightning Talk</a>
-    {% endif %}
-
-    {% if post.other %}
-      <br>{{ post.other }}
-    {% endif %}
-
-    </p>
-   
     {% if post.read_time %}
       <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> {% include read-time.html %}</p>
     {% endif %}
-
-    </li> 
   </article>
-  </ul>
 </div>
 
 <style>
+  /* Reset default spacing */
+  .publication-item ul,
+  .publication-item li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .publication-item .archive__item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .publication-item {
+    margin-bottom: 1.5em;
+    padding: 1em 1.2em;
+    background: #fafafa;
+    border-left: 4px solid #e3e3e3;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.3s ease;
+  }
+  
+  .publication-item:hover {
+    background: #f5f5f5;
+    border-left-color: #0056b3;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .publication-content {
+    padding: 0;
+  }
+
   .artifact-badges {
     display: inline-block;
     vertical-align: middle;
-    margin-left: 7px;
+    margin-left: 10px;
   }
 
   .artifact-badge {
-    width: 50px;
-    height: 50px;
-    margin-right: 5px;
+    width: 45px;
+    height: 45px;
+    margin-right: 3px;
   }
 
   .archive__item-title {
-    font-size: 1.2em;
+    font-size: 1.25em;
+    margin: 0 0 0.4em 0;
+    line-height: 1.3;
   }
   
   .archive__item-title a {
@@ -160,81 +232,202 @@
   .archive__item-title a:hover {
     text-decoration: underline;
   }
+
+  .publication-authors {
+    font-size: 1.05em;
+    margin-bottom: 0.2em;
+    color: #333;
+  }
+
+  .publication-venue {
+    font-size: 1em;
+    margin-bottom: 0.3em;
+  }
+
+  .acceptance-rate {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 0.3em;
+    font-style: italic;
+  }
+
+  /* Awards Section */
+  .awards-section {
+    margin: 0.5em 0 0.8em 0;
+  }
+
+  .award-badge {
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    margin: 0.2em 0.5em 0.2em 0;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .award-best-paper {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #8b6914;
+    border: 2px solid #ffd700;
+  }
+
+  .award-top-pick {
+    background: linear-gradient(135deg, #ff6b35, #ff8f65);
+    color: white;
+    border: 2px solid #ff6b35;
+  }
+
+  .award-honorable {
+    background: linear-gradient(135deg, #8e44ad, #a569bd);
+    color: white;
+    border: 2px solid #8e44ad;
+  }
+
+  .award-spotlight {
+    background: linear-gradient(135deg, #3498db, #5dade2);
+    color: white;
+    border: 2px solid #3498db;
+  }
+
+  .award-other {
+    background: linear-gradient(135deg, #2ecc71, #58d68d);
+    color: white;
+    border: 2px solid #2ecc71;
+  }
   
+  /* Button Styling */
+  .publication-buttons {
+    margin-top: 0.8em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+  }
+
   .btn {
     display: inline-block;
-    padding: 0.25em 0.5em;
+    padding: 0.4em 0.8em;
     font-size: 0.8em;
-    font-weight: bold;
+    font-weight: 500;
     text-align: center;
     text-decoration: none;
-    border-radius: 0.25rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.15s ease-in-out;
-    margin-right: 0.5em;
-    margin-bottom: 0.5em;
+    transition: all 0.2s ease;
+    border: none;
   }
   
   .btn--small {
     font-size: 0.75em;
-    padding: 0.25em 0.5em;
+    padding: 0.35em 0.7em;
   }
   
   .btn--primary {
-    color: #233545 !important;
-    background-color: #e1ecf9;
-    border: 1px solid #b8d1e8;
+    color: white !important;
+    background: linear-gradient(135deg, #0056b3, #007bff);
+    border: 1px solid #0056b3;
   }
   
   .btn--primary:hover {
-    background-color: #aec4da;
-    border-color: #aec4da;
-    color: #233545 !important;
+    background: linear-gradient(135deg, #004494, #0056b3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,86,179,0.3);
+  }
+
+  .btn--secondary {
+    color: #495057 !important;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 1px solid #dee2e6;
+  }
+  
+  .btn--secondary:hover {
+    background: linear-gradient(135deg, #e9ecef, #dee2e6);
+    color: #495057 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
   
   .citation-content {
-    margin-top: 10px;
-    background-color: #f8f8f8;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 4px;
+    margin-top: 1em;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #0056b3;
+    padding: 1em;
+    border-radius: 0 6px 6px 0;
   }
   
   .citation-text {
     font-size: 0.9em;
-    line-height: 1.4;
-  }
-  </style>
-  
-  <script>
-  function toggleCitation(id, button) {
-    var citation = document.getElementById(id);
-    var buttonText = button.querySelector('.citation-button-text');
-    if (citation.style.display === "none") {
-      citation.style.display = "block";
-      buttonText.textContent = "Hide citation";
-    } else {
-      citation.style.display = "none";
-      buttonText.textContent = "Show citation";
-    }
-  }
-  
-  function copyBibtex(id) {
-    var bibtex = document.getElementById('bibtex-' + id);
-    var textArea = document.createElement("textarea");
-    textArea.value = formatBibtex(bibtex.textContent);
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand("Copy");
-    textArea.remove();
-    alert("BibTeX citation copied to clipboard!");
+    line-height: 1.5;
+    color: #495057;
   }
 
-  function formatBibtex(text) {
-      text = text.trim();
-      text = text.replace(/,\s+(\w+)\s+=\s+/g, ",\n  $1 = ");
-      text = text.replace(/}$/, "\n}");
-      
-      return text;
+  .other-info {
+    margin-top: 0.8em;
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
   }
-  </script>
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .publication-buttons {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .btn {
+      width: auto;
+      margin-bottom: 0.3em;
+    }
+
+    .artifact-badge {
+      width: 35px;
+      height: 35px;
+    }
+  }
+</style>
+  
+<script>
+function toggleCitation(id, button) {
+  var citation = document.getElementById(id);
+  var buttonText = button.querySelector('.citation-button-text');
+  if (citation.style.display === "none" || citation.style.display === "") {
+    citation.style.display = "block";
+    buttonText.textContent = "Hide Citation";
+  } else {
+    citation.style.display = "none";
+    buttonText.textContent = "Citation";
+  }
+}
+
+function copyBibtex(id) {
+  var bibtex = document.getElementById('bibtex-' + id);
+  var textArea = document.createElement("textarea");
+  textArea.value = formatBibtex(bibtex.textContent);
+  document.body.appendChild(textArea);
+  textArea.select();
+  document.execCommand("Copy");
+  textArea.remove();
+  
+  // Show feedback
+  var button = event.target;
+  var originalText = button.innerHTML;
+  button.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Copied!';
+  button.style.background = '#28a745';
+  
+  setTimeout(function() {
+    button.innerHTML = originalText;
+    button.style.background = '';
+  }, 2000);
+}
+
+function formatBibtex(text) {
+    text = text.trim();
+    text = text.replace(/,\s+(\w+)\s+=\s+/g, ",\n  $1 = ");
+    text = text.replace(/}$/, "\n}");
+    
+    return text;
+}
+</script>
