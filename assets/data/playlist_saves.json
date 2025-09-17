@@ -1,11 +1,35 @@
 {
-  "saves": 6216,
+  "saves": 6677,
   "playlist_name": "so you like the dress by dijon?",
-  "last_updated": "today at 3:12pm EDT",
+  "last_updated": "today at 9:06pm EDT",
   "history": [
     {
-      "date": "2025-08-28",
-      "saves": 6216
+      "date": "2025-09-10",
+      "saves": 6457
+    },
+    {
+      "date": "2025-09-11",
+      "saves": 6539
+    },
+    {
+      "date": "2025-09-12",
+      "saves": 6596
+    },
+    {
+      "date": "2025-09-13",
+      "saves": 6620
+    },
+    {
+      "date": "2025-09-14",
+      "saves": 6632
+    },
+    {
+      "date": "2025-09-15",
+      "saves": 6658
+    },
+    {
+      "date": "2025-09-16",
+      "saves": 6677
     }
   ]
 }
