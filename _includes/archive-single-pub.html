@@ -138,7 +138,7 @@
             </button>
           {% endif %}
           {% if post.bibtex %}
-            <button onclick="copyBibtex('{{ post.id | slugify }}')" class="btn btn--secondary btn--small" title="Copy BibTeX">
+            <button onclick="copyBibtex('{{ post.id | slugify }}', this)" class="btn btn--secondary btn--small" title="Copy BibTeX">
               <i class="fas fa-copy" aria-hidden="true"></i> BibTeX
             </button>
           {% endif %}

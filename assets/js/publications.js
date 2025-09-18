@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  function copyBibtex(id) {
+  function copyBibtex(id, button) {
     var bibtex = document.getElementById('bibtex-' + id);
     var textArea = document.createElement("textarea");
     textArea.value = formatBibtex(bibtex.textContent);
@@ -27,25 +27,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Use modern clipboard API if available, fallback to deprecated method
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(formatBibtex(bibtex.textContent)).then(function() {
-        showCopyFeedback();
+        showCopyFeedback(button);
       });
     } else {
       document.execCommand("Copy");
-      showCopyFeedback();
+      showCopyFeedback(button);
     }
     
     textArea.remove();
     
-    function showCopyFeedback() {
+    function showCopyFeedback(clickedButton) {
       // Show feedback
-      var button = event.target.closest('button');
-      var originalText = button.innerHTML;
-      button.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Copied!';
-      button.style.background = '#28a745';
+      var btn = clickedButton || document.activeElement;
+      var originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Copied!';
+      btn.style.background = '#28a745';
       
       setTimeout(function() {
-        button.innerHTML = originalText;
-        button.style.background = '';
+        btn.innerHTML = originalText;
+        btn.style.background = '';
       }, 2000);
     }
   }
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function formatBibtex(text) {
     text = text.trim();
     text = text.replace(/,\s+(\w+)\s+=\s+/g, ",\n  $1 = ");
-    text = text.replace(/}$/, "\n}");
+    text = text.replace(/}$/m, "\n}");
     
     return text;
   }
