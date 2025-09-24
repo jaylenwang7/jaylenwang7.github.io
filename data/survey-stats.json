@@ -10,7 +10,7 @@
     "Cherry": 2,
     "Blackberry": 1,
     "Watermelon": 1,
-    "Banana": 3,
+    "Banana": 4,
     "Grape": 1,
     "Pear": 1,
     "Orange": 1,
@@ -56,13 +56,14 @@
     "Coffee": 1,
     "Iced Tea": 1,
     "Sprite": 2,
-    "Cranberry Juice": 1
+    "Cranberry Juice": 1,
+    "Green Tea": 1
   },
   "potatoes": {
     "Curly Fries": 6,
     "Crispy Mash": 1,
     "Waffle Fries": 4,
-    "French Fries": 6,
+    "French Fries": 7,
     "Potato Chips": 2,
     "Mixed": 1,
     "Hash Browns": 2,
@@ -74,10 +75,11 @@
     "Shells": 4,
     "Fusilli": 2,
     "Macaroni": 1,
-    "Rigatoni": 1
+    "Rigatoni": 1,
+    "Orecchiette": 1
   },
   "grapes": {
-    "Red": 8,
+    "Red": 9,
     "Green": 29,
     "No Preference": 3
   },
@@ -122,19 +124,20 @@
       19,
       30,
       20,
-      20
+      20,
+      18
     ],
-    "average": 47.3,
+    "average": 46.6,
     "max": 1000,
     "min": 0,
-    "total_responses": 40
+    "total_responses": 41
   },
   "sandwiches": {
     "Grilled Cheese": 36,
-    "PB&J": 4
+    "PB&J": 5
   },
   "taco_shells": {
-    "Soft Corn": 8,
+    "Soft Corn": 9,
     "Soft Flour": 9,
     "Hard": 8
   },
@@ -142,11 +145,12 @@
     "6": 1,
     "4": 4,
     "3": 2,
-    "5": 2
+    "5": 2,
+    "7": 1
   },
   "general": {
-    "total_responses": 40,
-    "last_updated": "2025-09-22 20:59:40 EDT",
-    "processing_info": "Force reprocessed: False, Cached items: 95"
+    "total_responses": 41,
+    "last_updated": "2025-09-23 21:00:19 EDT",
+    "processing_info": "Force reprocessed: False, Cached items: 97"
   }
 }
