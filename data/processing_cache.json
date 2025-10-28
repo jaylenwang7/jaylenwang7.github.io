@@ -40,7 +40,8 @@
     "row_37": "ac390438af8f4a565b14fdf18853456e",
     "row_38": "8ea079f40ec1a7dba127e835abd89a33",
     "row_39": "ae8a0b20b979359a72c027d4c6e73bd7",
-    "row_40": "4758b9b20633f19a880d17cd86acb550"
+    "row_40": "4758b9b20633f19a880d17cd86acb550",
+    "row_41": "3bd52fb823e449e6e5c4e9adce8321ab"
   },
   "cleaned_values": {},
   "llm_cache": {
@@ -140,6 +141,9 @@
     "pasta:Macaroni": "Macaroni",
     "pasta:Rigatoni": "Rigatoni",
     "plane_drink:green tea": "Green Tea",
-    "pasta:orecchiette.": "Orecchiette"
+    "pasta:orecchiette.": "Orecchiette",
+    "fruit:Don't know": "null",
+    "trader_joes:ice cream": "Ice Cream",
+    "pasta:Spaghetti": "Spaghetti"
   }
 }
