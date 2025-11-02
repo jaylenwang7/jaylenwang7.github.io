@@ -4,7 +4,7 @@
     "Mandarin": 2,
     "Apple": 5,
     "Mango": 11,
-    "Strawberry": 2,
+    "Strawberry": 3,
     "Dragonfruit": 2,
     "Peach": 3,
     "Cherry": 2,
@@ -42,7 +42,8 @@
     "Elote Corn Dippers": 1,
     "Chicken Tikka Masala": 1,
     "Mango Yogurt": 1,
-    "Ice Cream": 1
+    "Ice Cream": 1,
+    "Nuts": 1
   },
   "plane_drinks": {
     "Orange Juice": 3,
@@ -53,7 +54,7 @@
     "Apple Juice": 1,
     "Diet Dr Pepper": 1,
     "Tomato Juice": 2,
-    "Diet Coke": 3,
+    "Diet Coke": 4,
     "Nothing": 1,
     "Coffee": 2,
     "Iced Tea": 1,
@@ -62,7 +63,7 @@
     "Green Tea": 1
   },
   "potatoes": {
-    "Curly Fries": 7,
+    "Curly Fries": 8,
     "Crispy Mash": 1,
     "Waffle Fries": 4,
     "French Fries": 7,
@@ -79,11 +80,11 @@
     "Macaroni": 1,
     "Rigatoni": 1,
     "Orecchiette": 1,
-    "Spaghetti": 1
+    "Spaghetti": 2
   },
   "grapes": {
     "Red": 9,
-    "Green": 30,
+    "Green": 31,
     "No Preference": 3
   },
   "eggs": {
@@ -129,19 +130,20 @@
       20,
       20,
       18,
-      7
+      7,
+      150
     ],
-    "average": 45.7,
+    "average": 48.1,
     "max": 1000,
     "min": 0,
-    "total_responses": 42
+    "total_responses": 43
   },
   "sandwiches": {
-    "Grilled Cheese": 36,
+    "Grilled Cheese": 37,
     "PB&J": 6
   },
   "taco_shells": {
-    "Soft Corn": 9,
+    "Soft Corn": 10,
     "Soft Flour": 9,
     "Hard": 9
   },
@@ -149,12 +151,12 @@
     "6": 1,
     "4": 5,
     "3": 2,
-    "5": 2,
+    "5": 3,
     "7": 1
   },
   "general": {
-    "total_responses": 42,
-    "last_updated": "2025-10-31 21:07:18 EDT",
-    "processing_info": "Force reprocessed: False, Cached items: 100"
+    "total_responses": 43,
+    "last_updated": "2025-11-01 21:08:10 EDT",
+    "processing_info": "Force reprocessed: False, Cached items: 102"
   }
 }

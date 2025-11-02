@@ -41,7 +41,8 @@
     "row_38": "8ea079f40ec1a7dba127e835abd89a33",
     "row_39": "ae8a0b20b979359a72c027d4c6e73bd7",
     "row_40": "4758b9b20633f19a880d17cd86acb550",
-    "row_41": "3bd52fb823e449e6e5c4e9adce8321ab"
+    "row_41": "3bd52fb823e449e6e5c4e9adce8321ab",
+    "row_42": "257703dd489a91bdcf90570d49d1ad5d"
   },
   "cleaned_values": {},
   "llm_cache": {
@@ -144,6 +145,8 @@
     "pasta:orecchiette.": "Orecchiette",
     "fruit:Don't know": "null",
     "trader_joes:ice cream": "Ice Cream",
-    "pasta:Spaghetti": "Spaghetti"
+    "pasta:Spaghetti": "Spaghetti",
+    "trader_joes:Nuts": "Nuts",
+    "plane_drink:Diet coke": "Diet Coke"
   }
 }
