@@ -42,7 +42,8 @@
     "row_39": "ae8a0b20b979359a72c027d4c6e73bd7",
     "row_40": "4758b9b20633f19a880d17cd86acb550",
     "row_41": "3bd52fb823e449e6e5c4e9adce8321ab",
-    "row_42": "257703dd489a91bdcf90570d49d1ad5d"
+    "row_42": "257703dd489a91bdcf90570d49d1ad5d",
+    "row_43": "8ba67e9d0cdf200fb7562cc7b8a8fbed"
   },
   "cleaned_values": {},
   "llm_cache": {
@@ -147,6 +148,8 @@
     "trader_joes:ice cream": "Ice Cream",
     "pasta:Spaghetti": "Spaghetti",
     "trader_joes:Nuts": "Nuts",
-    "plane_drink:Diet coke": "Diet Coke"
+    "plane_drink:Diet coke": "Diet Coke",
+    "fruit:Grapes": "Grape",
+    "trader_joes:Frozen Tofu Kimbap": "Frozen Tofu Kimbap"
   }
 }
