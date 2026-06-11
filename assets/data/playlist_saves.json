@@ -1,12 +1,8 @@
 {
-  "saves": 11392,
+  "saves": 11413,
   "playlist_name": "so you like the dress by dijon?",
-  "last_updated": "today at 10:55pm EDT",
+  "last_updated": "today at 11:30pm EDT",
   "history": [
-    {
-      "date": "2026-06-03",
-      "saves": 11313
-    },
     {
       "date": "2026-06-04",
       "saves": 11325
@@ -30,6 +26,10 @@
     {
       "date": "2026-06-09",
       "saves": 11392
+    },
+    {
+      "date": "2026-06-10",
+      "saves": 11413
     }
   ]
 }
