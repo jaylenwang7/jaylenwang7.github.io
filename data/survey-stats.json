@@ -17,7 +17,8 @@
     "Kiwi": 2,
     "Pineapple": 1,
     "null": 1,
-    "Lemon": 1
+    "Lemon": 1,
+    "Jackfruit": 1
   },
   "trader_joes": {
     "Ube Mochi Ice Cream": 1,
@@ -46,7 +47,8 @@
     "Ice Cream": 1,
     "Nuts": 1,
     "Frozen Tofu Kimbap": 1,
-    "Blueberries": 1
+    "Blueberries": 1,
+    "Soy Milk": 1
   },
   "plane_drinks": {
     "Orange Juice": 3,
@@ -64,12 +66,13 @@
     "Sprite": 2,
     "Cranberry Juice": 1,
     "Green Tea": 1,
-    "Iced Americano": 1
+    "Iced Americano": 1,
+    "Pepsi Zero": 1
   },
   "potatoes": {
     "Curly Fries": 9,
     "Crispy Mash": 1,
-    "Waffle Fries": 5,
+    "Waffle Fries": 6,
     "French Fries": 8,
     "Potato Chips": 2,
     "Mixed": 1,
@@ -79,7 +82,7 @@
   },
   "pasta_shapes": {
     "Penne": 2,
-    "Shells": 4,
+    "Shells": 5,
     "Fusilli": 2,
     "Macaroni": 1,
     "Rigatoni": 1,
@@ -88,7 +91,7 @@
   },
   "grapes": {
     "Red": 10,
-    "Green": 33,
+    "Green": 34,
     "No Preference": 3
   },
   "eggs": {
@@ -138,32 +141,33 @@
       150,
       40,
       5,
-      4
+      4,
+      27
     ],
-    "average": 46.0,
+    "average": 45.6,
     "max": 1000,
     "min": 0,
-    "total_responses": 46
+    "total_responses": 47
   },
   "sandwiches": {
     "Grilled Cheese": 40,
-    "PB&J": 6
+    "PB&J": 7
   },
   "taco_shells": {
-    "Soft Corn": 11,
+    "Soft Corn": 12,
     "Soft Flour": 10,
     "Hard": 10
   },
   "toast_levels": {
     "6": 2,
-    "4": 6,
+    "4": 7,
     "3": 3,
     "5": 3,
     "7": 1
   },
   "general": {
-    "total_responses": 46,
-    "last_updated": "2026-06-16 22:57:23 EDT",
-    "processing_info": "Force reprocessed: False, Cached items: 107"
+    "total_responses": 47,
+    "last_updated": "2026-06-17 22:52:08 EDT",
+    "processing_info": "Force reprocessed: False, Cached items: 110"
   }
 }

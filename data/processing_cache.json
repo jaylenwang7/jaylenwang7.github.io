@@ -45,7 +45,8 @@
     "row_42": "257703dd489a91bdcf90570d49d1ad5d",
     "row_43": "8ba67e9d0cdf200fb7562cc7b8a8fbed",
     "row_44": "0b9fe685e7681dd6fea9e754ff5b2a66",
-    "row_45": "08489829a1ceefb428313c371b90d0fb"
+    "row_45": "08489829a1ceefb428313c371b90d0fb",
+    "row_46": "2c9f79cf3414278ab603074e7b239028"
   },
   "cleaned_values": {},
   "llm_cache": {
@@ -155,6 +156,9 @@
     "trader_joes:Frozen Tofu Kimbap": "Frozen Tofu Kimbap",
     "fruit:lemons": "Lemon",
     "trader_joes:blueberries": "Blueberries",
-    "plane_drink:iced americano": "Iced Americano"
+    "plane_drink:iced americano": "Iced Americano",
+    "fruit:Jackfruit": "Jackfruit",
+    "trader_joes:soy milk": "Soy Milk",
+    "plane_drink:Pepsi Zero": "Pepsi Zero"
   }
 }
