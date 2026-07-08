@@ -46,7 +46,8 @@
     "row_43": "8ba67e9d0cdf200fb7562cc7b8a8fbed",
     "row_44": "0b9fe685e7681dd6fea9e754ff5b2a66",
     "row_45": "08489829a1ceefb428313c371b90d0fb",
-    "row_46": "2c9f79cf3414278ab603074e7b239028"
+    "row_46": "2c9f79cf3414278ab603074e7b239028",
+    "row_47": "648672980246508656dda7703e5e2880"
   },
   "cleaned_values": {},
   "llm_cache": {
@@ -159,6 +160,8 @@
     "plane_drink:iced americano": "Iced Americano",
     "fruit:Jackfruit": "Jackfruit",
     "trader_joes:soy milk": "Soy Milk",
-    "plane_drink:Pepsi Zero": "Pepsi Zero"
+    "plane_drink:Pepsi Zero": "Pepsi Zero",
+    "fruit:Avocado": "Avocado",
+    "trader_joes:Chili & Lime Flavored Rolled Corn Tortilla Chips": "Chili & Lime Flavored Rolled Corn Tortilla Chips"
   }
 }
