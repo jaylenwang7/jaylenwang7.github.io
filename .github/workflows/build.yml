@@ -38,4 +38,8 @@ jobs:
     - name: Build site
       env:
         JEKYLL_ENV: production
+        # jekyll-github-metadata needs the repo name; GitHub Pages' own builder
+        # sets this automatically, so mirror it here (avoids relying on git
+        # remote inference, which isn't available on the runner).
+        PAGES_REPO_NWO: ${{ github.repository }}
       run: bundle exec jekyll build --strict_front_matter
