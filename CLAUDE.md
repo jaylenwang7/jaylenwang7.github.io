@@ -92,6 +92,12 @@ Three workflows in `.github/workflows/`:
 - **`update-survey-data.yml`**, **`update_playlist_saves.yml`** — the daily data crons described
   under "Custom features".
 
+To confirm a push was clean without hand-writing `gh` commands, use the helper
+**`.github/scripts/check-deploy.sh`** (requires an authenticated `gh`). It finds the `Build site`
+run for the current commit, watches it, and reports pass/fail (exits non-zero on failure, printing
+the failing step's log tail). `--push` pushes the current branch first; on `master` it also prints
+the Pages deploy status. Prefer this over re-deriving `gh run list`/`gh run watch` each time.
+
 Deployment is GitHub Pages' classic "build from `master`" — merging to `master` auto-triggers a
 `pages build and deployment` run; there is no deploy workflow in the repo. Pages builds in its own
 `github-pages` gem environment, so it does **not** use `Gemfile.lock` (only `build.yml` does).
