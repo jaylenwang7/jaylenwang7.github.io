@@ -1,0 +1,41 @@
+name: Build site
+
+# GitHub Pages builds master on push with no failure feedback beyond an email,
+# so this job builds the site independently to catch broken Liquid, invalid
+# front matter, or other build errors before/as they reach the live site.
+
+on:
+  push:
+    branches: [master]
+    # Skip rebuilds for the machine-generated data commits (see the
+    # Update Survey Data / Update Spotify Playlist Saves workflows).
+    paths-ignore:
+      - 'data/**'
+      - 'assets/data/**'
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+        bundler-cache: true  # runs bundle install and caches gems
+
+    - name: Build site
+      env:
+        JEKYLL_ENV: production
+      run: bundle exec jekyll build --strict_front_matter
