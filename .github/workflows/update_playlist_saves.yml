@@ -5,19 +5,27 @@ on:
     - cron: '0 0 * * *' # Once a day at midnight
   workflow_dispatch:  # Allows manual triggering
 
+permissions:
+  contents: write
+
+# Only one data-updating run at a time so concurrent runs can't race on push.
+concurrency:
+  group: update-playlist-saves
+  cancel-in-progress: false
+
 jobs:
   update-saves:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.x'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests pytz
+        pip install -r .github/scripts/requirements-playlist.txt
     - name: Create data directory
       run: mkdir -p assets/data
     - name: Run script
@@ -31,5 +39,12 @@ jobs:
       run: |
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
-        git add -A
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update playlist saves count" && git push)
+        git add assets/data/playlist_saves.json assets/data/playlist_saves.yml
+        if git diff --staged --quiet; then
+          echo "No changes to commit."
+          exit 0
+        fi
+        git commit -m "Update playlist saves count"
+        # Reconcile with any commits that landed since checkout, then push.
+        git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+        git push

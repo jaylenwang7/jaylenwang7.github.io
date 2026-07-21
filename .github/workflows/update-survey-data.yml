@@ -14,6 +14,14 @@ on:
         - 'false'
         - 'true'
 
+permissions:
+  contents: write
+
+# Only one data-updating run at a time so concurrent runs can't race on push.
+concurrency:
+  group: update-survey-data
+  cancel-in-progress: false
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
@@ -23,13 +31,13 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
-        
+
     - name: Install dependencies
       run: |
-        pip install pandas gspread oauth2client openai requests python-dotenv
+        pip install -r .github/scripts/requirements-survey.txt
         
     - name: Process survey data
       env:
@@ -44,5 +52,11 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add -f data/survey-stats.json data/processing_cache.json
-        git diff --staged --quiet || git commit -m "Update survey statistics and cache"
+        if git diff --staged --quiet; then
+          echo "No changes to commit."
+          exit 0
+        fi
+        git commit -m "Update survey statistics and cache"
+        # Reconcile with any commits that landed since checkout, then push.
+        git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
         git push
