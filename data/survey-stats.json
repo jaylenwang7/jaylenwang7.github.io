@@ -10,7 +10,7 @@
     "Cherry": 2,
     "Blackberry": 1,
     "Watermelon": 1,
-    "Banana": 4,
+    "Banana": 5,
     "Grape": 2,
     "Pear": 1,
     "Orange": 1,
@@ -50,7 +50,8 @@
     "Frozen Tofu Kimbap": 1,
     "Blueberries": 1,
     "Soy Milk": 1,
-    "Chili & Lime Flavored Rolled Corn Tortilla Chips": 1
+    "Chili & Lime Flavored Rolled Corn Tortilla Chips": 1,
+    "Hash Brown Patties": 1
   },
   "plane_drinks": {
     "Orange Juice": 3,
@@ -65,14 +66,14 @@
     "Nothing": 1,
     "Coffee": 2,
     "Iced Tea": 1,
-    "Sprite": 2,
+    "Sprite": 3,
     "Cranberry Juice": 1,
     "Green Tea": 1,
     "Iced Americano": 1,
     "Pepsi Zero": 1
   },
   "potatoes": {
-    "Curly Fries": 9,
+    "Curly Fries": 10,
     "Crispy Mash": 1,
     "Waffle Fries": 7,
     "French Fries": 8,
@@ -87,13 +88,13 @@
     "Shells": 5,
     "Fusilli": 3,
     "Macaroni": 1,
-    "Rigatoni": 1,
+    "Rigatoni": 2,
     "Orecchiette": 1,
     "Spaghetti": 4
   },
   "grapes": {
     "Red": 11,
-    "Green": 34,
+    "Green": 35,
     "No Preference": 3
   },
   "eggs": {
@@ -145,32 +146,33 @@
       5,
       4,
       27,
-      100
+      100,
+      50
     ],
     "average": 46.8,
     "max": 1000,
     "min": 0,
-    "total_responses": 48
+    "total_responses": 49
   },
   "sandwiches": {
-    "Grilled Cheese": 40,
+    "Grilled Cheese": 41,
     "PB&J": 8
   },
   "taco_shells": {
-    "Soft Corn": 12,
+    "Soft Corn": 13,
     "Soft Flour": 10,
     "Hard": 11
   },
   "toast_levels": {
     "6": 2,
-    "4": 7,
+    "4": 8,
     "3": 3,
     "5": 3,
     "7": 2
   },
   "general": {
-    "total_responses": 48,
-    "last_updated": "2026-07-20 21:58:57 EDT",
-    "processing_info": "Force reprocessed: False, Cached items: 112"
+    "total_responses": 49,
+    "last_updated": "2026-07-21 21:57:38 EDT",
+    "processing_info": "Force reprocessed: False, Cached items: 113"
   }
 }

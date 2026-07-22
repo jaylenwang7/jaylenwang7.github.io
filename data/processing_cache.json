@@ -47,7 +47,8 @@
     "row_44": "0b9fe685e7681dd6fea9e754ff5b2a66",
     "row_45": "08489829a1ceefb428313c371b90d0fb",
     "row_46": "2c9f79cf3414278ab603074e7b239028",
-    "row_47": "648672980246508656dda7703e5e2880"
+    "row_47": "648672980246508656dda7703e5e2880",
+    "row_48": "692794ff96b649cf587f201c82a13eda"
   },
   "cleaned_values": {},
   "llm_cache": {
@@ -162,6 +163,7 @@
     "trader_joes:soy milk": "Soy Milk",
     "plane_drink:Pepsi Zero": "Pepsi Zero",
     "fruit:Avocado": "Avocado",
-    "trader_joes:Chili & Lime Flavored Rolled Corn Tortilla Chips": "Chili & Lime Flavored Rolled Corn Tortilla Chips"
+    "trader_joes:Chili & Lime Flavored Rolled Corn Tortilla Chips": "Chili & Lime Flavored Rolled Corn Tortilla Chips",
+    "trader_joes:Hash brown patties": "Hash Brown Patties"
   }
 }
