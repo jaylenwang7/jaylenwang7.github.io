@@ -16,7 +16,7 @@
   <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
     {% if include.type == "grid" and teaser %}
       <div class="archive__item-teaser">
-        <img src=
+        <img loading="lazy" src=
           {% if teaser contains "://" %}
             "{{ teaser }}"
           {% else %}
@@ -38,11 +38,11 @@
           {% for badge in post.artifact_badges %}
             {% case badge %}
               {% when 'available' %}
-                <img src="{{ base_path }}/images/artifacts_available.png" alt="Artifacts Available" title="Artifacts Available" class="artifact-badge">
+                <img src="{{ base_path }}/images/artifacts_available.png" alt="Artifacts Available" title="Artifacts Available" class="artifact-badge" width="45" height="45" loading="lazy">
               {% when 'functional' %}
-                <img src="{{ base_path }}/images/artifacts_evaluated_functional.png" alt="Artifacts Evaluated - Functional" title="Artifacts Evaluated - Functional" class="artifact-badge">
+                <img src="{{ base_path }}/images/artifacts_evaluated_functional.png" alt="Artifacts Evaluated - Functional" title="Artifacts Evaluated - Functional" class="artifact-badge" width="45" height="45" loading="lazy">
               {% when 'reproduced' %}
-                <img src="{{ base_path }}/images/results_reproduced.png" alt="Results Reproduced" title="Results Reproduced" class="artifact-badge">
+                <img src="{{ base_path }}/images/results_reproduced.png" alt="Results Reproduced" title="Results Reproduced" class="artifact-badge" width="45" height="45" loading="lazy">
             {% endcase %}
           {% endfor %}
           </span>
