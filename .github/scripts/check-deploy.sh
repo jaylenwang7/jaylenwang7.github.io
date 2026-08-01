@@ -11,8 +11,13 @@
 #   .github/scripts/check-deploy.sh          # watch checks for the current commit
 #   .github/scripts/check-deploy.sh --push   # push the current branch first, then watch
 #
+# --push refuses to push a branch that is behind origin, since the survey and
+# playlist bots commit to master daily and a stale branch is the common failure
+# here. It also warns when the working tree is dirty, because then the files you
+# tested are not the files that deploy.
+#
 # Exit codes: 0 = build passed (or was path-ignored), 1 = build failed,
-#             2 = setup/usage error.
+#             2 = setup/usage error (including a stale branch).
 #
 # Requires: gh (authenticated) and git.
 
@@ -34,6 +39,29 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 case "${1:-}" in
   --push)
+    # The survey and playlist bots commit to master every day, so a local
+    # branch goes stale just by being left overnight. Catch that here with an
+    # actionable message rather than letting `git push` reject with one that
+    # does not mention the bots.
+    echo "==> checking $BRANCH against origin..."
+    git fetch --quiet origin "$BRANCH" || die "could not fetch origin/$BRANCH"
+
+    BEHIND=$(git rev-list --count HEAD..FETCH_HEAD)
+    if (( BEHIND > 0 )); then
+      die "$BRANCH is $BEHIND commit(s) behind origin/$BRANCH.
+       The survey and playlist bots push to master daily, so this is routine.
+       Rebase, re-run the strict build, then retry:
+         git pull --rebase origin $BRANCH
+         bundle exec jekyll build --strict_front_matter"
+    fi
+
+    # A dirty tree means the files you just tested are not the files that
+    # deploy. Worth saying out loud; not worth blocking on.
+    if [[ -n "$(git status --porcelain)" ]]; then
+      echo "warning: working tree has uncommitted changes." >&2
+      echo "         Pushing HEAD ($(git rev-parse --short HEAD)); those changes stay local." >&2
+    fi
+
     echo "==> pushing $BRANCH to origin..."
     git push origin "$BRANCH"
     ;;
