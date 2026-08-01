@@ -5,3 +5,7 @@ test/
 # Local Claude Code context. Kept on disk, out of the repo.
 CLAUDE.md
 .claude/
+
+# Python bytecode from running the survey/playlist scripts locally.
+__pycache__/
+*.pyc

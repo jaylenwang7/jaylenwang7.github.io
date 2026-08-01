@@ -16,6 +16,62 @@ config:
     # grant: "#8a6a3f"        # bronze
 
 items:
+  - date: 2026-06-01
+    headline: "Paper presented at HotInfra'26 workshop"
+    content: "Presented 'Safe CPU Oversubscription: One Size Does Not Fit All' at the 3rd Workshop on Hot Topics in System Infrastructure (HotInfra 2026), co-located with ISCA. Work done with collaborators at Microsoft Azure on how much CPU sharing preserves performance, and what makes that limit move."
+    category: publication
+
+  - date: 2026-05-11
+    headline: "Started a research internship at Google"
+    content: "Joined Google in Durham for the summer, leading a project on reducing the power consumed by the host servers that support large-scale ML training. Thanks to Jixin Feng and Soheil Khadir for hosting!"
+    category: misc
+
+  - date: 2026-03-16
+    headline: "Organized the 2nd HotEthics Workshop at ASPLOS"
+    content: "Served as lead organizer for the 2nd Workshop on Ethical Systems and Architecture Design (HotEthics 2026) at ASPLOS, two years after co-founding it."
+    category: service
+    links:
+      url: "https://hotethics.github.io/"
+
+  - date: 2026-03-16
+    headline: "Co-chaired Wild and Crazy Ideas at ASPLOS"
+    content: "Served as co-chair for the Wild and Crazy Ideas session (WACI 2026) at ASPLOS."
+    category: service
+
+  - date: 2026-03-02
+    headline: "KV cache paper presented at EMC2'26"
+    content: "'Store or Recompute? Characterizing the Carbon Tradeoff of KV Cache Retention in LLM Inference' was presented at EMC2 2026. Congrats to Abnash Bassi, who led the work!"
+    category: publication
+
+  - date: 2025-08-15
+    headline: "CMU News coverage for the IEEE Micro Top Picks paper"
+    content: "Our work was highlighted in Carnegie Mellon University News: 'Enabling Sustainable Cloud Computing with Low-Carbon Server Design'"
+    category: media
+    links:
+      url: "https://www.ece.cmu.edu/news-and-events/story/2025/08/enabling-sustainable-cloud-computing-with-low-carbon-server-design.html"
+
+  - date: 2025-06-16
+    headline: "Invited talk on GreenSKU at the University of Washington"
+    content: "Delivered talk on 'Designing Cloud Servers for Lower Carbon' at UW's CSE Department, thanks for the invitation from Prof. Kasikci!"
+    category: presentation
+
+  - date: 2025-05-27
+    headline: "IEEE Micro Top Picks paper published"
+    content: "'Enabling Sustainable Cloud Computing with Low-Carbon Server Design' appeared in the IEEE Micro Top Picks issue, covering the top 12 computer architecture papers of 2024."
+    category: publication
+    links:
+      paper: "https://ieeexplore.ieee.org/iel8/40/5210076/11014506.pdf"
+
+  - date: 2025-05-12
+    headline: "Back at Microsoft Research for the summer"
+    content: "Returned to the Azure Systems Research group at MSR Redmond, this time working on CPU oversubscription and how safe sharing limits change across platforms and workloads. Thanks again to Fiodar Kazhamiaka and Daniel Berger."
+    category: misc
+
+  - date: 2025-02-10
+    headline: "Served on the ASPLOS 2025 Artifact Evaluation Committee"
+    content: "I served on the Artifact Evaluation Committee for ASPLOS 2025."
+    category: service
+
   - date: 2025-02-07
     headline: "Our GreenSKU paper was selected to IEEE Micro Top Picks!"
     content: "The GreenSKU paper was selected as one of the top 12 computer architecture papers of 2024! Congrats to my collaborators!"

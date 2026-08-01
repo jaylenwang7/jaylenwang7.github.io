@@ -712,7 +712,33 @@ def process_survey_data(force_reprocess=False):
     
     # Debug: Print actual columns and their count
     print(f"Actual columns ({len(df.columns)}): {list(df.columns)}")
-    
+
+    # Keep the sheet's own headers before the renaming below discards them.
+    # Everything under `expected_columns` is matched by POSITION, which is only
+    # safe for questions that already existed; a question added in the middle of
+    # the form shifts every mapping after it. Newer questions are therefore
+    # located by what they ask instead, which survives reordering.
+    original_columns = list(df.columns)
+
+    def find_column(*keywords):
+        """First sheet column whose header mentions every keyword given."""
+        for col in original_columns:
+            lowered = str(col).lower()
+            if all(word in lowered for word in keywords):
+                return col
+        return None
+
+    # "If you had to give one up ... which one would you give up?" (Garlic/Onion).
+    # The exact header depends on whether the form's description is included, so
+    # try the distinctive words before falling back to the question stem.
+    garlic_source = (find_column('garlic') or find_column('onion')
+                     or find_column('give', 'up'))
+    if garlic_source is not None:
+        df['garlic_onion'] = df[garlic_source]
+        print(f"Found garlic/onion question in column: {garlic_source!r}")
+    else:
+        print("No garlic/onion column found; that chart will be omitted.")
+
     # Expected column names
     expected_columns = ['timestamp', 'fruit', 'grapes', 'eggs', 'sandwich', 
                        'trader_joes', 'plane_drink', 'potato', 'taco_shell', 
@@ -912,7 +938,33 @@ def process_survey_data(force_reprocess=False):
                     toast_levels.append(str(toast))
         if toast_levels:
             stats['toast_levels'] = dict(Counter(toast_levels))
-    
+
+    # Process garlic vs onion if it exists (radio buttons, manual mapping).
+    # Optional like toast above: the column is located by header rather than by
+    # position, so a form edit should degrade to dropping this chart rather than
+    # failing the run.
+    if 'garlic_onion' in df.columns:
+        garlic_mapping = {
+            'garlic': 'Garlic',
+            'onion': 'Onion',
+        }
+        garlic_onion = []
+        for choice in df['garlic_onion']:
+            if pd.notna(choice) and choice != '':
+                override_val = None
+                try:
+                    override_val = llm_batcher.overrides.get('garlic_onion', {}).get(normalize_text(choice))
+                except Exception:
+                    override_val = None
+                if override_val is not None:
+                    mapped = override_val
+                    print(f"  OVERRIDE (garlic_onion): '{str(choice)}' -> '{mapped}'")
+                else:
+                    mapped = garlic_mapping.get(str(choice).lower().strip(), str(choice))
+                garlic_onion.append(mapped)
+        if garlic_onion:
+            stats['garlic_onion'] = dict(Counter(garlic_onion))
+
     # Update row hashes in cache
     for index, row in df.iterrows():
         row_hash = get_row_hash(row)

@@ -448,7 +448,10 @@
     { key: 'trader_joes', emoji: '🛒', title: 'Trader Joe’s favorites', render: renderRankedList, unit: 'items',
       question: 'Favorite Trader Joe’s item (can say ‘idk’ or ‘don’t shop there’)' },
     { key: 'plane_drinks', emoji: '✈️', title: 'Airplane drinks', render: renderRankedList, unit: 'drinks',
-      question: 'Plane drink of choice (i.e., what drink you’re likely to order on a flight)' }
+      question: 'Plane drink of choice (i.e., what drink you’re likely to order on a flight)' },
+    { key: 'garlic_onion', emoji: '🧄', title: 'Garlic or onion', render: renderPie,
+      note: 'One of them, never again',
+      question: 'If you had to give one up (i.e., never eat again), which one would you give up? The ban includes all forms (fresh, cooked, powdered, all types). If you pick “Onion”, this also excludes shallots, but you can still eat green onions.' }
   ];
 
   function renderOverview(general) {
