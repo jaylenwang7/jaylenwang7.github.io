@@ -14,7 +14,14 @@ layout: compress
   <body>
 
     {% include browser-upgrade.html %}
+
+    {% comment %}
+      Marker for the masthead's pinned state. Must stay directly above the
+      masthead and take no vertical space; assets/js/masthead.js watches it.
+    {% endcomment %}
+    <div class="masthead-sentinel" aria-hidden="true"></div>
     {% include masthead.html %}
+    <script src="{{ base_path }}/assets/js/masthead.js" defer></script>
 
     {{ content }}
 

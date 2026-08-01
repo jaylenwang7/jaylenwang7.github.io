@@ -1,176 +1,398 @@
-/* Add this CSS to fix width overflow issues */
+/* ==========================================================================
+   SURVEY RESULTS
+   ==========================================================================
+   Replaces the stylesheet that assets/js/survey-results.js used to build and
+   inject into <head> at runtime. Chart colours and fonts are read from the
+   design tokens by that script, so this file only handles layout and chrome.
 
-/* Main container constraints */
-body {
-    max-width: 100vw;
-    overflow-x: hidden;
-    box-sizing: border-box;
+   Markup: _pages/survey-results.md · Behaviour: assets/js/survey-results.js
+   ========================================================================== */
+
+/* The page sits in the standard `#main` container like every other page, so
+   its left edge lines up with the rest of the site when you navigate between
+   them. Only the bottom padding is the component's business. */
+.survey {
+  padding-bottom: $token-space-7;
 }
 
-#stats-container {
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 0 10px;
+.survey__title {
+  margin: 0 0 $token-space-5;
+  font-family: $token-font-display;
+  font-size: $token-text-xl;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: $token-forest;
 }
 
-/* Improved chart container styling */
-.chart-container {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-    box-sizing: border-box;
-    width: 100%;
-    min-width: 0; /* Allows flex items to shrink below their content size */
-    overflow: hidden; /* Prevents content from overflowing */
+.survey__loading {
+  padding: $token-space-6 0;
+  font-size: $token-text-sm;
+  color: $token-sage;
+
+  &[hidden] {
+    display: none;
+  }
 }
 
-.chart-container canvas {
-    max-height: 300px !important;
-    width: 100% !important;
-    height: auto !important;
+/*
+   Access gate
+   ========================================================================== */
+
+.survey-gate {
+  max-width: 30rem;
+  margin: $token-space-7 auto;
+  text-align: center;
+
+  &[hidden] {
+    display: none;
+  }
 }
 
-/* Scrollable list styling */
-.chart-container .scrollable-list {
-    max-height: 250px;
-    overflow-y: auto;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 10px;
-    background: white;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+.survey-gate__title {
+  margin: 0 0 $token-space-3;
+  font-family: $token-font-display;
+  font-size: $token-text-xl;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: $token-forest;
 }
 
-/* Custom scrollbar styling */
-.chart-container .scrollable-list::-webkit-scrollbar {
-    width: 8px;
+.survey-gate__lead {
+  margin: 0 0 $token-space-5;
+  font-size: $token-text-base;
+  color: $token-ink;
 }
 
-.chart-container .scrollable-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
+.survey-gate__field {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $token-space-2;
 }
 
-.chart-container .scrollable-list::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
+.survey-gate__input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 16rem;
+  margin: 0;
+  /* The theme leaves inputs as content-box, so width:100% would overflow. */
+  box-sizing: border-box;
+  padding: 0.55em 0.8em;
+  font-family: $token-font-mono;
+  font-size: $token-text-sm;
+  letter-spacing: 0.1em;
+  color: $token-ink;
+  background: $token-ground;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  box-shadow: none;
+
+  &::placeholder {
+    letter-spacing: normal;
+    color: $token-sage;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $token-moss;
+    box-shadow: 0 0 0 3px rgba($token-moss, 0.12);
+  }
 }
 
-.chart-container .scrollable-list::-webkit-scrollbar-thumb:hover {
-    background: #a1a1a1;
+.survey-gate__button {
+  padding: 0.55em 1.1em;
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  font-weight: 500;
+  color: $token-ground;
+  background: $token-forest;
+  border: 1px solid $token-forest;
+  border-radius: $token-radius;
+  cursor: pointer;
+  transition: background-color $token-transition;
+
+  &:hover {
+    background: $token-moss;
+    border-color: $token-moss;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
 }
 
-/* Firefox scrollbar */
-.chart-container .scrollable-list {
-    scrollbar-width: thin;
-    scrollbar-color: #c1c1c1 #f1f1f1;
+.survey-gate__error {
+  margin: $token-space-3 0 0;
+  font-size: $token-text-sm;
+  color: $token-cat-clay;
+
+  &[hidden] {
+    display: none;
+  }
 }
 
-/* Fix for text-based lists */
-.chart-container ol {
-    margin: 0;
-    padding-left: 18px;
-    line-height: 1.4;
-    font-size: 14px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+.survey-gate__help {
+  margin: $token-space-5 0 0;
+  font-size: $token-text-sm;
+  line-height: 1.6;
+  color: $token-sage;
 }
 
-.chart-container li {
-    margin-bottom: 6px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
+/*
+   Overview - headline figures
+   ========================================================================== */
+
+.survey-overview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $token-space-3 $token-space-6;
+  margin-bottom: $token-space-5;
+  padding-bottom: $token-space-4;
+  border-bottom: 1px solid $token-rule;
 }
 
-.chart-container li strong {
-    display: inline-block;
-    max-width: 100%;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+.survey-overview__updated {
+  margin: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  color: $token-sage;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Hover effects for list items */
-.chart-container li:hover {
-    background-color: rgba(0,0,0,0.02);
-    padding: 2px 4px;
+.survey-overview__item {
+  display: flex;
+  flex-direction: column;
+  gap: $token-space-1;
+}
+
+.survey-overview__value {
+  font-family: $token-font-display;
+  font-size: $token-text-xl;
+  font-weight: 600;
+  line-height: 1;
+  color: $token-forest;
+  font-variant-numeric: tabular-nums;
+}
+
+.survey-overview__label {
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $token-sage;
+}
+
+/*
+   Card grid
+   ========================================================================== */
+
+.survey__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: $token-space-5;
+}
+
+.survey-card {
+  min-width: 0; // lets grid children shrink instead of forcing overflow
+  padding: $token-space-4;
+  background: $token-ground;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius-lg;
+}
+
+.survey-card__title {
+  display: flex;
+  align-items: center;
+  gap: $token-space-2;
+  margin: 0 0 $token-space-1;
+  font-family: $token-font-display;
+  font-size: $token-text-md;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: $token-forest;
+}
+
+.survey-card__emoji {
+  font-size: 1em;
+  line-height: 1;
+}
+
+.survey-card__note {
+  margin: 0 0 $token-space-3;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  color: $token-sage;
+}
+
+.survey-card__body {
+  min-width: 0;
+}
+
+.survey-card__chart {
+  position: relative;
+  width: 100%;
+  height: 17rem;
+}
+
+/*
+   Pagination
+   ========================================================================== */
+
+.survey-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $token-space-2;
+  margin-bottom: $token-space-3;
+}
+
+.survey-pager__status {
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  color: $token-sage;
+  font-variant-numeric: tabular-nums;
+}
+
+.survey-pager__button {
+  padding: 0.3em 0.7em;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  color: $token-moss;
+  background: $token-ground;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  cursor: pointer;
+  transition: color $token-transition, border-color $token-transition;
+
+  &:hover:not(:disabled) {
+    color: $token-forest;
+    border-color: $token-sage;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    color: $token-rule;
+    cursor: not-allowed;
+  }
+}
+
+/*
+   Summary statistics (histogram footer)
+   ========================================================================== */
+
+.survey-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $token-space-5;
+  margin: $token-space-3 0 0;
+  padding-top: $token-space-3;
+  border-top: 1px solid $token-rule;
+}
+
+.survey-stats__item {
+  display: flex;
+  align-items: baseline;
+  gap: $token-space-2;
+}
+
+.survey-stats__label {
+  margin: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $token-sage;
+}
+
+.survey-stats__value {
+  margin: 0;
+  font-size: $token-text-sm;
+  font-weight: 600;
+  color: $token-ink;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+   Ranked lists
+   ========================================================================== */
+
+.survey-list {
+  max-height: 17rem;
+  margin: 0;
+  padding: 0 $token-space-2 0 0;
+  overflow-y: auto;
+  list-style: none;
+  counter-reset: survey-rank;
+
+  /* Keep the scrollbar unobtrusive; the list is a long tail by nature. */
+  scrollbar-width: thin;
+  scrollbar-color: $token-rule transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $token-rule;
     border-radius: 3px;
-    margin-left: -4px;
-    margin-right: -4px;
+  }
 }
 
-/* Responsive grid improvements */
-@media (max-width: 768px) {
-    #stats-container {
-        grid-template-columns: 1fr !important;
-        padding: 0 5px;
-    }
-    
-    .chart-container {
-        padding: 12px;
-    }
-    
-    .chart-container h3 {
-        font-size: 14px !important;
-    }
-    
-    .chart-container ol {
-        font-size: 12px;
-        padding-left: 15px;
-    }
-    
-    .chart-container .scrollable-list {
-        max-height: 200px;
-    }
+.survey-list__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $token-space-3;
+  margin: 0;
+  padding: $token-space-2 0;
+  border-bottom: 1px solid $token-rule;
+  counter-increment: survey-rank;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &::before {
+    content: counter(survey-rank);
+    flex: 0 0 1.5rem;
+    font-family: $token-font-mono;
+    font-size: $token-text-xs;
+    color: $token-sage;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-@media (max-width: 480px) {
-    .chart-container {
-        padding: 10px;
-        margin-bottom: 15px;
-    }
-    
-    .chart-container h3 {
-        font-size: 13px !important;
-        margin-bottom: 10px;
-    }
-    
-    .chart-container ol {
-        font-size: 11px;
-    }
-    
-    .chart-container .scrollable-list {
-        max-height: 180px;
-        padding: 8px;
-    }
-    
-    /* Make general stats responsive */
-    #general-stats > div > div:first-child {
-        flex-direction: column !important;
-        gap: 15px !important;
-    }
+.survey-list__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: $token-text-sm;
+  line-height: 1.4;
+  color: $token-ink;
+  overflow-wrap: break-word;
 }
 
-/* Ensure grid doesn't create overflow */
-#stats-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
+.survey-list__value {
+  flex: 0 0 auto;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  color: $token-sage;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Additional safety for very long text */
-* {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
+@include breakpoint(max-width $small) {
+  .survey {
+    padding: $token-space-5 $token-space-3 $token-space-6;
+  }
 
-/* Make sure charts are properly contained */
-canvas {
-    max-width: 100% !important;
-    height: auto !important;
+  .survey-card__chart {
+    height: 15rem;
+  }
 }

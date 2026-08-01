@@ -82,6 +82,11 @@ analytics:
 author:
   name             : "Jaylen Wang"
   avatar           : "profile2.jpg"
+  # Cross-faded in on hover over the portrait. Cropped from the same shoot so
+  # the head lands at the same size and position and the two register; if you
+  # swap either image, re-match the framing or the swap reads as a jump cut.
+  # Optional: leave it blank and the portrait simply stops reacting.
+  avatar_hover     : "profile2-goofy.jpg"
   bio              : "PhD Candidate @CMU ECE"
   location         : "Pittsburgh, PA"
   employer         :
@@ -130,11 +135,15 @@ exclude:
   - .jekyll-assets-cache
   - .sass-cache
   - CHANGELOG
+  - CLAUDE.md
+  - CONTRIBUTING.md
   - Capfile
   - Gemfile
   - Gruntfile.js
   - LICENSE
-  - README
+  # Was `README`, which matches nothing: Jekyll excludes by path, so the
+  # extension is required. Without it the file was served at /README.md.
+  - README.md
   - Rakefile
   - assets/js/_main.js
   - assets/js/plugins

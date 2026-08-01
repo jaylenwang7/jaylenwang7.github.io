@@ -14,7 +14,10 @@
     @include prefix(0.5 of 12);
   }
 
-  a {
+  /* `:where()` keeps this at (0,1,0) so component classes inside an archive
+     page - `.pub__action`, `.cv__download` - can set their own link
+     treatment without scoping. See the note in `_page.scss`. */
+  :where(a) {
     text-decoration: underline;
 
     &:hover {
@@ -39,10 +42,45 @@
   }
 }
 
-.archive__item-title {
-  margin-bottom: 0.25em;
-  font-family: $sans-serif-narrow;
+/*
+   List entry
+   --------------------------------------------------------------------------
+   Same shape as a publication entry: serif title, one mono metadata line,
+   then the description. Entries are separated by a hairline rather than by a
+   gap, so a long list reads as one table of contents instead of a stack of
+   loosely floating blocks.
+   ========================================================================== */
 
+.archive__item {
+  padding: $token-space-4 0;
+}
+
+.list__item + .list__item .archive__item {
+  border-top: 1px solid $token-rule;
+}
+
+.archive__item-title {
+  margin: 0 0 $token-space-1;
+  font-family: $token-font-display;
+  font-size: $token-text-md;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+
+  /* A permanent underline on a serif heading reads as heavy; save it for
+     hover, matching how publication titles behave. */
+  a {
+    color: $token-forest;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: rgba($token-moss, 0.5);
+    }
+  }
+
+  /* The trailing permalink icon on externally-linked entries. */
   a + a {
     opacity: 0.5;
   }
@@ -52,18 +90,37 @@
 .page__content {
 
   .archive__item-title {
-    margin-top: 1em;
     border-bottom: none;
   }
 }
 
+.archive__item-meta {
+  margin: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  letter-spacing: 0.04em;
+  color: $token-sage;
+  font-variant-numeric: tabular-nums;
+}
+
 .archive__item-excerpt {
-  margin-top: 0;
-  font-size: $type-size-6;
+  max-width: 46em;
+  margin: $token-space-2 0 0;
+  font-size: $token-text-sm;
+  line-height: 1.55;
+  color: $token-ink;
 
   & + p {
     text-indent: 0;
   }
+}
+
+.archive__item-citation {
+  margin: $token-space-2 0 0;
+  font-size: $token-text-sm;
+  line-height: 1.5;
+  color: $token-sage;
+  overflow-wrap: break-word;
 }
 
 .archive__item-teaser {

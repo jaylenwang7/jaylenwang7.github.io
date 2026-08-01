@@ -1,0 +1,83 @@
+/* ==========================================================================
+   CV
+   ==========================================================================
+   A frame around the PDF. The page previously carried its own inline styles
+   and an off-palette emerald button; both are gone, and the download uses the
+   same outlined-chip treatment as the publication actions so the site has one
+   secondary-action look rather than several.
+
+   Markup: _pages/cv.md
+   ========================================================================== */
+
+.cv__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $token-space-3;
+  margin-bottom: $token-space-4;
+  padding-bottom: $token-space-3;
+  border-bottom: 1px solid $token-rule;
+}
+
+.cv__note {
+  max-width: 34em;
+  margin: 0;
+  font-size: $token-text-sm;
+  color: $token-sage;
+}
+
+.cv__download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.35em 0.8em;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: $token-moss;
+  background: $token-ground;
+  text-decoration: none;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  transition: color $token-transition, border-color $token-transition,
+              background-color $token-transition;
+
+  &:hover {
+    color: $token-forest;
+    background: $token-wash;
+    border-color: $token-sage;
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
+}
+
+.cv__viewer {
+  display: block;
+  width: 100%;
+  /* Tall enough for a full page of the PDF without pushing the download
+     control off screen on a laptop. */
+  height: min(85vh, 60rem);
+  background: $token-wash;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+}
+
+.cv__fallback {
+  margin: 0;
+  padding: $token-space-5;
+  font-size: $token-text-sm;
+  color: $token-sage;
+}
+
+@include breakpoint(max-width $small) {
+  .cv__viewer {
+    height: 70vh;
+  }
+}

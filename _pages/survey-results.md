@@ -1,64 +1,44 @@
 ---
-layout: default
+layout: single
 title: "Survey Results"
 permalink: /survey-results/
+author_profile: false
+hide_title: true
 ---
 
-<div id="passcode-form" style="text-align: center; margin: 50px 0;">
-  <h2>Enter Survey Access Code</h2>
-  <p style="margin: 20px 0; color: #666;">
-    Need the access code? 
-    <a href="https://forms.gle/MUb6fduRtoqTf79t5" target="_blank" style="color: #007cba; text-decoration: none; font-weight: bold;">
-      Fill out the survey first! 📝
-    </a>
-  </p>
-  <p style="margin: 10px 0; color: #999; font-style: italic; font-size: 14px;">
-    (If you've filled out the survey already and just want to see the results, just shoot me an email).
-  </p>
-  <div style="margin: 20px 0;">
-    <input type="password" id="passcode" placeholder="Enter passcode" style="
-      padding: 10px; 
-      font-size: 16px; 
-      border: 2px solid #ddd; 
-      border-radius: 5px;
-      margin-right: 10px;
-      min-width: 200px;
-    ">
-    <button onclick="checkPasscode()" style="
-      padding: 10px 20px; 
-      font-size: 16px; 
-      background: #007cba; 
-      color: white; 
-      border: none; 
-      border-radius: 5px;
-      cursor: pointer;
-    ">View Results</button>
+<div class="survey">
+  <div id="passcode-form" class="survey-gate">
+    <h1 class="survey-gate__title">Survey results</h1>
+    <p class="survey-gate__lead">
+      Enter the access code you got after filling out the survey.
+    </p>
+
+    <div class="survey-gate__field">
+      <label class="visually-hidden" for="passcode">Access code</label>
+      <input type="password" id="passcode" class="survey-gate__input"
+             placeholder="Access code" autocomplete="off">
+      <button type="button" id="passcode-submit" class="survey-gate__button">
+        View results
+      </button>
+    </div>
+
+    <p id="error-message" class="survey-gate__error" role="alert" hidden>
+      That code isn't right. Check the message you got after submitting the survey.
+    </p>
+
+    <p class="survey-gate__help">
+      Don't have a code? <a href="https://forms.gle/MUb6fduRtoqTf79t5" target="_blank" rel="noopener">Fill out the survey</a> to get one.
+      Already filled it out? Send me an email and I'll pass it along.
+    </p>
   </div>
-  <p id="error-message" style="color: red; display: none; margin-top: 15px;">Incorrect passcode!</p>
+
+  <div id="survey-results" hidden>
+    <h1 class="survey__title">Survey results</h1>
+    <div id="general-stats"></div>
+    <p id="loading" class="survey__loading">Loading the latest results…</p>
+    <div id="stats-container" class="survey__grid"></div>
+  </div>
 </div>
 
-<div id="survey-results" style="display: none;">
-  <h1>Survey Results! 📊</h1>
-  <div id="loading">Loading latest results...</div>
-  <div id="general-stats"></div>
-  <div id="stats-container"></div>
-</div>
-
-<script src="/assets/js/survey-results.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-// Add Enter key support for passcode input
-document.addEventListener('DOMContentLoaded', function() {
-    const passcodeInput = document.getElementById('passcode');
-    
-    passcodeInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            checkPasscode();
-        }
-    });
-    
-    // Focus on the input field when page loads
-    passcodeInput.focus();
-});
-</script>
+<script src="{{ '/assets/js/survey-results.js' | relative_url }}"></script>

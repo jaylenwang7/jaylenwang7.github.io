@@ -1,5 +1,23 @@
-document.addEventListener('DOMContentLoaded', function() {
-  console.log("DOM loaded. Starting playlist script.");
+/**
+ * Live saved-count for the Spotify playlist mentioned on the homepage.
+ *
+ * Reads assets/data/playlist_saves.json, which a scheduled GitHub Action
+ * regenerates and commits (see .github/workflows/update_playlist_saves.yml).
+ * The .yml alongside it is the older format, kept as a fallback for the window
+ * where the JSON hasn't been written yet.
+ *
+ * Markup: the spans in _pages/about.md.
+ */
+(function () {
+  'use strict';
+
+  var DATA_JSON = '/assets/data/playlist_saves.json';
+  var DATA_YAML = '/assets/data/playlist_saves.yml';
+
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
 
   function formatDelta(n) {
     if (typeof n !== 'number' || isNaN(n)) return '';
@@ -7,77 +25,52 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function renderFromJson(data) {
-    console.log("Attempting to render from JSON data:", data);
-    try {
-      const saves = data && typeof data.saves === 'number' ? data.saves : null;
-      const lastUpdated = data && data.last_updated ? data.last_updated : '';
-      const history = Array.isArray(data && data.history) ? data.history : [];
+    if (!data) return;
 
-      if (saves !== null) {
-        document.getElementById('playlist-saves').textContent = ' ' + saves;
-      }
-      if (lastUpdated) {
-        document.getElementById('last-updated').textContent = lastUpdated;
-      }
+    if (typeof data.saves === 'number') setText('playlist-saves', ' ' + data.saves);
+    if (data.last_updated) setText('last-updated', data.last_updated);
 
-      if (history.length >= 2) {
-        document.getElementById('deltas-wrapper').style.display = 'inline';
-        const delta1d = (history[history.length - 1].saves || 0) - (history[history.length - 2].saves || 0);
-        const delta7d = (history[history.length - 1].saves || 0) - (history[0].saves || 0);
+    var history = Array.isArray(data.history) ? data.history : [];
+    if (history.length < 2) return;
 
-        document.getElementById('delta-1d').textContent = formatDelta(delta1d);
-        document.getElementById('delta-7d').textContent = formatDelta(delta7d);
-      }
-      console.log("Successfully rendered from JSON.");
-    } catch (e) {
-      console.error("Error inside renderFromJson:", e);
-    }
+    var latest = history[history.length - 1].saves || 0;
+    setText('delta-1d', formatDelta(latest - (history[history.length - 2].saves || 0)));
+    setText('delta-7d', formatDelta(latest - (history[0].saves || 0)));
+
+    var deltas = document.getElementById('deltas-wrapper');
+    if (deltas) deltas.hidden = false;
   }
 
-  function renderFromYaml(text) { // fallback when JSON isn't available yet
-    console.log("Attempting to render from YAML text:", text);
-    try {
-      const lines = text.split('\n');
-      const saves = lines[0].split(':')[1].trim();
-      const lastUpdated = lines[2].split(': ')[1].trim().replace(/^'|'$/g, '');
-      document.getElementById('playlist-saves').textContent = ' ' + saves;
-      document.getElementById('last-updated').textContent = lastUpdated;
-      console.log("Successfully rendered from YAML.");
-    } catch (e) {
-      console.error("Error inside renderFromYaml:", e);
-    }
+  function renderFromYaml(text) {
+    var lines = text.split('\n');
+    if (lines.length < 3) return;
+
+    setText('playlist-saves', ' ' + lines[0].split(':')[1].trim());
+    setText('last-updated', lines[2].split(': ')[1].trim().replace(/^'|'$/g, ''));
   }
 
-  console.log("Fetching JSON data from /assets/data/playlist_saves.json...");
-  fetch('/assets/data/playlist_saves.json')
-    .then(function(r) {
-      console.log("JSON fetch response:", r);
-      if (!r.ok) {
-        throw new Error('JSON fetch failed with status: ' + r.status);
-      }
-      return r.json();
-    })
-    .then(function(data) {
-        console.log("Successfully parsed JSON data.");
-        renderFromJson(data);
-    })
-    .catch(function(jsonError) {
-      console.error("Failed to load or parse JSON:", jsonError);
-      console.log("Falling back to YAML data...");
-      fetch('/assets/data/playlist_saves.yml')
-        .then(function(r) {
-            console.log("YAML fetch response:", r);
-            if (!r.ok) {
-                throw new Error('YAML fetch failed with status: ' + r.status);
-            }
-            return r.text();
-        })
-        .then(function(text) {
-            console.log("Successfully fetched YAML text.");
-            renderFromYaml(text);
-        })
-        .catch(function(yamlError) {
-            console.error("Failed to load YAML as a fallback:", yamlError);
-        });
+  function fetchOk(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error(url + ' returned ' + r.status);
+      return r;
     });
-});
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!document.getElementById('playlist-saves')) return;
+
+    fetchOk(DATA_JSON)
+      .then(function (r) { return r.json(); })
+      .then(renderFromJson)
+      .catch(function () {
+        return fetchOk(DATA_YAML)
+          .then(function (r) { return r.text(); })
+          .then(renderFromYaml);
+      })
+      .catch(function (error) {
+        // Both sources failed. The surrounding sentence still reads without a
+        // number, so leave the placeholders empty rather than showing an error.
+        console.warn('Playlist saves unavailable:', error.message);
+      });
+  });
+})();

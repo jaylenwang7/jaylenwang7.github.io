@@ -1,0 +1,208 @@
+/* ==========================================================================
+   DESIGN TOKENS - single source of truth for color, type, and spacing.
+   ==========================================================================
+
+   Everything visual on this site should trace back to a value in this file.
+   Two consumers:
+
+     1. SCSS partials read the `$token-*` variables directly (needed for
+        `mix()`, `rgba()`, and other compile-time color math).
+     2. Component CSS and JS read the `--*` custom properties emitted in the
+        `:root` block at the bottom. `assets/js/survey-results.js` pulls the
+        chart palette from there so charts never hardcode their own colors.
+
+   Add a color here first, then reference it - never inline a hex value in a
+   component, template, or script.
+   ========================================================================== */
+
+/*
+   Typefaces
+   ========================================================================== */
+
+/* Newsreader - headings, page titles, publication titles. Scholarly serif
+   with optical sizing; carries the academic register without reading Times-y. */
+$token-font-display : "Newsreader", Georgia, Cambria, "Times New Roman", serif;
+
+/* IBM Plex Sans - body and UI. Humanist sans drawn for a computing company;
+   suits systems/hardware work and avoids the ubiquitous geometric defaults. */
+$token-font-body    : "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+/* IBM Plex Mono - dates, venues, counts, tags, code. Gives metadata a
+   technical voice that matches the subject matter. */
+$token-font-mono    : "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+/*
+   Color - greens
+   --------------------------------------------------------------------------
+   Biased toward forest/moss rather than a saturated "eco" lime. The ground
+   stays white and green does structural work (rules, links, accents) so the
+   palette reads as chosen rather than as a tint applied to everything.
+   ========================================================================== */
+
+$token-ink          : #16201b; // near-black, faint green bias - body text
+$token-forest       : #1d4635; // deep green - headings, masthead, rules
+$token-moss         : #2e6b4f; // mid green - links, primary actions
+$token-sage         : #62796d; // muted green-grey - meta, captions
+$token-rule         : #dde5e0; // hairline borders
+$token-wash         : #f4f7f5; // subtle panel fill
+$token-wash-deep    : #e8efea; // slightly stronger fill (hover, active)
+$token-ground       : #ffffff; // page background
+
+/*
+   Color - categorical
+   --------------------------------------------------------------------------
+   For news categories, publication venue types, and charts. Muted and held at
+   matched saturation/lightness so they read as one family instead of a
+   rainbow. `cat-moss` ties the set back to the brand green.
+   ========================================================================== */
+
+$token-cat-moss     : #3f7a5a; // publications
+$token-cat-clay     : #a8563f; // presentations
+$token-cat-ochre    : #856828; // awards, journal venues
+                              // Darkened from #9c7b35, which measured 3.96:1
+                              // on white and was the only colour in this set
+                              // failing WCAG AA. It was also the lightest by a
+                              // wide margin, so it broke the matched-lightness
+                              // claim above. 5.24:1 sits mid-family.
+$token-cat-slate    : #4a6b8a; // media
+$token-cat-plum     : #7a4f6d; // service
+$token-cat-teal     : #3f7a75; // misc
+
+/*
+   Color - chart series
+   --------------------------------------------------------------------------
+   A separate, higher-chroma ramp for charts. The muted category colors above
+   are always paired with a written label, so they carry no meaning on their
+   own; in a pie or a legend, colour *is* the encoding and has to survive
+   colour-vision deficiency unaided.
+
+   This order is validated - all six pass the lightness band, chroma floor,
+   adjacent-pair CVD separation, normal-vision floor, and contrast against a
+   light surface. Assign in this fixed order and never reorder or cycle it;
+   re-validate if you change a value.
+   ========================================================================== */
+
+$token-series-1     : #2e7d52; // green
+$token-series-2     : #b5851c; // gold
+$token-series-3     : #a34a7d; // plum
+$token-series-4     : #2f6fb0; // blue
+$token-series-5     : #c85a2b; // orange
+$token-series-6     : #00897b; // teal
+
+$token-series       : $token-series-1, $token-series-2, $token-series-3,
+                      $token-series-4, $token-series-5, $token-series-6;
+
+/*
+   Type scale - 1.2 (minor third), rooted at 1rem.
+   ========================================================================== */
+
+$token-text-xs      : 0.75rem;   // 12px - tags, counts
+$token-text-sm      : 0.875rem;  // 14px - meta, captions
+$token-text-base    : 1rem;      // 16px - body
+$token-text-md      : 1.125rem;  // 18px - lead paragraphs
+$token-text-lg      : 1.375rem;  // 22px - section headings
+$token-text-xl      : 1.75rem;   // 28px - page titles
+$token-text-2xl     : 2.5rem;    // 40px - hero name
+
+/*
+   Spacing - 4px base, used for rhythm between and inside components.
+   ========================================================================== */
+
+$token-space-1      : 0.25rem;
+$token-space-2      : 0.5rem;
+$token-space-3      : 0.75rem;
+$token-space-4      : 1rem;
+$token-space-5      : 1.5rem;
+$token-space-6      : 2rem;
+$token-space-7      : 3rem;
+
+/*
+   Shape and motion
+   ========================================================================== */
+
+/*
+   Layout
+   --------------------------------------------------------------------------
+   The masthead is sticky, so anything else that pins itself or is jumped to by
+   an anchor has to clear it. One constant, referenced everywhere, rather than
+   the same magic number copied into four partials.
+
+   Measured in the browser, not derived on paper. The masthead renders at 65px
+   and this site's root is 18px, not 16px, so the arithmetic is easy to get
+   wrong twice over: an early estimate of 4rem sat short and let pinned content
+   slide behind the nav. 3.75rem is 67.5px, just over the real height.
+
+   Re-measure whenever the masthead's padding or `$type-size-6` changes; too
+   small hides pinned content behind the bar, too large opens a slit at the
+   seam for scrolling text to flicker through.
+   ========================================================================== */
+
+$token-masthead-h   : 3.75rem;
+
+$token-radius       : 3px;   // restrained; nothing on this site is pill-shaped
+$token-radius-lg    : 6px;
+$token-shadow       : 0 1px 2px rgba($token-ink, 0.06);
+$token-shadow-raised: 0 2px 8px rgba($token-ink, 0.08);
+$token-transition   : 0.15s ease;
+
+/*
+   Custom properties
+   --------------------------------------------------------------------------
+   Mirrors the tokens above for consumers that can't read SCSS: component
+   styles written as plain CSS, inline `--category-color` overrides set from
+   Liquid templates, and the survey chart palette read by JS.
+   ========================================================================== */
+
+:root {
+  --font-display     : #{$token-font-display};
+  --font-body        : #{$token-font-body};
+  --font-mono        : #{$token-font-mono};
+
+  --color-ink        : #{$token-ink};
+  --color-forest     : #{$token-forest};
+  --color-moss       : #{$token-moss};
+  --color-sage       : #{$token-sage};
+  --color-rule       : #{$token-rule};
+  --color-wash       : #{$token-wash};
+  --color-wash-deep  : #{$token-wash-deep};
+  --color-ground     : #{$token-ground};
+
+  --color-cat-moss   : #{$token-cat-moss};
+  --color-cat-clay   : #{$token-cat-clay};
+  --color-cat-ochre  : #{$token-cat-ochre};
+  --color-cat-slate  : #{$token-cat-slate};
+  --color-cat-plum   : #{$token-cat-plum};
+  --color-cat-teal   : #{$token-cat-teal};
+
+  /* Chart series, in assignment order. Read by assets/js/survey-results.js. */
+  --series-1         : #{$token-series-1};
+  --series-2         : #{$token-series-2};
+  --series-3         : #{$token-series-3};
+  --series-4         : #{$token-series-4};
+  --series-5         : #{$token-series-5};
+  --series-6         : #{$token-series-6};
+
+  --text-xs          : #{$token-text-xs};
+  --text-sm          : #{$token-text-sm};
+  --text-base        : #{$token-text-base};
+  --text-md          : #{$token-text-md};
+  --text-lg          : #{$token-text-lg};
+  --text-xl          : #{$token-text-xl};
+  --text-2xl         : #{$token-text-2xl};
+
+  --space-1          : #{$token-space-1};
+  --space-2          : #{$token-space-2};
+  --space-3          : #{$token-space-3};
+  --space-4          : #{$token-space-4};
+  --space-5          : #{$token-space-5};
+  --space-6          : #{$token-space-6};
+  --space-7          : #{$token-space-7};
+
+  --masthead-height  : #{$token-masthead-h};
+
+  --radius           : #{$token-radius};
+  --radius-lg        : #{$token-radius-lg};
+  --shadow           : #{$token-shadow};
+  --shadow-raised    : #{$token-shadow-raised};
+  --transition       : #{$token-transition};
+}

@@ -115,21 +115,24 @@
     opacity: 0.65;
   }
 
-  /* social buttons */
+  /* social share buttons
+     --------------------------------------------------------------------
+     One quiet outlined treatment rather than three brand-coloured fills.
+     Three saturated blocks were the loudest thing on a publication page,
+     and they were louder than the paper the page is about. The service is
+     still named in the label and its icon, so nothing is lost. */
 
-  $social:
-  (facebook, $facebook-color),
-  (twitter, $twitter-color),
-  (google-plus, $google-plus-color),
-  (linkedin, $linkedin-color);
+  &--twitter,
+  &--facebook,
+  &--linkedin {
+    color: $token-sage;
+    background-color: transparent;
+    border: 1px solid $token-rule;
 
-  @each $socialnetwork, $color in $social {
-    &--#{$socialnetwork} {
-      background-color: $color;
-
-      &:hover {
-        background-color: mix(#000, $color, 20%);
-      }
+    &:hover {
+      color: $token-forest;
+      background-color: $token-wash;
+      border-color: $token-sage;
     }
   }
 

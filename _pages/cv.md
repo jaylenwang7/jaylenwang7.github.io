@@ -6,30 +6,30 @@ author_profile: true
 redirect_from:
   - /resume
 ---
+
 {% include base_path %}
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-  <p>Please see my CV below ⤵️. Or download directly ➡️</p>
-  <a href="https://jaylenwang7.github.io/files/JaylenWang_CV.pdf" download class="pdf-button" style="
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #059669;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-      <line x1="12" y1="18" x2="12" y2="12"></line>
-      <line x1="9" y1="15" x2="15" y2="15"></line>
-    </svg>
-    Download CV
-  </a>
+{% comment %}
+  The PDF is the source of truth; this page is a frame around it. Keep the
+  markup unindented - Kramdown reads four leading spaces as a code block.
+
+  Styles: _sass/_cv.scss
+{% endcomment %}
+
+<div class="cv__bar">
+<p class="cv__note">The full CV is embedded below, and the download is the same file.</p>
+<a class="cv__download" href="{{ base_path }}/files/JaylenWang_CV.pdf" download>
+<i class="fas fa-arrow-down" aria-hidden="true"></i>
+Download PDF
+</a>
 </div>
 
-<iframe src="https://jaylenwang7.github.io/files/JaylenWang_CV.pdf" width="100%" height="800px" style="border: none;">
-  <p>Your browser does not support iframes. Please <a href="https://jaylenwang7.github.io/files/JaylenWang_CV.pdf">click here to download the PDF</a>.</p>
+{% comment %}
+  An <iframe>, not an <object>: the theme runs fitVids over `.page__content`,
+  which wraps every <object> and <embed> in a zero-height aspect-ratio shim and
+  collapses it. fitVids only touches iframes whose src is a known video host,
+  so this one is left alone.
+{% endcomment %}
+<iframe class="cv__viewer" src="{{ base_path }}/files/JaylenWang_CV.pdf#view=FitH" title="Jaylen Wang CV">
+<p class="cv__fallback">Your browser can't display the PDF inline. <a href="{{ base_path }}/files/JaylenWang_CV.pdf">Download it instead</a>.</p>
 </iframe>

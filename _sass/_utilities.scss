@@ -179,110 +179,13 @@ body:hover .visually-hidden button {
   vertical-align: middle;
 }
 
-/* social icons*/
-
-.social-icons {
-  .fa {
-    color: #000;
-  }
-
-  .fa-behance,
-  .fa-behance-square {
-    color: $behance-color;
-  }
-
-  .fa-dribbble {
-    color: $dribbble-color;
-  }
-
-  .fa-facebook,
-  .fa-facebook-square {
-    color: $facebook-color;
-  }
-
-  .fa-flickr {
-    color: $flickr-color;
-  }
-
-  .fa-foursquare {
-    color: $foursquare-color;
-  }
-
-  .fa-github,
-  .fa-github-alt,
-  .fa-github-square {
-    color: $github-color;
-  }
-
-  .fa-google-plus,
-  .fa-google-plus-square {
-    color: $google-plus-color;
-  }
-
-  .fa-instagram {
-    color: $instagram-color;
-  }
-
-  .fa-lastfm,
-  .fa-lastfm-square {
-    color: $lastfm-color;
-  }
-
-  .fa-linkedin,
-  .fa-linkedin-square {
-    color: $linkedin-color;
-  }
-
-  .fa-pinterest,
-  .fa-pinterest-p,
-  .fa-pinterest-square {
-    color: $pinterest-color;
-  }
-
-  .fa-rss,
-  .fa-rss-square {
-    color: $rss-color;
-  }
-
-  .fa-soundcloud {
-    color: $soundcloud-color;
-  }
-
-  .fa-stack-exchange,
-  .fa-stack-overflow {
-    color: $stackoverflow-color;
-  }
-
-  .fa-tumblr,
-  .fa-tumblr-square {
-    color: $tumblr-color;
-  }
-
-  .fa-twitter,
-  .fa-twitter-square {
-    color: $twitter-color;
-  }
-
-  .fa-vimeo,
-  .fa-vimeo-square {
-    color: $vimeo-color;
-  }
-
-  .fa-vine {
-    color: $vine-color;
-  }
-
-  .fa-youtube,
-  .fa-youtube-square,
-  .fa-youtube-play {
-    color: $youtube-color;
-  }
-
-  .fa-xing,
-  .fa-xing-square {
-    color: $xing-color;
-  }
-}
+/* social icons
+   --------------------------------------------------------------------------
+   The theme shipped ~80 lines painting each service's icon in its brand
+   colour. The profile rail sets every icon in one ink instead (see
+   `_sass/_profile.scss`), and the footer inherits from its link colour, so
+   nothing consumed those rules. Removed rather than left dormant.
+   ========================================================================== */
 
 
 /*
@@ -293,7 +196,9 @@ body:hover .visually-hidden button {
   position: relative;
   width: $navicon-width;
   height: $navicon-height;
-  background: #fff;
+  /* Inherits the toggle's ink, which is now forest on a transparent button
+     rather than white on a filled one. */
+  background: currentColor;
   margin: auto;
   -webkit-transition: 0.3s;
   transition: 0.3s;
@@ -305,7 +210,7 @@ body:hover .visually-hidden button {
     left: 0;
     width: $navicon-width;
     height: $navicon-height;
-    background: #fff;
+    background: currentColor;
     -webkit-transition: 0.3s;
     transition: 0.3s;
   }

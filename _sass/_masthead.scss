@@ -3,8 +3,17 @@
    ========================================================================== */
 
 .masthead {
-  position: relative;
-  border-bottom: 4px solid $border-color;
+  /* Pinned, so navigation is reachable from anywhere on the page. Publications
+     and the homepage both run several screens, and a masthead that scrolls away
+     makes changing pages a trip back to the top.
+
+     Everything this needs was already here: an opaque background, a bottom
+     rule, and a z-index above the page. Anything else that pins itself
+     (`.news__year`, `.sidebar.sticky`) offsets by `--masthead-height`. */
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid $border-color;
+  transition: box-shadow $token-transition;
   -webkit-animation: intro 0.3s both;
           animation: intro 0.3s both;
   -webkit-animation-delay: 0.15s;
@@ -15,7 +24,11 @@
   &__inner-wrap {
     @include container;
     @include clearfix;
-    padding: 1em 1em 1em;
+    /* Trimmed from 0.75em once this bar became sticky. At the site's 18px root
+       that padding alone was 27px, and a bar that used to scroll away can
+       afford height in a way that one occupying the viewport permanently
+       cannot. The links keep their own padding, so the tap target is intact. */
+    padding: 0.35em 1em;
     font-family: $sans-serif-narrow;
 
     @include breakpoint($x-large) {
@@ -30,6 +43,21 @@
       text-decoration: none;
     }
   }
+}
+
+/* Zero-height marker above the masthead. While it is on screen the page is at
+   the top; once it leaves, content is passing behind the bar. Sized 1px and
+   pulled back by the same amount so it occupies no layout space of its own. */
+.masthead-sentinel {
+  height: 1px;
+  margin-bottom: -1px;
+}
+
+/* Set by assets/js/masthead.js. The bar keeps its hairline-only treatment at
+   rest, so the top of every page looks exactly as it did, and only claims a
+   layer of its own once something is actually underneath it. */
+.masthead.is-pinned {
+  box-shadow: $token-shadow-raised;
 }
 
 .masthead__menu {

@@ -3,14 +3,17 @@
 # Configuration section
 config:
   recent_window_days: 30  # Number of days to mark items as "recent"
+  # Category colors mirror the categorical ramp in _sass/_tokens.scss - muted
+  # and held at matched saturation so they read as one family. Keep the two
+  # lists in sync when adding a category.
   categories:
-    publication: "#4a90e2"    # Blue
-    presentation: "#e74c3c"   # Red
-    award: "#f1c40f"         # Yellow
-    media: "#2ecc71"         # Green
-    service: "#9b59b6"       # Purple
-    misc: "#1abc9c"         # Teal  
-    # grant: "#e67e22"         # Orange
+    publication: "#3f7a5a"    # moss
+    presentation: "#a8563f"   # clay
+    award: "#856828"          # ochre
+    media: "#4a6b8a"          # slate
+    service: "#7a4f6d"        # plum
+    misc: "#3f7a75"           # teal
+    # grant: "#8a6a3f"        # bronze
 
 items:
   - date: 2025-02-07

@@ -1,0 +1,60 @@
+{% comment %}
+  Homepage hero. Driven entirely by the `hero:` block in the including page's
+  front matter, so the copy lives with the page rather than in this template.
+
+  Expected shape:
+    hero:
+      eyebrow: short affiliation line
+      name:    display name (falls back to site.title)
+      thesis:  one-sentence research statement (Markdown allowed)
+      levers:  list of { label, text } pairs - the strands of the work
+      facts:   list of { label, value } pairs (value allows Markdown)
+
+  `levers` is the page's signature block: the strands of the research, named
+  and described, in place of a list of keywords. They follow a server's life,
+  from designing it, to keeping it useful, to running it, so the order carries
+  meaning and should be kept.
+
+  Keep this to three, general, and free of specific results. It is an
+  orientation to the work, not a summary of it; the news panel and the
+  publications page carry the papers and the numbers. Naming an unpublished
+  system here would put it in front of readers before the paper exists.
+{% endcomment %}
+
+{% assign hero = page.hero %}
+
+{% if hero %}
+<header class="hero">
+  {% if hero.eyebrow %}
+    <p class="hero__eyebrow">{{ hero.eyebrow }}</p>
+  {% endif %}
+
+  <h1 class="hero__name">{{ hero.name | default: site.title }}</h1>
+
+  {% if hero.thesis %}
+    <p class="hero__thesis">{{ hero.thesis | markdownify | remove: "<p>" | remove: "</p>" }}</p>
+  {% endif %}
+
+  {% if hero.levers %}
+    <ul class="hero__levers">
+      {% for lever in hero.levers %}
+        <li class="hero__lever">
+          <span class="hero__lever-label">{{ lever.label }}</span>
+          <span class="hero__lever-text">{{ lever.text | markdownify | remove: "<p>" | remove: "</p>" }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if hero.facts %}
+    <dl class="hero__facts">
+      {% for fact in hero.facts %}
+        <div class="hero__fact">
+          <dt class="hero__fact-label">{{ fact.label }}</dt>
+          <dd class="hero__fact-value">{{ fact.value | markdownify | remove: "<p>" | remove: "</p>" }}</dd>
+        </div>
+      {% endfor %}
+    </dl>
+  {% endif %}
+</header>
+{% endif %}

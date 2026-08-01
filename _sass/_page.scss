@@ -23,6 +23,21 @@
     @include suffix(2 of 12);
   }
 
+  /* A page with no profile rail (`author_profile: false`) takes the full
+     container instead of leaving the rail's column standing empty. Set by
+     _layouts/single.html. Declared inside `.page` so it always follows the
+     rules it overrides. */
+  &--wide {
+    @include breakpoint($large) {
+      float: none;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
   .page__inner-wrap {
     @include full();
 
@@ -50,17 +65,46 @@
 
 .page__content {
 
-  h2 {
-    padding-bottom: 0.5em;
-    border-bottom: 1px solid $border-color;
+  /* Section headings in prose. A rule underneath separates one section of
+     writing from the next; a heading that classifies a *list* instead - see
+     `.pub-section` - deliberately takes the mono-label register so it can
+     never be confused with the entries under it. */
+  :where(h2) {
+    margin-top: $token-space-7;
+    padding-bottom: $token-space-2;
+    font-size: $token-text-lg;
+    border-bottom: 1px solid $token-rule;
   }
 
-  p, li, dl {
+  /* --------------------------------------------------------------------
+     Prose defaults.
+
+     Every rule below is wrapped in `:where()` on purpose. Written plainly,
+     `.page__content p` scores (0,1,1) and silently outranks every
+     single-class component rule - `.news__body`, `.hero__fact-label`,
+     `.pub__action` - leaving components with the theme's font sizes and
+     paragraph margins instead of their own. `:where()` contributes no
+     specificity, so these land at (0,1,0): still ahead of the bare-element
+     defaults in `_reset.scss`, but now a component class can override them
+     without being scoped or made `!important`.
+
+     These are defaults for unstyled Markdown prose. A component that opts
+     out just states its own value.
+     -------------------------------------------------------------------- */
+
+  :where(p, li, dl) {
     font-size: 1em;
   }
 
+  /* Reading measure for prose. Scoped to direct children so it only catches
+     Markdown paragraphs - every component wraps its own content in an element,
+     so nothing inside `.news`, `.pub`, or `.archive__item` is affected. */
+  > :where(p) {
+    max-width: 42em;
+  }
+
   /* paragraph indents */
-  p {
+  :where(p) {
     margin: 0 0 $indent-var;
 
     /* sibling indentation*/
@@ -72,7 +116,7 @@
     }
   }
 
-  a {
+  :where(a) {
     text-decoration: underline;
 
     &:hover {
@@ -84,13 +128,13 @@
     }
   }
 
-  dt {
+  :where(dt) {
     margin-top: 1em;
     font-family: $sans-serif;
     font-weight: bold;
   }
 
-  dd {
+  :where(dd) {
     margin-left: 1em;
     font-family: $sans-serif;
     font-size: $type-size-6;

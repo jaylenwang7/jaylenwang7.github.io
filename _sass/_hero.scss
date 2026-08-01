@@ -1,0 +1,202 @@
+/* ==========================================================================
+   HERO - homepage introduction
+   ==========================================================================
+   Purely typographic: the portrait already lives in the sidebar rail, so the
+   hero carries the name, the thesis, and the three strands of the work.
+
+   The levers block is the site's signature. It is also the clearest statement
+   of the grammar every other page follows - a mono label in a fixed left
+   column, prose to its right - so its measurements set the pattern.
+
+   Markup: _includes/hero.html
+   ========================================================================== */
+
+/* Fallback label column, used only where `subgrid` is unavailable. Each lever
+   is its own grid there, so the width has to be stated for the rows to line
+   up - sized to the longest label in the front matter plus slack.
+
+   Everywhere else the `@supports` block at the end of this file hands column
+   sizing to the parent grid and the labels size themselves, so adding a longer
+   label needs no change here. */
+$hero-label-column: 9rem;
+
+.hero {
+  margin-bottom: $token-space-6;
+}
+
+.hero__eyebrow {
+  margin: 0 0 $token-space-2;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $token-sage;
+}
+
+.hero__name {
+  /* Scales with the viewport so the name stays the anchor on every screen. */
+  margin: 0 0 $token-space-4;
+  font-family: $token-font-display;
+  font-size: clamp(2.125rem, calc(1.5rem + 2.6vw), #{$token-text-2xl});
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.028em;
+  color: $token-forest;
+}
+
+.hero__thesis {
+  max-width: 36em;
+  margin: 0;
+  font-size: $token-text-md;
+  line-height: 1.55;
+  color: $token-ink;
+  text-wrap: pretty;
+
+  /* Weight and colour only. An underline here read as a hyperlink and invited
+     clicks, which is exactly the wrong signal in the opening sentence. */
+  strong {
+    font-weight: 600;
+    color: $token-forest;
+  }
+}
+
+/*
+   Levers - the strands of the research
+   --------------------------------------------------------------------------
+   Hairline-separated rows, each a mono label against a short description. The
+   label is forest rather than sage: elsewhere a mono label annotates something
+   else on the page, but these name the page's own substance.
+   ========================================================================== */
+
+.hero__levers {
+  margin: $token-space-5 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid $token-rule;
+}
+
+.hero__lever {
+  display: grid;
+  gap: $token-space-1;
+  /* Roomier than the rest of the page's rhythm on purpose: four rows of dense
+     prose set tight read as a wall rather than as four separate strands. */
+  padding: $token-space-4 0;
+  border-bottom: 1px solid $token-rule;
+
+  @include breakpoint($small) {
+    grid-template-columns: $hero-label-column minmax(0, 1fr);
+    gap: $token-space-7;
+    align-items: baseline;
+  }
+}
+
+.hero__lever-label {
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $token-forest;
+}
+
+.hero__lever-text {
+  font-size: $token-text-sm;
+  line-height: 1.6;
+  color: $token-ink;
+  text-wrap: pretty;
+}
+
+/*
+   At-a-glance facts
+   --------------------------------------------------------------------------
+   A quiet footer to the hero. Laid out as baseline-aligned inline pairs so a
+   label always sits on the same baseline as its value - a two-column grid put
+   them on different ones whenever a value wrapped.
+   ========================================================================== */
+
+.hero__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $token-space-2 $token-space-6;
+  margin: $token-space-4 0 0;
+}
+
+.hero__fact {
+  display: flex;
+  align-items: baseline;
+  gap: $token-space-3;
+}
+
+.hero__fact-label {
+  /* Stated explicitly: the theme gives a bare `dt` a top margin and bold
+     sans, which broke the shared baseline. */
+  margin: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: $token-sage;
+}
+
+.hero__fact-value {
+  margin: 0;
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  line-height: 1.5;
+  color: $token-ink;
+
+  code {
+    padding: 0;
+    font-family: $token-font-mono;
+    font-size: 0.95em;
+    color: inherit;
+    background: none;
+    border: 0;
+  }
+}
+
+/*
+   Self-sizing lever labels
+   --------------------------------------------------------------------------
+   The list becomes the grid and each lever opts into its tracks via `subgrid`,
+   so the label column measures itself against the longest label instead of
+   against `$hero-label-column`. That retires the one magic number in this file
+   - a new lever can be called anything and the rows stay aligned.
+
+   Kept in a `@supports` block rather than replacing the rules above: an
+   unsupported `grid-template-columns: subgrid` is simply dropped, which would
+   collapse every lever to one column and stack the labels. The fallback has to
+   survive on its own.
+   ========================================================================== */
+
+@supports (grid-template-columns: subgrid) {
+  .hero__levers {
+    @include breakpoint($small) {
+      display: grid;
+      /* `max-content` is safe because the labels are short, two words at most;
+         the text beside them takes the remaining space and wraps.
+
+         The gap has to do more work here than under the old fixed 9rem column,
+         which left slack after every label that happened to be short. Sizing
+         the column to its content removed that slack and pushed the two
+         columns together, so the separation is now stated rather than
+         inherited from a magic number. */
+      grid-template-columns: max-content minmax(0, 1fr);
+      column-gap: $token-space-7;
+    }
+  }
+
+  .hero__lever {
+    @include breakpoint($small) {
+      grid-template-columns: subgrid;
+      grid-column: span 2;
+      /* No `column-gap` here on purpose. A subgrid adopts its parent's gutters
+         only while it declares none of its own; setting one replaces them
+         rather than adding to them, so `column-gap: 0` here collapsed the
+         label against its text. The gap belongs to `.hero__levers`. */
+    }
+  }
+}

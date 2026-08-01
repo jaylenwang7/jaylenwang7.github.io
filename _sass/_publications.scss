@@ -1,0 +1,265 @@
+/* ==========================================================================
+   PUBLICATIONS
+   ==========================================================================
+   Previously an inline <style> block inside _includes/archive-single-pub.html.
+   Entries are separated by hairlines rather than sitting in filled cards, so
+   the list reads as a bibliography and the page stays quiet.
+
+   Markup: _includes/archive-single-pub.html, _pages/publications.md
+   ========================================================================== */
+
+.pub-intro {
+  margin-bottom: $token-space-5;
+  font-size: $token-text-sm;
+  color: $token-sage;
+}
+
+/*
+   Section divider
+   --------------------------------------------------------------------------
+   These headings classify a list; they are not titles of writing. Set as a
+   serif heading they were near-indistinguishable from the paper titles below
+   them, so they take the site's other register instead - a small mono label
+   with a rule running out to the margin. Nothing here can be mistaken for an
+   entry, and the divider is lighter than the heading it replaced.
+   ========================================================================== */
+
+.pub-section {
+  display: flex;
+  align-items: center;
+  gap: $token-space-3;
+  margin: $token-space-6 0 0;
+  /* Jumped to from in-page anchors, so the heading has to land below the
+     sticky masthead rather than behind it. */
+  scroll-margin-top: calc(#{$token-masthead-h} + #{$token-space-4});
+  padding: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $token-sage;
+  border-bottom: 0;
+
+  /* Rule runs from the label to the edge of the column. */
+  &::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: $token-rule;
+  }
+
+  &:first-of-type {
+    margin-top: $token-space-4;
+  }
+}
+
+/*
+   Entry
+   ========================================================================== */
+
+.pub {
+  padding: $token-space-4 0;
+
+  + .pub {
+    border-top: 1px solid $token-rule;
+  }
+}
+
+.pub__title {
+  margin: 0 0 $token-space-1;
+  font-family: $token-font-display;
+  font-size: $token-text-md;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+
+  a {
+    color: $token-forest;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: rgba($token-moss, 0.5);
+    }
+  }
+}
+
+.pub__authors {
+  margin: 0 0 $token-space-1;
+  font-size: $token-text-sm;
+  line-height: 1.5;
+  color: $token-ink;
+
+  /* Author entries mark the site owner with <u> in the source data; render
+     that as weight rather than an underline. */
+  u {
+    font-weight: 600;
+    color: $token-forest;
+    text-decoration: none;
+    border-bottom: none;
+  }
+}
+
+.pub__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $token-space-3;
+  margin: 0;
+}
+
+.pub__venue {
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $token-sage;
+
+  /* Venue type is encoded by colour from the shared categorical ramp, so the
+     section headings don't have to carry it. */
+  &[data-venue-type="conference"] { color: $token-cat-moss; }
+  &[data-venue-type="journal"]    { color: $token-cat-ochre; }
+  &[data-venue-type="workshop"]   { color: $token-cat-plum; }
+}
+
+.pub__acceptance,
+.pub__note {
+  font-size: $token-text-xs;
+  color: $token-sage;
+}
+
+.pub__note {
+  display: block;
+  margin-top: $token-space-2;
+  font-style: italic;
+}
+
+/*
+   Artifact badges and awards
+   ========================================================================== */
+
+.pub__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: $token-space-1;
+}
+
+.pub__badge {
+  /* Sized down from the 32px source art: these are credentials worth showing,
+     but at full size three of them outweighed the paper title. */
+  width: 22px;
+  height: 22px;
+}
+
+.pub__awards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $token-space-2;
+  margin-top: $token-space-2;
+}
+
+.pub__award {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.2em 0.6em;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: $token-cat-ochre;
+  background: rgba($token-cat-ochre, 0.07);
+  border: 1px solid rgba($token-cat-ochre, 0.35);
+  border-radius: $token-radius;
+}
+
+/*
+   Actions
+   --------------------------------------------------------------------------
+   Quiet outlined chips. These deliberately do not use the theme's `.btn`,
+   whose colour and weight are tuned for full-width calls to action.
+   ========================================================================== */
+
+.pub__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $token-space-2;
+  margin: $token-space-3 0 0;
+}
+
+.pub__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.3em 0.7em;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  line-height: 1.4;
+  color: $token-moss;
+  background: $token-ground;
+  text-decoration: none;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  cursor: pointer;
+  transition: color $token-transition, border-color $token-transition,
+              background-color $token-transition;
+
+  &:hover {
+    color: $token-forest;
+    background: $token-wash;
+    border-color: $token-sage;
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
+
+  /* Transient states set by publications.js after a copy attempt. */
+  &.is-copied {
+    color: $token-ground;
+    background: $token-moss;
+    border-color: $token-moss;
+  }
+
+  &.is-failed {
+    color: $token-ground;
+    background: $token-cat-clay;
+    border-color: $token-cat-clay;
+  }
+
+  i {
+    font-size: 0.95em;
+  }
+}
+
+/*
+   Citation drawer
+   ========================================================================== */
+
+.pub__citation {
+  margin-top: $token-space-3;
+  padding: $token-space-3 $token-space-4;
+  font-size: $token-text-sm;
+  line-height: 1.55;
+  color: $token-ink;
+  background: $token-wash;
+  border-left: 2px solid $token-moss;
+  border-radius: 0 $token-radius $token-radius 0;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+@include breakpoint(max-width $small) {
+  .pub__badge {
+    width: 26px;
+    height: 26px;
+  }
+}

@@ -11,6 +11,7 @@
 */
 
 @import "vendor/breakpoint/breakpoint"; // media query mixins
+@import "tokens";    // design tokens — must precede variables, which derive from it
 @import "variables";
 @import "mixins";
 @import "vendor/susy/susy";
@@ -27,14 +28,28 @@
 @import "navigation";
 @import "footer";
 @import "syntax";
-@import "news";
-@import "survey-results";
 
 @import "forms";
 
 @import "page";
 @import "archive";
 @import "sidebar";
+
+/* Site components.
+
+   Imported after the theme's layout partials on purpose. `_page.scss` and
+   `_archive.scss` set prose defaults on broad descendants (`p`, `a`, `dt`);
+   those selectors are wrapped in `:where()` so they carry no more specificity
+   than a single class, and source order is what decides the tie. Components
+   last means a component always wins over the prose default without needing
+   to be scoped or marked `!important`. Do not move these above `page`. */
+@import "components";
+@import "profile";
+@import "hero";
+@import "news";
+@import "publications";
+@import "cv";
+@import "survey-results";
 
 @import "vendor/font-awesome/fontawesome";
 @import "vendor/font-awesome/solid";

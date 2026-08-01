@@ -19,3 +19,51 @@
     opacity: 1;
   }
 }
+
+/* ==========================================================================
+   CROSS-DOCUMENT VIEW TRANSITIONS
+   ==========================================================================
+   Opts every same-origin navigation into a short cross-fade, so moving between
+   About, Publications, and CV reads as one document changing rather than four
+   separate ones loading. Browsers without support navigate exactly as before -
+   there is no scripted fallback and none is wanted.
+   ========================================================================== */
+
+@view-transition {
+  navigation: auto;
+}
+
+/* The default cross-fade is half a second, which is long enough to feel like
+   an effect. Shortened to the point where it registers as continuity instead. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: ease;
+}
+
+/* The masthead is identical on every page, so giving it its own name lifts it
+   out of the cross-fade and holds it still while the content beneath changes.
+   Only the masthead: naming a `position: sticky` element (the profile rail)
+   captures it at its pinned offset and makes it jump on arrival. */
+.masthead {
+  view-transition-name: masthead;
+}
+
+/* `#main` fades itself in on load with a 350ms delay (`_page.scss`). Against a
+   view transition that reads as a stall - the outgoing page fades out, then a
+   blank frame, then the new one arrives. Where transitions run, they are the
+   entrance, so the standalone animation stands down. */
+@supports (view-transition-name: none) {
+  #main {
+    animation: none;
+  }
+}
+
+/* Honour the same preference the rest of the site does (`_base.scss`). The
+   at-rule is valid inside a conditional group, so this turns the feature off
+   at the source rather than animating to zero. */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}

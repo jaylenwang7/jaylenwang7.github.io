@@ -1,0 +1,212 @@
+/* ==========================================================================
+   SHARED COMPONENTS
+   ==========================================================================
+   Small, page-agnostic pieces used across more than one template. Anything
+   that belongs to a single feature lives in that feature's partial instead.
+   ========================================================================== */
+
+/*
+   Callout - a bordered aside for a single secondary invitation or note.
+   ========================================================================== */
+
+.callout {
+  margin: $token-space-6 0 0;
+
+  /* Jumped to from the bio's survey teaser, so it has to land below the
+     sticky masthead rather than behind it. */
+  scroll-margin-top: calc(#{$token-masthead-h} + #{$token-space-4});
+
+  padding: $token-space-4 $token-space-5;
+  background: $token-wash;
+  border: 1px solid $token-rule;
+  border-left: 3px solid $token-moss;
+  border-radius: 0 $token-radius $token-radius 0;
+
+  h4 {
+    margin: 0 0 $token-space-2;
+    font-family: $token-font-mono;
+    font-size: $token-text-xs;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $token-sage;
+  }
+
+  p {
+    margin: 0;
+    font-size: $token-text-sm;
+    line-height: 1.6;
+  }
+
+  p + p {
+    margin-top: $token-space-3;
+  }
+}
+
+/*
+   Icon list - a list whose markers are emoji.
+   --------------------------------------------------------------------------
+   The emoji stays beside its own text in the source, so items can be reordered
+   or edited without touching CSS. It's lifted out of the flow here so wrapped
+   lines align to the text column instead of ragging back underneath the icon.
+
+   Absolute positioning rather than grid or flex: these items contain links,
+   and every inline child of a grid container is blockified into its own grid
+   item, which would tear the sentence apart at each <a>.
+   ========================================================================== */
+
+$icon-list-gutter: 1.75rem;
+
+.icon-list {
+  padding-left: 0;
+  list-style: none;
+
+  > li {
+    position: relative;
+    padding-left: $icon-list-gutter;
+  }
+}
+
+.icon-list__icon {
+  position: absolute;
+  left: 0;
+  /* Emoji sit large for their point size; this lands them on the first
+     line's baseline rather than riding above it. */
+  font-size: 0.95em;
+  line-height: inherit;
+}
+
+/*
+   Sidenote - a marker that reveals a short aside on hover or focus.
+   --------------------------------------------------------------------------
+   The marker is a real <button>, not a styled <span>: the note has to be
+   reachable by keyboard and openable on touch, and a button is the only
+   element that gets both without script. `aria-describedby` binds the two, so
+   the note is announced as the marker's description rather than as a stray
+   sentence in the middle of the paragraph.
+
+   Hidden with `opacity` alone. `visibility: hidden` and `display: none` each
+   drop the note out of the accessibility tree, which would leave the
+   `aria-describedby` pointing at nothing announceable.
+   ========================================================================== */
+
+.sidenote {
+  /* Anchors the note while the marker stays in the run of text. */
+  position: relative;
+  display: inline-block;
+}
+
+.sidenote__marker {
+  padding: 0 0.1em;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  line-height: 1;
+  color: $token-moss;
+  vertical-align: super;
+  background: none;
+  border: 0;
+  cursor: help;
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+}
+
+/* An affordance rather than a footnote reference: it points at something the
+   reader can ask for, so it sits on the baseline instead of raised, and stays
+   quieter than the heading it annotates until pointed at. */
+.sidenote__marker--icon {
+  vertical-align: baseline;
+  font-size: 0.75em;
+  line-height: 1;
+  color: $token-sage;
+
+  &:hover,
+  &:focus-visible {
+    color: $token-moss;
+  }
+}
+
+.sidenote__note {
+  position: absolute;
+  bottom: calc(100% + #{$token-space-2});
+  left: 50%;
+  z-index: 5;
+  /* Sized to its text, then capped so a long note can't run off a phone. */
+  width: max-content;
+  max-width: min(20rem, 70vw);
+  padding: $token-space-2 $token-space-3;
+  font-family: $token-font-body;
+  font-size: $token-text-xs;
+  font-weight: 400;
+  line-height: 1.5;
+  color: $token-ink;
+  text-align: left;
+  background: $token-ground;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  box-shadow: $token-shadow-raised;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 2px);
+  transition: opacity $token-transition, transform $token-transition;
+
+  /* Points back at the marker. Rotated square rather than a border triangle so
+     it can carry the same hairline and fill as the box. */
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: $token-ground;
+    border-right: 1px solid $token-rule;
+    border-bottom: 1px solid $token-rule;
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+}
+
+/* `:focus-within` covers the keyboard and touch paths; hover covers the mouse
+   and keeps the note up while the pointer travels onto it. */
+.sidenote:hover .sidenote__note,
+.sidenote:focus-within .sidenote__note {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidenote__note {
+    /* Rests where it will be shown, so revealing it is a fade and not a move. */
+    transform: translate(-50%, 0);
+    transition: none;
+  }
+}
+
+/*
+   Tag - a small mono label used for venues, categories, and counts.
+   Colour comes from `--tag-color`, set by whichever template renders it, so
+   this component never needs to know the category vocabulary.
+   ========================================================================== */
+
+%tag-base {
+  display: inline-block;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tag {
+  @extend %tag-base;
+  padding: 0.15em 0.5em;
+  color: var(--tag-color, #{$token-moss});
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: $token-radius;
+}

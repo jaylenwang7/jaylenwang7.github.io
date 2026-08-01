@@ -1,0 +1,185 @@
+/* ==========================================================================
+   PROFILE RAIL
+   ==========================================================================
+   The left sidebar. It is a rail, not a second column of content: the name is
+   already in the masthead on every page and again in the hero on the homepage,
+   so everything here is set small and quiet, in one ink, and the eye goes to
+   the main column first.
+
+   Markup: _includes/author-profile.html
+   ========================================================================== */
+
+.profile {
+  padding-top: $token-space-2;
+}
+
+.profile__avatar {
+  /* Named `profile__` rather than the theme's `author__avatar`, whose rules
+     force a 36px table-cell below $large. Nothing here inherits from those. */
+  position: relative;
+  max-width: 8.5rem;
+
+  /* Hairline ring. The top of the portrait is pale sky against a white page,
+     so the circle dissolves into the background along that edge and the crop
+     reads as accidental. Drawn as an overlay rather than a border on the image
+     so it adds no layout size, stays at full strength through the hover
+     cross-fade instead of fading with the photo underneath it, and never
+     intercepts the pointer.
+
+     A ring and not a shadow: hairlines carry every other boundary on this
+     site, and a raised portrait would be the only lit object on the page. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba($token-ink, 0.12);
+    pointer-events: none;
+  }
+}
+
+.profile__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/*
+   Hover portrait
+   --------------------------------------------------------------------------
+   Stacked exactly on the portrait and faded in on hover. The two frames are
+   cropped to put the head in the same place at the same size, so this reads as
+   one photograph changing rather than as two photographs swapping.
+
+   Hover only, on purpose. It is an aside, not information, so it does not earn
+   a tab stop on a decorative image, and losing it on touch costs nothing.
+   ========================================================================== */
+
+.profile__photo--hover {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  opacity: 0;
+  /* Slower than `$token-transition`, which is tuned for colour changes on
+     controls. At 0.15s a whole photograph swapping registers as a flicker. */
+  transition: opacity 0.35s ease;
+}
+
+.profile__avatar:hover .profile__photo--hover {
+  opacity: 1;
+}
+
+.profile__name {
+  margin: $token-space-4 0 0;
+  font-family: $token-font-display;
+  font-size: $token-text-base;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: $token-forest;
+}
+
+.profile__role {
+  margin: $token-space-1 0 0;
+  font-size: $token-text-sm;
+  line-height: 1.4;
+  color: $token-sage;
+}
+
+.profile__location {
+  /* Mono, and without an icon: this is metadata, and the map pin it used to
+     carry gave a non-link the visual weight of one. */
+  margin: $token-space-2 0 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $token-sage;
+}
+
+.profile__links {
+  margin: $token-space-4 0 0;
+  padding: $token-space-4 0 0;
+  list-style: none;
+  border-top: 1px solid $token-rule;
+}
+
+.profile__link-item {
+  margin: 0;
+}
+
+.profile__link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 0.25em 0;
+  font-size: $token-text-sm;
+  line-height: 1.4;
+  color: $token-sage;
+  text-decoration: none;
+  transition: color $token-transition;
+
+  /* One ink for every icon. The theme painted each in its service's brand
+     colour, which made a six-item list the loudest thing on the page. */
+  i {
+    flex: 0 0 1em;
+    font-size: 0.9em;
+    color: currentColor;
+    text-align: center;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: $token-moss;
+    text-decoration: none;
+
+    span {
+      text-decoration: underline;
+      text-decoration-color: rgba($token-moss, 0.4);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
+}
+
+/*
+   Narrow screens
+   --------------------------------------------------------------------------
+   Below $large the rail sits above the content rather than beside it, so the
+   portrait shrinks and the links run as an inline row.
+   ========================================================================== */
+
+@include breakpoint(max-width $large) {
+  .profile {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0 $token-space-4;
+    align-items: center;
+    padding-bottom: $token-space-4;
+    border-bottom: 1px solid $token-rule;
+  }
+
+  .profile__avatar {
+    grid-row: span 3;
+    max-width: 4.5rem;
+  }
+
+  .profile__name {
+    align-self: end;
+    margin-top: 0;
+  }
+
+  .profile__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 $token-space-4;
+    grid-column: 1 / -1;
+    margin-top: $token-space-4;
+    padding-top: $token-space-3;
+  }
+}

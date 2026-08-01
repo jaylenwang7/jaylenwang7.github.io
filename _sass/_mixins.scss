@@ -2,12 +2,13 @@
    MIXINS
    ========================================================================== */
 
+/* One focus ring for the whole site, matching the one components declare
+   directly. It was an ochre outline inset by 2px, which was the only place
+   that hue appeared outside an award badge and which clipped into the text. */
 %tab-focus {
-  /* Default*/
-  outline: thin dotted $warning-color;
-  /* Webkit*/
-  outline: 5px auto $warning-color;
-  outline-offset: -2px;
+  outline: 2px solid $token-moss;
+  outline-offset: 2px;
+  border-radius: 1px;
 }
 
 /*

@@ -1,3 +1,13 @@
+{% comment %}
+  One entry in a collection listing (teaching, research, portfolio, talks,
+  post archives). Pass `type="grid"` for the card layout used by the related-
+  items rails; the default is the stacked list.
+
+  Note: the site's analytics tag lives in _layouts/default.html. A second copy
+  used to sit in this file, which meant it loaded once per entry rather than
+  once per page.
+{% endcomment %}
+
 {% include base_path %}
 
 {% if post.header.teaser %}
@@ -12,7 +22,6 @@
   {% assign title = post.title %}
 {% endif %}
 
-<script async data-id="101436865" src="//static.getclicky.com/js"></script>
 <div class="{{ include.type | default: "list" }}__item">
   <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
     {% if include.type == "grid" and teaser %}
@@ -34,34 +43,34 @@
         <a href="{{ base_path }}{{ post.url }}" rel="permalink">{{ title }}</a>
       {% endif %}
     </h2>
-    
+
     {% if post.read_time %}
-      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> {% include read-time.html %}</p>
+      <p class="archive__item-meta"><i class="fa fa-clock-o" aria-hidden="true"></i> {% include read-time.html %}</p>
     {% endif %}
 
-        {% if post.collection == 'teaching' %}
-          <p> {{ post.type }}, <i>{{ post.venue }}</i>, {{ post.date | default: "1900-01-01" | date: "%Y" }} </p>
-        {% elsif post.collection == 'research' %}
-          <p> {{ post.type }}, <i>{{ post.venue }}</i>, {{ post.date | default: "1900-01-01" | date: "%Y" }} </p>
-        {% elsif post.collection == 'publications' %}
-          <p>Published in <i>{{ post.venue }}</i>, {{ post.date | default: "1900-01-01" | date: "%Y" }} </p>
-        {% elsif post.date %}
-         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].date_label | default: "Published:" }}</strong> <time datetime="{{ post.date | default: "1900-01-01" | date_to_xmlschema }}">{{ post.date | default: "1900-01-01" | date: "%B %d, %Y" }}</time></p>
-        {% endif %}
-
-    {% if post.excerpt and site.read_more != 'enabled' %}
-    <p class="archive__item-excerpt" itemprop="description">{{ post.excerpt | markdownify }}</p>
-    {% elsif post.excerpt and site.read_more == 'enabled' %}
-    <p class="archive__item-excerpt" itemprop="description"><p>{{ post.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}<strong><a href="{{ base_path }}{{ post.url }}" rel="permalink"> Read more</a></strong></p></p>
+    {% comment %}
+      Type, venue, and year, set in the site's metadata register (mono, sage)
+      rather than as body prose - see the note in _sass/_archive.scss.
+    {% endcomment %}
+    {% if post.collection == 'teaching' or post.collection == 'research' %}
+      <p class="archive__item-meta">{{ post.type }} · {{ post.venue }} · {{ post.date | default: "1900-01-01" | date: "%Y" }}</p>
+    {% elsif post.collection == 'publications' %}
+      <p class="archive__item-meta">Published in {{ post.venue }} · {{ post.date | default: "1900-01-01" | date: "%Y" }}</p>
+    {% elsif post.date %}
+      <p class="archive__item-meta"><time datetime="{{ post.date | default: "1900-01-01" | date_to_xmlschema }}">{{ post.date | default: "1900-01-01" | date: "%B %-d, %Y" }}</time></p>
     {% endif %}
-    
-    {% if post.citation and post.paperurl %}
-      <p>Recommended citation: {{ post.citation }} <a href="{{ post.paperurl }}"><u>{{ post.paperurl }}</u></a></p>
-    {% elsif post.citation %}
-      <p>Recommended citation: {{ post.citation }} </p>
+
+    {% if post.excerpt %}
+      <p class="archive__item-excerpt" itemprop="description">
+        {{ post.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}
+        {%- if site.read_more == 'enabled' %} <a class="archive__item-more" href="{{ base_path }}{{ post.url }}" rel="permalink">Read more</a>{% endif %}
+      </p>
+    {% endif %}
+
+    {% if post.citation %}
+      <p class="archive__item-citation">Recommended citation: {{ post.citation }}{% if post.paperurl %} <a href="{{ post.paperurl }}">{{ post.paperurl }}</a>{% endif %}</p>
     {% elsif post.paperurl %}
-      <p>Download <a href=" {{ post.paperurl }} "><u>here</u></a></p>
+      <p class="archive__item-citation"><a href="{{ post.paperurl }}">Download the paper</a></p>
     {% endif %}
-
   </article>
 </div>

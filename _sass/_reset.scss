@@ -70,9 +70,11 @@ a {
   color: $link-color;
 }
 
-/* Apply focus state */
+/* Apply focus state.
+   `:focus-visible` rather than `:focus`, so the ring appears for keyboard
+   navigation but not on every mouse click. */
 
-a:focus {
+a:focus-visible {
   @extend %tab-focus;
 }
 

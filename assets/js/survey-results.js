@@ -1,824 +1,555 @@
-function checkPasscode() {
-    const passcode = document.getElementById('passcode').value;
-    const correctPasscode = 'SHOWME'; // Match your form message
-    
-    if (passcode === correctPasscode) {
-        document.getElementById('passcode-form').style.display = 'none';
-        document.getElementById('survey-results').style.display = 'block';
-        loadSurveyData();
-    } else {
-        document.getElementById('error-message').style.display = 'block';
+/**
+ * Survey results page.
+ *
+ * Adding a question is a one-line change: append an entry to CHART_SPECS and
+ * point it at a renderer. The renderers, the palette, and the Chart.js theme
+ * are shared, so every chart on the page stays visually consistent.
+ *
+ * Colours come from the CSS custom properties defined in _sass/_tokens.scss -
+ * this file deliberately hardcodes none, so the site palette stays the single
+ * source of truth.
+ *
+ * Note: the access code below is obfuscation, not security. Everything it
+ * gates is public JSON; it only stops casual spoiling of the survey.
+ */
+(function () {
+  'use strict';
+
+  var ACCESS_CODE = 'SHOWME';
+  var DATA_URL = '/data/survey-stats.json';
+  var EGG_BIN_SIZE = 10;
+  var FRUITS_PER_PAGE = 10;
+
+  /* ---------------------------------------------------------------------
+     Theme - read once from the site's design tokens
+     --------------------------------------------------------------------- */
+
+  function token(name, fallback) {
+    var value = getComputedStyle(document.documentElement)
+      .getPropertyValue(name)
+      .trim();
+    return value || fallback;
+  }
+
+  var theme = {
+    ink: token('--color-ink', '#16201b'),
+    sage: token('--color-sage', '#62796d'),
+    rule: token('--color-rule', '#dde5e0'),
+    ground: token('--color-ground', '#ffffff'),
+    primary: token('--color-moss', '#2e6b4f'),
+    fontBody: token('--font-body', 'sans-serif'),
+    fontMono: token('--font-mono', 'monospace'),
+    // Fixed assignment order - see the note in _tokens.scss. Never cycled.
+    series: [1, 2, 3, 4, 5, 6].map(function (n) {
+      return token('--series-' + n, '#2e7d52');
+    })
+  };
+
+  /**
+   * Single-series magnitude charts use one hue: the category is already named
+   * on the axis, so colouring each bar differently would encode nothing.
+   * The categorical ramp is reserved for charts where colour carries identity.
+   */
+  function seriesColors(count) {
+    var colors = [];
+    for (var i = 0; i < count; i += 1) {
+      colors.push(theme.series[i % theme.series.length]);
     }
-}
+    return colors;
+  }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const passcodeInput = document.getElementById('passcode');
-    if (passcodeInput) {
-        passcodeInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Prevent form submission
-                checkPasscode();
-            }
-        });
-        passcodeInput.focus();
-    }
-});
+  function applyChartTheme() {
+    Chart.defaults.font.family = theme.fontBody;
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = theme.sage;
+    Chart.defaults.borderColor = theme.rule;
+    Chart.defaults.maintainAspectRatio = false;
+    Chart.defaults.plugins.legend.display = false;
+    Chart.defaults.plugins.tooltip.backgroundColor = theme.ink;
+    Chart.defaults.plugins.tooltip.titleFont = { family: theme.fontBody, weight: '600' };
+    Chart.defaults.plugins.tooltip.bodyFont = { family: theme.fontMono };
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.displayColors = false;
+  }
 
-async function loadSurveyData() {
-    try {
-        // Add cache-busting parameter for GitHub Pages
-        const timestamp = new Date().getTime();
-        const response = await fetch(`/data/survey-stats.json?v=${timestamp}`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-        
-        const data = await response.json();
-        displayStats(data);
-    } catch (error) {
-        console.error('Error loading survey data:', error);
-        document.getElementById('loading').innerHTML = 'Error loading data. Please try again later.';
-    }
-}
-
-function displayStats(data) {
-    const container = document.getElementById('stats-container');
-    const loading = document.getElementById('loading');
-    loading.style.display = 'none';
-    
-    // Show general stats first at the top
-    createGeneralStats(data.general);
-    
-    // Create grid layout for charts with proper constraints
-    container.style.cssText = `
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-top: 20px;
-        max-width: 100%;
-        box-sizing: border-box;
-        width: 100%;
-    `;
-    
-    // Add comprehensive responsive styles
-    const style = document.createElement('style');
-    style.textContent = `
-        body {
-            max-width: 100vw;
-            overflow-x: hidden;
-            box-sizing: border-box;
-        }
-        
-        #stats-container {
-            max-width: 100%;
-            box-sizing: border-box;
-            padding: 0 10px;
-        }
-        
-        .chart-container {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            box-sizing: border-box;
-            width: 100%;
-            min-width: 0;
-            overflow: hidden;
-        }
-        
-        .chart-container canvas {
-            max-height: 300px !important;
-            width: 100% !important;
-            height: auto !important;
-        }
-        
-        .chart-container ol {
-            margin: 0;
-            padding-left: 18px;
-            line-height: 1.4;
-            font-size: 14px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-        
-        .chart-container li {
-            margin-bottom: 6px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            max-width: 100%;
-        }
-        
-        .chart-container li strong {
-            display: inline-block;
-            max-width: 100%;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-        
-        @media (max-width: 768px) {
-            #stats-container {
-                grid-template-columns: 1fr !important;
-                padding: 0 5px;
-            }
-            
-            .chart-container {
-                padding: 12px;
-            }
-            
-            .chart-container h3 {
-                font-size: 14px !important;
-            }
-            
-            .chart-container ol {
-                font-size: 12px;
-                padding-left: 15px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .chart-container {
-                padding: 10px;
-                margin-bottom: 15px;
-            }
-            
-            .chart-container h3 {
-                font-size: 13px !important;
-                margin-bottom: 10px;
-            }
-            
-            .chart-container ol {
-                font-size: 11px;
-            }
-            
-            #general-stats > div > div:first-child {
-                flex-direction: column !important;
-                gap: 15px !important;
-            }
-        }
-        
-        * {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-        
-        canvas {
-            max-width: 100% !important;
-            height: auto !important;
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Create visualizations for all categories
-    createFruitChart(data.fruits);
-    createGrapeChart(data.grapes);
-    createEggHistogram(data.eggs);
-    createSandwichChart(data.sandwiches);
-    createTraderJoesChart(data.trader_joes);
-    createDrinkChart(data.plane_drinks);
-    createPotatoChart(data.potatoes);
-    createTacoChart(data.taco_shells);
-    createPastaChart(data.pasta_shapes);
-}
-
-function createFruitChart(fruitData) {
-    const container = document.getElementById('stats-container');
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'chart-container';
-    
-    // Sort fruits by count (descending) for better readability
-    const sortedEntries = Object.entries(fruitData)
-        .sort(([,a], [,b]) => b - a);
-    const overallMaxValue = Math.max(0, ...sortedEntries.map(([, count]) => count));
-    
-    const ITEMS_PER_PAGE = 10;
-    const totalPages = Math.ceil(sortedEntries.length / ITEMS_PER_PAGE);
-    let currentPage = 0;
-    let chart = null;
-    
-    // Create pagination controls
-    const controlsDiv = document.createElement('div');
-    controlsDiv.style.cssText = `
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        border: 1px solid #e9ecef;
-    `;
-    
-    const prevButton = document.createElement('button');
-    prevButton.innerHTML = '← Previous';
-    prevButton.style.cssText = `
-        padding: 8px 16px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-        transition: background 0.2s;
-    `;
-    prevButton.onmouseover = () => prevButton.style.background = '#0056b3';
-    prevButton.onmouseout = () => prevButton.style.background = '#007bff';
-    
-    const pageInfo = document.createElement('div');
-    pageInfo.style.cssText = `
-        font-weight: bold;
-        font-size: 14px;
-        color: #495057;
-        text-align: center;
-        min-width: 120px;
-    `;
-    
-    const nextButton = document.createElement('button');
-    nextButton.innerHTML = 'Next →';
-    nextButton.style.cssText = prevButton.style.cssText;
-    nextButton.onmouseover = () => nextButton.style.background = '#0056b3';
-    nextButton.onmouseout = () => nextButton.style.background = '#007bff';
-    
-    controlsDiv.appendChild(prevButton);
-    controlsDiv.appendChild(pageInfo);
-    controlsDiv.appendChild(nextButton);
-    chartDiv.appendChild(controlsDiv);
-    
-    // Create canvas container with proper sizing
-    const canvasContainer = document.createElement('div');
-    canvasContainer.style.cssText = `
-        width: 100%;
-        height: 350px;
-        position: relative;
-        box-sizing: border-box;
-    `;
-    
-    // Create canvas - let Chart.js handle sizing
-    const ctx = document.createElement('canvas');
-    ctx.id = 'fruitChart';
-    ctx.style.cssText = `
-        width: 100% !important;
-        height: 100% !important;
-    `;
-    
-    canvasContainer.appendChild(ctx);
-    chartDiv.appendChild(canvasContainer);
-    container.appendChild(chartDiv);
-    
-    // Generate a diverse color palette
-    const colors = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-        '#FFB1C1', '#87CEEB', '#DDA0DD', '#98FB98', '#F0E68C', '#FFA07A'
-    ];
-    
-    function renderChart() {
-        const startIndex = currentPage * ITEMS_PER_PAGE;
-        const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, sortedEntries.length);
-        const pageData = sortedEntries.slice(startIndex, endIndex);
-        
-        let labels = pageData.map(([fruit, ]) => fruit);
-        let data = pageData.map(([, count]) => count);
-        
-        // Pad data to maintain consistent bar height if paginating
-        if (totalPages > 1) {
-            while (labels.length < ITEMS_PER_PAGE) {
-                labels.push('');
-                data.push(null);
-            }
-        }
-        
-        // Update pagination info
-        const startItem = startIndex + 1;
-        const endItem = endIndex;
-        pageInfo.innerHTML = `${startItem}-${endItem} of ${sortedEntries.length}`;
-        
-        // Update button states
-        prevButton.disabled = currentPage === 0;
-        nextButton.disabled = currentPage === totalPages - 1;
-        prevButton.style.opacity = prevButton.disabled ? '0.5' : '1';
-        nextButton.style.opacity = nextButton.disabled ? '0.5' : '1';
-        prevButton.style.cursor = prevButton.disabled ? 'not-allowed' : 'pointer';
-        nextButton.style.cursor = nextButton.disabled ? 'not-allowed' : 'pointer';
-        
-        // Destroy existing chart
-        if (chart) {
-            chart.destroy();
-        }
-        
-        // Create new chart with proper responsive settings
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Votes',
-                    data: data,
-                    backgroundColor: colors.slice(0, labels.length),
-                    borderColor: colors.slice(0, labels.length).map(color => color + 'CC'),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '🍎 Favorite Fruits',
-                        font: { size: 16 }
-                    },
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: overallMaxValue + 1,
-                        title: {
-                            display: true,
-                            text: 'Number of Votes',
-                            font: { size: 12 }
-                        },
-                        ticks: {
-                            stepSize: 1,
-                            font: { size: 11 }
-                        },
-                        grid: {
-                            display: true
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            font: { size: 12 },
-                            maxRotation: 0
-                        }
-                    }
-                },
-                layout: {
-                    padding: {
-                        left: 10,
-                        right: 15,
-                        top: 10,
-                        bottom: 10
-                    }
-                }
-            }
-        });
-    }
-    
-    // Event listeners
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 0) {
-            currentPage--;
-            renderChart();
-        }
-    });
-    
-    nextButton.addEventListener('click', () => {
-        if (currentPage < totalPages - 1) {
-            currentPage++;
-            renderChart();
-        }
-    });
-    
-    // Initial render
-    renderChart();
-}
-
-function createGrapeChart(grapeData) {
-    const container = document.getElementById('stats-container');
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'chart-container';
-    
-    const ctx = document.createElement('canvas');
-    ctx.id = 'grapeChart';
-    chartDiv.appendChild(ctx);
-    container.appendChild(chartDiv);
-    
-    // Map colors to specific grape types
-    const colorMapping = {
-        'Green': '#32CD32',   // Lime Green
-        'Red': '#DC143C',     // Crimson Red
-        'Other': '#808080'    // Gray
+  /** Axis config shared by every bar chart, so grids and ticks match. */
+  function valueAxis(label) {
+    return {
+      beginAtZero: true,
+      title: { display: Boolean(label), text: label, color: theme.sage },
+      ticks: { precision: 0, color: theme.sage },
+      grid: { color: theme.rule, drawTicks: false },
+      border: { display: false }
     };
-    
-    const labels = Object.keys(grapeData);
-    const data = Object.values(grapeData);
-    const colors = labels.map(label => colorMapping[label] || '#808080');
-    
-    new Chart(ctx, {
+  }
+
+  function categoryAxis() {
+    return {
+      ticks: { color: theme.ink, autoSkip: false },
+      grid: { display: false },
+      border: { color: theme.rule }
+    };
+  }
+
+  /* ---------------------------------------------------------------------
+     Small helpers
+     --------------------------------------------------------------------- */
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  /** Sort a { label: count } map into [label, count] pairs, highest first. */
+  function rankEntries(data) {
+    return Object.keys(data)
+      .map(function (key) { return [key, data[key]]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+  }
+
+  function sumValues(data) {
+    return Object.keys(data).reduce(function (total, key) {
+      return total + data[key];
+    }, 0);
+  }
+
+  /**
+   * The question exactly as it was asked on the form, revealed on hover or
+   * focus. The card titles are shortened for the grid, and some of the
+   * original wording carries the joke that the title has to drop.
+   *
+   * Reuses the `.sidenote` component from _sass/_components.scss rather than
+   * introducing a second tooltip: it already solves keyboard and touch access
+   * with a real <button> and `aria-describedby`.
+   */
+  function buildQuestionNote(spec) {
+    var wrap = el('span', 'sidenote');
+    var id = 'question-' + spec.key;
+
+    var marker = document.createElement('button');
+    marker.type = 'button';
+    marker.className = 'sidenote__marker sidenote__marker--icon';
+    marker.setAttribute('aria-describedby', id);
+    marker.setAttribute('aria-label', 'Show the original question from the form');
+
+    var icon = document.createElement('i');
+    icon.className = 'fas fa-info-circle';
+    icon.setAttribute('aria-hidden', 'true');
+    marker.appendChild(icon);
+
+    var note = el('span', 'sidenote__note', spec.question);
+    note.id = id;
+    note.setAttribute('role', 'tooltip');
+
+    wrap.appendChild(marker);
+    wrap.appendChild(note);
+    return wrap;
+  }
+
+  /** Build a card shell and return the body element renderers draw into. */
+  function createCard(spec) {
+    var card = el('section', 'survey-card');
+
+    var title = el('h2', 'survey-card__title');
+    title.appendChild(el('span', 'survey-card__emoji', spec.emoji));
+    title.appendChild(document.createTextNode(spec.title));
+    if (spec.question) {
+      title.appendChild(buildQuestionNote(spec));
+    }
+    card.appendChild(title);
+
+    if (spec.note) {
+      card.appendChild(el('p', 'survey-card__note', spec.note));
+    }
+
+    var body = el('div', 'survey-card__body');
+    card.appendChild(body);
+
+    document.getElementById('stats-container').appendChild(card);
+    return body;
+  }
+
+  function createCanvas(parent) {
+    var frame = el('div', 'survey-card__chart');
+    var canvas = document.createElement('canvas');
+    frame.appendChild(canvas);
+    parent.appendChild(frame);
+    return canvas;
+  }
+
+  /* ---------------------------------------------------------------------
+     Renderers
+     --------------------------------------------------------------------- */
+
+  /** Horizontal bar chart, ranked by value. Paginates when `perPage` is set. */
+  function renderRankedBar(spec, data) {
+    var body = createCard(spec);
+    var entries = rankEntries(data);
+    var maxValue = Math.max.apply(null, entries.map(function (e) { return e[1]; }));
+    var perPage = spec.perPage || entries.length;
+    var pageCount = Math.ceil(entries.length / perPage);
+    var page = 0;
+    var chart = null;
+    var pager = null;
+
+    if (pageCount > 1) {
+      pager = buildPager(body, function (next) {
+        page = next;
+        draw();
+      });
+    }
+
+    var canvas = createCanvas(body);
+
+    function draw() {
+      var start = page * perPage;
+      var slice = entries.slice(start, start + perPage);
+
+      if (pager) {
+        pager.update(page, pageCount, start + 1, start + slice.length, entries.length);
+      }
+      if (chart) chart.destroy();
+
+      chart = new Chart(canvas, {
         type: 'bar',
         data: {
-            labels: labels,
-            datasets: [{
-                label: 'Responses',
-                data: data,
-                backgroundColor: colors,
-                borderColor: colors.map(color => color + 'CC'),
-                borderWidth: 1
-            }]
+          labels: slice.map(function (e) { return e[0]; }),
+          datasets: [{
+            label: spec.axis || 'Votes',
+            data: slice.map(function (e) { return e[1]; }),
+            backgroundColor: theme.primary,
+            borderRadius: 3,
+            borderSkipped: false,
+            barThickness: 'flex',
+            maxBarThickness: 22
+          }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '🍇 Grape Preferences',
-                    font: { size: 16 }
-                },
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Votes',
-                        font: { size: 12 }
-                    }
-                }
-            }
+          indexAxis: 'y',
+          // A fixed max keeps bar lengths comparable across pages.
+          scales: { x: valueAxis(spec.axis), y: categoryAxis() },
+          plugins: { tooltip: { callbacks: { label: countLabel } } }
         }
-    });
-}
+      });
+      chart.options.scales.x.max = maxValue;
+    }
 
-function createEggHistogram(eggData) {
-    const container = document.getElementById('stats-container');
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'chart-container';
-    
-    const ctx = document.createElement('canvas');
-    ctx.id = 'eggChart';
-    chartDiv.appendChild(ctx);
-    container.appendChild(chartDiv);
-    
-    // Create histogram bins
-    const bins = {};
-    eggData.data.forEach(value => {
-        const bin = Math.floor(value / 10) * 10; // 10-egg bins
-        const binLabel = `${bin}-${bin + 9}`;
-        bins[binLabel] = (bins[binLabel] || 0) + 1;
+    draw();
+  }
+
+  /** Vertical bar chart preserving a caller-supplied order. */
+  function renderBar(spec, data) {
+    var body = createCard(spec);
+    var keys = Object.keys(data);
+    if (spec.sortNumeric) {
+      keys.sort(function (a, b) { return Number(a) - Number(b); });
+    }
+
+    new Chart(createCanvas(body), {
+      type: 'bar',
+      data: {
+        labels: keys,
+        datasets: [{
+          label: spec.axis || 'Votes',
+          data: keys.map(function (k) { return data[k]; }),
+          backgroundColor: theme.primary,
+          borderRadius: 3,
+          borderSkipped: false,
+          maxBarThickness: 56
+        }]
+      },
+      options: {
+        scales: { y: valueAxis(spec.axis), x: categoryAxis() },
+        plugins: { tooltip: { callbacks: { label: countLabel } } }
+      }
     });
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(bins).sort((a, b) => {
-                const aNum = parseInt(a.split('-')[0]);
-                const bNum = parseInt(b.split('-')[0]);
-                return aNum - bNum;
-            }),
-            datasets: [{
-                label: 'Number of People',
-                data: Object.values(bins),
-                backgroundColor: '#FFD700'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '🥚 Egg Eating Challenge',
-                    font: { size: 16 }
-                },
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Responses',
-                        font: { size: 12 }
-                    },
-                    beginAtZero: true
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Eggs',
-                        font: { size: 12 }
-                    }
-                }
+  }
+
+  /** Pie chart - used only where colour carries identity, so it gets a legend. */
+  function renderPie(spec, data) {
+    var body = createCard(spec);
+    var labels = Object.keys(data);
+
+    new Chart(createCanvas(body), {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: labels.map(function (k) { return data[k]; }),
+          backgroundColor: seriesColors(labels.length),
+          // A ring in the page colour keeps adjacent slices separable.
+          borderColor: theme.ground,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        cutout: '52%',
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: theme.ink,
+              boxWidth: 10,
+              boxHeight: 10,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 14
             }
+          },
+          tooltip: { callbacks: { label: countLabel } }
         }
+      }
     });
-    
-    // Add stats text below the chart
-    const statsText = document.createElement('div');
-    statsText.innerHTML = `
-        <div style="font-size: 12px; color: #666; margin-top: 10px; text-align: center;">
-            Avg: ${eggData.average} | Max: ${eggData.max} | Min: ${eggData.min}
-        </div>
-    `;
-    chartDiv.appendChild(statsText);
-}
+  }
 
-function createSandwichChart(sandwichData) {
-    const container = document.getElementById('stats-container');
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'chart-container';
-    
-    const ctx = document.createElement('canvas');
-    ctx.id = 'sandwichChart';
-    chartDiv.appendChild(ctx);
-    container.appendChild(chartDiv);
-    
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: Object.keys(sandwichData),
-            datasets: [{
-                data: Object.values(sandwichData),
-                backgroundColor: ['#8B4513', '#DDA0DD', '#FFB6C1']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '🥪 Sandwich Supremacy',
-                    font: { size: 16 }
-                },
-                legend: {
-                    position: 'bottom',
-                    labels: { font: { size: 12 } }
-                }
-            }
-        }
+  /** Histogram of a numeric distribution, plus its summary statistics. */
+  function renderHistogram(spec, data) {
+    var body = createCard(spec);
+    var size = spec.binSize || EGG_BIN_SIZE;
+    var bins = {};
+
+    data.data.forEach(function (value) {
+      var floor = Math.floor(value / size) * size;
+      var key = floor + '–' + (floor + size - 1);
+      bins[key] = (bins[key] || 0) + 1;
     });
-}
 
-function createTraderJoesChart(tjData) {
-    const container = document.getElementById('stats-container');
-    const listDiv = document.createElement('div');
-    listDiv.className = 'chart-container';
-    
-    // Sort by count (descending)
-    const sortedEntries = Object.entries(tjData)
-        .sort(([,a], [,b]) => b - a);
-    
-    let listHTML = `
-        <h3 style="margin-top: 0; color: #D2691E; font-size: 16px; word-wrap: break-word;">🛒 Trader Joe's Favorites</h3>
-        <div style="font-size: 12px; color: #666; margin-bottom: 15px;">
-            Ranked by popularity (${sortedEntries.length} unique items)
-        </div>
-        <div class="scrollable-list">
-            <ol style="margin: 0; padding-left: 18px; line-height: 1.4; font-size: 14px;">
-    `;
-    
-    sortedEntries.forEach(([item, count]) => {
-        const totalVotes = Object.values(tjData).reduce((a, b) => a + b, 0);
-        const percentage = ((count / totalVotes) * 100).toFixed(1);
-        
-        listHTML += `
-            <li style="margin-bottom: 8px; word-wrap: break-word; overflow-wrap: break-word;">
-                <strong style="display: block; margin-bottom: 2px;">${item}</strong>
-                <span style="color: #D2691E; font-weight: bold; font-size: 12px;">
-                    ${count} ${count === 1 ? 'vote' : 'votes'}
-                </span>
-                <span style="color: #666; font-size: 11px;"> (${percentage}%)</span>
-            </li>
-        `;
+    var labels = Object.keys(bins).sort(function (a, b) {
+      return parseInt(a, 10) - parseInt(b, 10);
     });
-    
-    listHTML += `
-            </ol>
-        </div>
-    `;
-    
-    listDiv.innerHTML = listHTML;
-    container.appendChild(listDiv);
-}
 
-function createDrinkChart(drinkData) {
-    const container = document.getElementById('stats-container');
-    const listDiv = document.createElement('div');
-    listDiv.className = 'chart-container';
-    
-    // Sort by count (descending)
-    const sortedEntries = Object.entries(drinkData)
-        .sort(([,a], [,b]) => b - a);
-    
-    let listHTML = `
-        <h3 style="margin-top: 0; color: #2C5F7F; font-size: 16px; word-wrap: break-word;">✈️ Airplane Drinks</h3>
-        <div style="font-size: 12px; color: #666; margin-bottom: 15px;">
-            Ranked by popularity (${sortedEntries.length} drink types)
-        </div>
-        <div class="scrollable-list">
-            <ol style="margin: 0; padding-left: 18px; line-height: 1.4; font-size: 14px;">
-    `;
-    
-    sortedEntries.forEach(([drink, count]) => {
-        const totalVotes = Object.values(drinkData).reduce((a, b) => a + b, 0);
-        const percentage = ((count / totalVotes) * 100).toFixed(1);
-        
-        listHTML += `
-            <li style="margin-bottom: 8px; word-wrap: break-word; overflow-wrap: break-word;">
-                <strong style="display: block; margin-bottom: 2px;">${drink}</strong>
-                <span style="color: #2C5F7F; font-weight: bold; font-size: 12px;">
-                    ${count} ${count === 1 ? 'vote' : 'votes'}
-                </span>
-                <span style="color: #666; font-size: 11px;"> (${percentage}%)</span>
-            </li>
-        `;
+    new Chart(createCanvas(body), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: spec.axis || 'Responses',
+          data: labels.map(function (k) { return bins[k]; }),
+          backgroundColor: theme.primary,
+          borderRadius: 3,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        scales: { y: valueAxis(spec.axis), x: categoryAxis() },
+        plugins: { tooltip: { callbacks: { label: countLabel } } }
+      }
     });
-    
-    listHTML += `
-            </ol>
-        </div>
-    `;
-    
-    listDiv.innerHTML = listHTML;
-    container.appendChild(listDiv);
-}
 
-function createPotatoChart(potatoData) {
-    const container = document.getElementById('stats-container');
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'chart-container';
-    
-    const ctx = document.createElement('canvas');
-    ctx.id = 'potatoChart';
-    chartDiv.appendChild(ctx);
-    container.appendChild(chartDiv);
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(potatoData),
-            datasets: [{
-                label: 'Votes',
-                data: Object.values(potatoData),
-                backgroundColor: '#DAA520'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '🍟 Fried Potato Battle',
-                    font: { size: 16 }
-                },
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Votes',
-                        font: { size: 12 }
-                    }
-                },
-                x: {
-                    ticks: {
-                        font: { size: 11 }
-                    }
-                }
-            }
-        }
+    var summary = el('dl', 'survey-stats');
+    [
+      ['Average', data.average],
+      ['Max', data.max],
+      ['Min', data.min]
+    ].forEach(function (pair) {
+      var group = el('div', 'survey-stats__item');
+      group.appendChild(el('dt', 'survey-stats__label', pair[0]));
+      group.appendChild(el('dd', 'survey-stats__value', String(pair[1])));
+      summary.appendChild(group);
     });
-}
+    body.appendChild(summary);
+  }
 
-function createTacoChart(tacoData) {
-    const container = document.getElementById('stats-container');
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'chart-container';
-    
-    const ctx = document.createElement('canvas');
-    ctx.id = 'tacoChart';
-    chartDiv.appendChild(ctx);
-    container.appendChild(chartDiv);
-    
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: Object.keys(tacoData),
-            datasets: [{
-                data: Object.values(tacoData),
-                backgroundColor: ['#D2691E', '#F0E68C', '#DEB887']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '🌮 Taco Shell Showdown',
-                    font: { size: 16 }
-                },
-                legend: {
-                    position: 'bottom',
-                    labels: { font: { size: 12 } }
-                }
-            }
-        }
+  /** Long tail of free-text answers - a ranked list reads better than a chart. */
+  function renderRankedList(spec, data) {
+    var body = createCard(spec);
+    var entries = rankEntries(data);
+    var total = sumValues(data);
+
+    body.appendChild(el(
+      'p',
+      'survey-card__note',
+      entries.length + ' ' + (spec.unit || 'answers') + ', ranked'
+    ));
+
+    var list = el('ol', 'survey-list');
+    entries.forEach(function (entry) {
+      var share = total ? ((entry[1] / total) * 100).toFixed(1) : '0.0';
+      var item = el('li', 'survey-list__item');
+      // textContent throughout: these are free-text survey answers.
+      item.appendChild(el('span', 'survey-list__label', entry[0]));
+      item.appendChild(el(
+        'span',
+        'survey-list__value',
+        entry[1] + (entry[1] === 1 ? ' vote' : ' votes') + ' · ' + share + '%'
+      ));
+      list.appendChild(item);
     });
-}
 
-function createPastaChart(pastaData) {
-    const container = document.getElementById('stats-container');
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'chart-container';
-    
-    const ctx = document.createElement('canvas');
-    ctx.id = 'pastaChart';
-    chartDiv.appendChild(ctx);
-    container.appendChild(chartDiv);
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(pastaData),
-            datasets: [{
-                label: 'Votes',
-                data: Object.values(pastaData),
-                backgroundColor: '#F4A460'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '🍝 Pasta Shape Preferences',
-                    font: { size: 16 }
-                },
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Votes',
-                        font: { size: 12 }
-                    }
-                },
-                x: {
-                    ticks: {
-                        font: { size: 11 }
-                    }
-                }
-            }
-        }
+    body.appendChild(list);
+  }
+
+  function countLabel(context) {
+    var value = context.parsed.x !== undefined && context.chart.options.indexAxis === 'y'
+      ? context.parsed.x
+      : context.parsed.y !== undefined ? context.parsed.y : context.parsed;
+    return value + (value === 1 ? ' vote' : ' votes');
+  }
+
+  /** Previous/next control shared by paginated charts. */
+  function buildPager(parent, onChange) {
+    var nav = el('div', 'survey-pager');
+    var prev = el('button', 'survey-pager__button', '← Previous');
+    var status = el('span', 'survey-pager__status');
+    var next = el('button', 'survey-pager__button', 'Next →');
+
+    prev.type = 'button';
+    next.type = 'button';
+    nav.appendChild(prev);
+    nav.appendChild(status);
+    nav.appendChild(next);
+    parent.appendChild(nav);
+
+    var current = 0;
+    var pages = 1;
+
+    prev.addEventListener('click', function () {
+      if (current > 0) onChange(current - 1);
     });
-}
+    next.addEventListener('click', function () {
+      if (current < pages - 1) onChange(current + 1);
+    });
 
-function createGeneralStats(generalData) {
-    const statsContainer = document.getElementById('general-stats');
-    statsContainer.innerHTML = `
-        <div style="
-            text-align: center; 
-            margin: 20px 0 30px 0; 
-            padding: 25px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            max-width: 100%;
-            box-sizing: border-box;
-        ">
-            <h2 style="margin: 0 0 15px 0; font-size: clamp(18px, 4vw, 24px); word-wrap: break-word;">📈 Survey Overview</h2>
-            <div style="
-                display: flex; 
-                justify-content: space-around; 
-                flex-wrap: wrap; 
-                gap: 20px;
-                align-items: center;
-            ">
-                <div style="min-width: 120px;">
-                    <div style="font-size: clamp(24px, 6vw, 32px); font-weight: bold; margin-bottom: 5px;">
-                        ${generalData.total_responses}
-                    </div>
-                    <div style="font-size: 14px; opacity: 0.9;">Total Responses</div>
-                </div>
-                <div style="min-width: 120px;">
-                    <div style="font-size: clamp(14px, 3vw, 16px); font-weight: bold; margin-bottom: 5px; word-wrap: break-word;">
-                        ${generalData.last_updated}
-                    </div>
-                    <div style="font-size: 14px; opacity: 0.9;">Last Updated</div>
-                </div>
-            </div>
-        </div>
-    `;
-}
+    return {
+      update: function (page, pageCount, from, to, total) {
+        current = page;
+        pages = pageCount;
+        status.textContent = from + '–' + to + ' of ' + total;
+        prev.disabled = page === 0;
+        next.disabled = page === pageCount - 1;
+      }
+    };
+  }
+
+  /* ---------------------------------------------------------------------
+     What gets rendered, in page order
+     --------------------------------------------------------------------- */
+
+  var CHART_SPECS = [
+    { key: 'fruits', emoji: '🍎', title: 'Favorite fruits', render: renderRankedBar, axis: 'Votes', perPage: FRUITS_PER_PAGE,
+      question: 'What is your favorite fruit?' },
+    { key: 'grapes', emoji: '🍇', title: 'Grape preferences', render: renderBar, axis: 'Votes',
+      question: 'Do you prefer green grapes or red grapes?' },
+    { key: 'toast_levels', emoji: '🍞', title: 'Ideal toast level', render: renderBar, axis: 'Votes', sortNumeric: true, note: 'On a scale of 1 (barely warm) to 7 (charcoal)',
+      question: 'Let’s say you were to make toast to eat with just butter on top, what would your preferred toast level be?' },
+    { key: 'eggs', emoji: '🥚', title: 'Egg eating challenge', render: renderHistogram, axis: 'Responses', binSize: EGG_BIN_SIZE,
+      question: 'Given a normal waking day (e.g., 8am – midnight), how many eggs do you think you could eat? Assume you are trying to eat as many eggs as possible by the end of the day (i.e., you’re getting paid $1000 per egg eaten). Eggs can be prepared in any way.' },
+    { key: 'sandwiches', emoji: '🥪', title: 'Sandwich supremacy', render: renderPie,
+      question: 'What is the superior sandwich?' },
+    { key: 'taco_shells', emoji: '🌮', title: 'Taco shell showdown', render: renderPie,
+      question: 'Preferred taco shell?' },
+    { key: 'potatoes', emoji: '🍟', title: 'Fried potato battle', render: renderRankedBar, axis: 'Votes',
+      question: 'What is the best type of fried potato?' },
+    { key: 'pasta_shapes', emoji: '🍝', title: 'Pasta shape preferences', render: renderRankedBar, axis: 'Votes',
+      question: 'What is your preferred pasta shape?' },
+    { key: 'trader_joes', emoji: '🛒', title: 'Trader Joe’s favorites', render: renderRankedList, unit: 'items',
+      question: 'Favorite Trader Joe’s item (can say ‘idk’ or ‘don’t shop there’)' },
+    { key: 'plane_drinks', emoji: '✈️', title: 'Airplane drinks', render: renderRankedList, unit: 'drinks',
+      question: 'Plane drink of choice (i.e., what drink you’re likely to order on a flight)' }
+  ];
+
+  function renderOverview(general) {
+    var overview = el('div', 'survey-overview');
+
+    // The response count is the headline; the timestamp is supporting detail
+    // and is deliberately not given the same weight.
+    var count = el('div', 'survey-overview__item');
+    count.appendChild(el('span', 'survey-overview__value', String(general.total_responses)));
+    count.appendChild(el('span', 'survey-overview__label', 'Responses'));
+    overview.appendChild(count);
+
+    overview.appendChild(el(
+      'p',
+      'survey-overview__updated',
+      'Last updated ' + general.last_updated
+    ));
+
+    var host = document.getElementById('general-stats');
+    host.innerHTML = '';
+    host.appendChild(overview);
+  }
+
+  function renderAll(data) {
+    applyChartTheme();
+    renderOverview(data.general);
+
+    CHART_SPECS.forEach(function (spec) {
+      var section = data[spec.key];
+      // Skip questions the current dataset doesn't include rather than
+      // throwing and losing every chart after this one.
+      if (!section) return;
+      try {
+        spec.render(spec, section);
+      } catch (error) {
+        console.error('Could not render "' + spec.key + '"', error);
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Load and gate
+     --------------------------------------------------------------------- */
+
+  function loadSurveyData() {
+    var loading = document.getElementById('loading');
+
+    // Cache-bust: GitHub Pages serves this JSON with a long-lived cache and a
+    // scheduled job rewrites it daily.
+    fetch(DATA_URL + '?v=' + Date.now())
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(function (data) {
+        loading.hidden = true;
+        renderAll(data);
+      })
+      .catch(function (error) {
+        console.error('Error loading survey data:', error);
+        loading.textContent = 'Could not load the results. Try again in a moment.';
+      });
+  }
+
+  function initGate() {
+    var form = document.getElementById('passcode-form');
+    var results = document.getElementById('survey-results');
+    var input = document.getElementById('passcode');
+    var submit = document.getElementById('passcode-submit');
+    var error = document.getElementById('error-message');
+    if (!form || !input) return;
+
+    function check() {
+      if (input.value.trim().toUpperCase() !== ACCESS_CODE) {
+        error.hidden = false;
+        input.select();
+        return;
+      }
+      error.hidden = true;
+      form.hidden = true;
+      results.hidden = false;
+      loadSurveyData();
+    }
+
+    submit.addEventListener('click', check);
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        check();
+      }
+    });
+    input.addEventListener('input', function () {
+      error.hidden = true;
+    });
+
+    input.focus();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGate);
+  } else {
+    initGate();
+  }
+})();

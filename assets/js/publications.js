@@ -1,59 +1,116 @@
-// Publications page JavaScript functions
-document.addEventListener('DOMContentLoaded', function() {
-    // Ensure functions are available globally
-    window.toggleCitation = toggleCitation;
-    window.copyBibtex = copyBibtex;
-  });
-  
+/**
+ * Publications page: citation drawer and BibTeX copy.
+ *
+ * Both entry points are attached to `window` because the markup wires them up
+ * through inline onclick handlers in _includes/archive-single-pub.html.
+ */
+(function () {
+  'use strict';
+
+  var COPY_FEEDBACK_MS = 2000;
+
+  /** Show or hide the citation for a publication. */
   function toggleCitation(id, button) {
     var citation = document.getElementById(id);
-    var buttonText = button.querySelector('.citation-button-text');
-    if (citation.style.display === "none" || citation.style.display === "") {
-      citation.style.display = "block";
-      buttonText.textContent = "Hide Citation";
-    } else {
-      citation.style.display = "none";
-      buttonText.textContent = "Citation";
+    if (!citation) return;
+
+    var willShow = citation.hidden;
+    citation.hidden = !willShow;
+    button.setAttribute('aria-expanded', String(willShow));
+
+    var label = button.querySelector('.citation-button-text');
+    if (label) {
+      label.textContent = willShow ? 'Hide citation' : 'Citation';
     }
   }
-  
-  function copyBibtex(id, button) {
-    var bibtex = document.getElementById('bibtex-' + id);
-    var textArea = document.createElement("textarea");
-    textArea.value = formatBibtex(bibtex.textContent);
+
+  /** Re-indent a BibTeX entry stored as a single front-matter string. */
+  function formatBibtex(text) {
+    return text
+      .trim()
+      .replace(/,\s+(\w+)\s+=\s+/g, ',\n  $1 = ')
+      .replace(/}$/m, '\n}');
+  }
+
+  /**
+   * Swap the button's contents for a transient message.
+   * `state` is appended as `is-<state>` so the styling stays in CSS.
+   */
+  function flashButton(button, state, icon, message) {
+    // Ignore repeat clicks while a message is showing, otherwise the queued
+    // timeouts would restore stale markup.
+    if (button.dataset.flashing) return;
+
+    var original = button.innerHTML;
+    var stateClass = 'is-' + state;
+
+    button.dataset.flashing = 'true';
+    button.classList.add(stateClass);
+    button.innerHTML = '<i class="fas ' + icon + '" aria-hidden="true"></i> ' + message;
+
+    setTimeout(function () {
+      button.innerHTML = original;
+      button.classList.remove(stateClass);
+      delete button.dataset.flashing;
+    }, COPY_FEEDBACK_MS);
+  }
+
+  /**
+   * Copy via a throwaway textarea. Used both for browsers without the async
+   * clipboard API and when that API rejects. Returns whether it worked.
+   */
+  function copyViaTextArea(text) {
+    var textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.setAttribute('readonly', '');
+    textArea.style.position = 'absolute';
+    textArea.style.left = '-9999px';
     document.body.appendChild(textArea);
     textArea.select();
-    
-    // Use modern clipboard API if available, fallback to deprecated method
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(formatBibtex(bibtex.textContent)).then(function() {
-        showCopyFeedback(button);
-      });
-    } else {
-      document.execCommand("Copy");
-      showCopyFeedback(button);
+
+    var copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch (e) {
+      copied = false;
     }
-    
+
     textArea.remove();
-    
-    function showCopyFeedback(clickedButton) {
-      // Show feedback
-      var btn = clickedButton || document.activeElement;
-      var originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Copied!';
-      btn.style.background = '#28a745';
-      
-      setTimeout(function() {
-        btn.innerHTML = originalText;
-        btn.style.background = '';
-      }, 2000);
+    return copied;
+  }
+
+  function report(button, copied) {
+    if (copied) {
+      flashButton(button, 'copied', 'fa-check', 'Copied');
+    } else {
+      flashButton(button, 'failed', 'fa-exclamation-triangle', 'Copy failed');
     }
   }
-  
-  function formatBibtex(text) {
-    text = text.trim();
-    text = text.replace(/,\s+(\w+)\s+=\s+/g, ",\n  $1 = ");
-    text = text.replace(/}$/m, "\n}");
-    
-    return text;
+
+  /** Copy a publication's BibTeX entry to the clipboard. */
+  function copyBibtex(id, button) {
+    var source = document.getElementById('bibtex-' + id);
+    if (!source) return;
+
+    var text = formatBibtex(source.textContent);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(function () {
+          report(button, true);
+        })
+        .catch(function () {
+          // The async API rejects when the document isn't focused or the
+          // permission is refused. Try the older path before giving up -
+          // without this the button just sat there saying nothing.
+          report(button, copyViaTextArea(text));
+        });
+      return;
+    }
+
+    report(button, copyViaTextArea(text));
   }
+
+  window.toggleCitation = toggleCitation;
+  window.copyBibtex = copyBibtex;
+})();

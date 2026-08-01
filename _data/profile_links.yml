@@ -1,0 +1,39 @@
+# Sidebar profile links, in display order.
+#
+# `key`    - the field under `author:` in _config.yml. A row renders only when
+#            that field has a value, so adding a link means filling in the
+#            config; removing one means blanking it.
+# `prefix` - prepended to the config value. Omit when the value is already a
+#            full URL (Google Scholar and ORCID are stored that way).
+# `icon`   - Font Awesome classes.
+#
+# Replaces the ~30-branch `{% if author.x %}` chain the template shipped with:
+# the site uses six of those services and the rest were dead weight.
+
+- key: email
+  label: Email
+  icon: fas fa-envelope
+  prefix: "mailto:"
+
+- key: googlescholar
+  label: Google Scholar
+  icon: fas fa-graduation-cap
+
+- key: github
+  label: GitHub
+  icon: fab fa-github
+  prefix: "https://github.com/"
+
+- key: linkedin
+  label: LinkedIn
+  icon: fab fa-linkedin
+  prefix: "https://www.linkedin.com/in/"
+
+- key: twitter
+  label: Twitter
+  icon: fab fa-twitter
+  prefix: "https://twitter.com/"
+
+- key: orcid
+  label: ORCID
+  icon: ai ai-orcid
