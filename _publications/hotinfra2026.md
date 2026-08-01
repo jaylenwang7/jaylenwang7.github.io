@@ -11,8 +11,6 @@ citation: J. Wang, F. Kazhamiaka, P. Misra, D. S. Berger, and A. Sriraman, "Safe
 collection: publications
 conf_shorthand: HotInfra
 date: 2026-06-01
-other: Presented at the workshop; HotInfra does not publish formal proceedings, so
-  there is no paper link.
 title: "Safe CPU Oversubscription: One Size Does Not Fit All"
 venue: 3rd Workshop on Hot Topics in System Infrastructure, held with ISCA 2026
 venue_type: workshop
