@@ -73,17 +73,10 @@
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: -0.01em;
+  /* Plain text since the per-paper pages went away; the colour that used to
+     live on the anchor moves here. */
+  color: $token-forest;
   text-wrap: pretty;
-
-  a {
-    color: $token-forest;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-      text-decoration-color: rgba($token-moss, 0.5);
-    }
-  }
 }
 
 .pub__authors {

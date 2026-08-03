@@ -1,0 +1,91 @@
+# _data/teaching.yml
+#
+# Drives /teaching/ via _includes/teaching.html. Adding a course is an entry
+# under the right institution; nothing else needs touching.
+#
+# Institutions render in the order given, so keep the most recent first.
+# Within an institution, keep courses newest first as well.
+#
+# Per course:
+#   number      required — the course code, e.g. "18-742". Set as the left
+#                 column, because a course number is what people actually call
+#                 a class by.
+#   title       required — the catalogue title, without the number.
+#   role        required — "Teaching assistant", "Guest lecture", …
+#                 Keep it short. The institution heading already says whether
+#                 this was graduate or undergraduate work, so repeating that on
+#                 every row just stacks five identical labels down the page.
+#   term        required — "Spring 2026", or several: "Fall 2020, Fall 2021".
+#   instructors optional — rendered as "with …".
+#   url         optional — course website; makes the title a link.
+#   note        optional — a sentence or two, Markdown allowed.
+
+groups:
+  - institution: "Carnegie Mellon University"
+    detail: "PhD, Electrical and Computer Engineering"
+    courses:
+      - number: "18-742"
+        title: "Computer Architecture and Systems"
+        role: "Teaching assistant"
+        term: "Spring 2026"
+        instructors: "Phil Gibbons"
+
+      - number: "18-344"
+        title: "Computer Systems and the Hardware-Software Interface"
+        role: "Guest lecture"
+        term: "Fall 2024"
+        instructors: "Akshitha Sriraman and Brandon Lucia"
+        note: "Guest lecture on sustainable computing, and where carbon enters
+          the picture in a systems course."
+
+  - institution: "Harvard University"
+    detail: "Undergraduate, Electrical Engineering"
+    courses:
+      - number: "CS 61"
+        title: "Systems Programming and Machine Organization"
+        role: "Teaching assistant"
+        term: "Fall 2020, Fall 2021"
+        instructors: "Eddie Kohler"
+        url: "https://cs61.seas.harvard.edu/"
+        note: "Harvard's introductory systems course, around 200 students a
+          year. My favorite section to teach was
+          [virtual memory](https://cs61.seas.harvard.edu/site/2021/Section6/):
+          page tables map an enormous address range with very few pages, and
+          watching that idea land never got old. My favorite assignment is
+          [the shell](https://cs61.seas.harvard.edu/site/2021/Shell/), which is
+          the hardest one and the one that makes process creation concrete."
+
+      - number: "ES 152"
+        title: "Circuits, Devices, and Transduction"
+        role: "Teaching assistant"
+        term: "Fall 2021"
+        instructors: "Gage Hills and Woodward Yang"
+        note: "Circuit theory and semiconductor devices. I ran the lab office
+          hours, walking students through building circuits and choosing
+          components, and graded labs and exams."
+
+      - number: "ES 150"
+        title: "Systems and Control"
+        role: "Teaching assistant"
+        term: "Fall 2021"
+        instructors: "Na Li and Yue Lu"
+        note: "System modeling, stability analysis, and feedback controller
+          design. Taught remotely: I ran problem-set office hours and helped
+          run breakout discussions during class."
+
+      - number: "ES 50"
+        title: "Introduction to Electrical Engineering"
+        role: "Teaching assistant"
+        term: "Spring 2021"
+        instructors: "Chris Lombardo and Marko Loncar"
+        note: "From resistor circuits and op amps through to digital logic.
+          Also taught remotely, which meant debugging students' breadboards
+          over video."
+
+      - number: "MATH 1B"
+        title: "Integration, Series and Differential Equations"
+        role: "Teaching assistant"
+        term: "Fall 2019"
+        instructors: "Hakim Walker"
+        note: "Led section discussions, held office hours, and graded problem
+          sets."

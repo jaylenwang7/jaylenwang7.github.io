@@ -1,0 +1,55 @@
+{% comment %}
+  Teaching record. Reads _data/teaching.yml (groups of courses by institution).
+
+  The course number sits in a fixed left column with everything else to its
+  right, which is the same grammar the homepage levers and the publication
+  venues use. It earns the position here: a course number is the handle people
+  actually use for a class, so it is the fastest thing to scan for.
+
+  The including page supplies its own heading, so this renders none.
+
+  Styles: _sass/_teaching.scss
+{% endcomment %}
+
+{% for group in site.data.teaching.groups %}
+  <section class="teach-group">
+    <h2 class="teach-group__name" id="{{ group.institution | slugify }}">
+      {{ group.institution }}
+      {% if group.detail %}
+        <span class="teach-group__detail">{{ group.detail }}</span>
+      {% endif %}
+    </h2>
+
+    <ol class="teach-list">
+      {% for course in group.courses %}
+        <li class="teach">
+          <p class="teach__number">{{ course.number }}</p>
+
+          <div class="teach__body">
+            <h3 class="teach__title">
+              {% if course.url %}
+                <a href="{{ course.url }}">{{ course.title }}</a>
+              {% else %}
+                {{ course.title }}
+              {% endif %}
+            </h3>
+
+            <p class="teach__meta">
+              <span class="teach__role">{{ course.role }}</span>
+              <span class="teach__term">{{ course.term }}</span>
+              {% if course.instructors %}
+                <span class="teach__with">with {{ course.instructors }}</span>
+              {% endif %}
+            </p>
+
+            {% if course.note %}
+              <p class="teach__note">
+                {{ course.note | markdownify | remove: "<p>" | remove: "</p>" }}
+              </p>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  </section>
+{% endfor %}

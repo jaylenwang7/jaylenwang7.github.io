@@ -184,14 +184,17 @@ kramdown:
 
 # Collections
 collections:
-  teaching:
-    output: true
-    permalink: /:collection/:path/
+  # Teaching is no longer a collection: it lives in _data/teaching.yml and
+  # renders in full on /teaching/, so there is nothing left for a per-course
+  # page to add.
   research:
     output: true
     permalink: /:collection/:path/
   publications:
-    output: true
+    # No per-paper pages. They only repeated what the entry on /publications/
+    # already shows, so the title there is plain text rather than a link to a
+    # thinner version of itself.
+    output: false
     permalink: /:collection/:path/
   portfolio:
     output: true
@@ -221,15 +224,6 @@ defaults:
     values:
       layout: single
       author_profile: true
-  # _teaching
-  - scope:
-      path: ""
-      type: teaching
-    values:
-      layout: single
-      author_profile: true
-      share: false
-      comments: true
   # _publications
   - scope:
       path: ""

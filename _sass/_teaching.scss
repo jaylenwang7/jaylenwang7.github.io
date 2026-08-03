@@ -1,0 +1,160 @@
+/* ==========================================================================
+   TEACHING
+   ==========================================================================
+   Courses grouped by institution. The layout is the site's recurring grammar,
+   a mono label in a fixed left column with prose to its right, applied here to
+   the course number: it is the string people say out loud when they mean a
+   class, so it is what the eye should land on first.
+
+   Institution headings borrow the publication section divider, a mono label
+   with a rule running to the margin, so the two list pages read as one system.
+
+   Markup: _includes/teaching.html · Data: _data/teaching.yml
+   ========================================================================== */
+
+/* Wide enough for the longest course number plus air. "MATH 1B" and "18-742"
+   are close in width, so this is stable; a subgrid is overkill for one token
+   that never wraps. */
+$teach-number-column: 6rem;
+
+.teach-group {
+  & + & {
+    margin-top: $token-space-7;
+  }
+}
+
+.teach-group__name {
+  display: flex;
+  align-items: baseline;
+  gap: $token-space-3;
+  margin: 0 0 $token-space-2;
+  padding: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $token-sage;
+  border-bottom: 0;
+
+  /* Rule runs from the label out to the edge of the column. */
+  &::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: $token-rule;
+  }
+}
+
+/* The degree this teaching sat inside. Lower-case and unspaced against the
+   institution above it, so it reads as an aside rather than a second label. */
+.teach-group__detail {
+  flex: 0 0 auto;
+  order: 3;
+  font-size: $token-text-xs;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: $token-sage;
+}
+
+.teach-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.teach {
+  display: grid;
+  gap: $token-space-1;
+  padding: $token-space-4 0;
+
+  & + & {
+    border-top: 1px solid $token-rule;
+  }
+
+  @include breakpoint($small) {
+    grid-template-columns: $teach-number-column minmax(0, 1fr);
+    gap: $token-space-5;
+    align-items: baseline;
+  }
+}
+
+.teach__number {
+  margin: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: $token-forest;
+}
+
+.teach__body {
+  min-width: 0;
+}
+
+.teach__title {
+  margin: 0;
+  font-family: $token-font-display;
+  font-size: $token-text-md;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: $token-forest;
+  text-wrap: pretty;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: rgba($token-moss, 0.5);
+    }
+  }
+}
+
+/*
+   Role, term, and instructors
+   --------------------------------------------------------------------------
+   One row of metadata, separated by dots rather than punctuation inside the
+   text, so any single field can be dropped from the data without leaving a
+   stray separator behind.
+   ========================================================================== */
+
+.teach__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $token-space-1 $token-space-3;
+  margin: $token-space-1 0 0;
+  font-size: $token-text-xs;
+  color: $token-sage;
+}
+
+.teach__role {
+  font-family: $token-font-mono;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $token-moss;
+}
+
+.teach__term {
+  font-family: $token-font-mono;
+  font-variant-numeric: tabular-nums;
+}
+
+.teach__with {
+  font-style: italic;
+}
+
+.teach__note {
+  margin: $token-space-2 0 0;
+  font-size: $token-text-sm;
+  line-height: 1.6;
+  color: $token-ink;
+  text-wrap: pretty;
+}
