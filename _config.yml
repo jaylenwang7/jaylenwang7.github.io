@@ -193,6 +193,22 @@ exclude:
   - _pages/talks.html
   - _pages/talkmap.html
   - talkmap
+
+  # Retired pages. Not template scaffolding - these were real, but nothing has
+  # linked to any of them for a while, so each was a page only a search engine
+  # could find. Source kept for the same reason as above.
+  #
+  # The template's privacy policy, `modified: 2016-06-06`, describing ad
+  # networks and cookie behaviour this site does not have. A privacy policy
+  # that is wrong about the site is worse than no page at all:
+  - _pages/terms.md
+  #
+  # /publications/ and /teaching/ carry the record now. See the `research`
+  # collection note below - the page and the collection go together, or the
+  # three entries under _research stay live at /research/<name> without an
+  # index pointing at them.
+  - _pages/research.md
+  - _pages/courses.md
 keep_files:
   - .git
   - .svn
@@ -226,7 +242,10 @@ collections:
   # renders in full on /teaching/, so there is nothing left for a per-course
   # page to add.
   research:
-    output: true
+    # Retired with _pages/research.md. `output: true` here is what generated
+    # /research/DNN_resilience and its two siblings; excluding only the index
+    # page would have orphaned them rather than removed them.
+    output: false
     permalink: /:collection/:path/
   publications:
     # No per-paper pages. They only repeated what the entry on /publications/
