@@ -1,0 +1,18 @@
+---
+# Front matter so Liquid runs and the sitemap URL comes from `url` in
+# _config.yml. Hardcoding it means a local or staging build advertises the
+# production sitemap, and a domain change silently leaves a dead pointer.
+#
+# `layout: none` because the `defaults` block gives every page a layout, and
+# without this the file is served as a full HTML document that no crawler can
+# parse - valid-looking in the repo, useless in production.
+layout: none
+---
+# Everything on this site is meant to be found. The pages that are not ready
+# say so themselves with `noindex` (see _includes/seo.html) rather than being
+# listed here - robots.txt is public, so naming an unannounced path here is
+# how people find it.
+User-agent: *
+Allow: /
+
+Sitemap: {{ site.url }}{{ site.baseurl }}/sitemap.xml

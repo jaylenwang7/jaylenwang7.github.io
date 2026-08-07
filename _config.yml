@@ -155,6 +155,44 @@ exclude:
   - package.json
   - tmp
   - vendor
+
+  # Build tooling, not a page. These are the scripts that turn a .bib or .tsv
+  # into the markdown under _publications - they were being served, so
+  # /markdown_generator/ was a public URL listing .py and .ipynb files.
+  - markdown_generator
+
+  # AcademicPages template scaffolding. Left here rather than deleted, since
+  # they are worth reading if a page ever needs rebuilding, but they are not
+  # this site and were all live, orphaned URLs in sitemap.xml - nothing on the
+  # site has ever linked to one.
+  #
+  # Demonstrations of the theme's layouts:
+  - _pages/archive-layout-with-content.md
+  - _pages/non-menu-page.md
+  - _pages/collection-archive.html
+  - _pages/page-archive.html
+  #
+  # Archives over `site.posts`, which the writing index now owns. Left in they
+  # would come back the day the blog launches as three more listings of the
+  # same entries, competing with /writing/ and each other:
+  - _pages/year-archive.html
+  - _pages/category-archive.html
+  - _pages/tag-archive.html
+  #
+  # An HTML index of every page and collection, which is what made the above
+  # reachable. sitemap.xml is the version that has a consumer:
+  - _pages/sitemap.md
+  #
+  # Empty collection, so the page rendered a heading and nothing else:
+  - _pages/portfolio.html
+  #
+  # _talks holds four unedited placeholders ("Talk 1 on Relevant Topic in Your
+  # Field", venue "Department of Testing"), and talkmap plots them on a Leaflet
+  # map it vendors its own copy of. Restore all three together once there are
+  # real talks to list; see the `talks` collection note below.
+  - _pages/talks.html
+  - _pages/talkmap.html
+  - talkmap
 keep_files:
   - .git
   - .svn
@@ -197,10 +235,15 @@ collections:
     output: false
     permalink: /:collection/:path/
   portfolio:
-    output: true
+    # Nothing in _portfolio, so `output: true` only ever produced an empty
+    # listing at /portfolio/. Flip back on when there is something to list.
+    output: false
     permalink: /:collection/:path/
   talks:
-    output: true
+    # The four entries in _talks are the template's placeholders, and each was
+    # its own indexable page. Turned off rather than emptied so real talks can
+    # be added later; also un-exclude _pages/talks.html and talkmap above.
+    output: false
     permalink: /:collection/:path/
 
 
