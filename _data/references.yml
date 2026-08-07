@@ -1,0 +1,37 @@
+# ==========================================================================
+#  WRITING - references
+# ==========================================================================
+#
+#  Sources cited from entries. Optional: most posts cite with a footnote and
+#  never touch this file. It exists for the posts that lean academic, where
+#  the same paper is cited three times and should render identically each
+#  time and appear once in a reference list at the end.
+#
+#  Cite one inline:
+#
+#      {% include writing/cite.html key="gupta2021chasing" %}
+#
+#  Render the list at the end of the entry:
+#
+#      {% include writing/references.html keys="gupta2021chasing,acun2023carbon" %}
+#
+#  Fields
+#    key       The lookup name. Convention: firstauthorYEARfirstword.
+#    authors   As you want it printed. "Gupta et al." is fine.
+#    year      Four digits, used for the inline "(Gupta et al., 2021)" form.
+#    title     Sentence case, no trailing period.
+#    venue     Conference, journal, publisher, or site.
+#    url       Optional. Makes the inline citation and list entry a link.
+#
+#  Unknown keys render as `[?key]` in the text rather than failing the build,
+#  so a typo is visible on the page instead of silently dropping a citation.
+# ==========================================================================
+
+references:
+  # Example entry. Delete it or keep it - an unused reference costs nothing.
+  - key: gupta2021chasing
+    authors: "Gupta et al."
+    year: 2021
+    title: "Chasing carbon: the elusive environmental footprint of computing"
+    venue: "HPCA"
+    url: "https://arxiv.org/abs/2011.02839"

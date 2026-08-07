@@ -23,33 +23,28 @@ $teach-number-column: 6rem;
   }
 }
 
-.teach-group__name {
-  display: flex;
-  align-items: baseline;
-  gap: $token-space-3;
-  margin: 0 0 $token-space-2;
-  padding: 0;
-  font-family: $token-font-mono;
-  font-size: $token-text-xs;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: $token-sage;
-  border-bottom: 0;
+/* The shared `%rule-label` from _components.scss, sitting on the baseline
+   rather than centred so the lower-case degree detail beside it lines up with
+   the institution name.
 
-  /* Rule runs from the label out to the edge of the column. */
-  &::after {
-    content: "";
-    flex: 1 1 auto;
-    height: 1px;
-    background: $token-rule;
-  }
+   Wrapping, because this is the one place the label carries a second string.
+   "Carnegie Mellon University" and "PhD, Electrical and Computer Engineering"
+   do not fit on one line on a phone, and a `nowrap` flex row does not fail
+   gracefully - it just runs off the side and takes the page's horizontal
+   scrollbar with it. */
+.teach-group__name {
+  @extend %rule-label;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin: 0 0 $token-space-2;
 }
 
 /* The degree this teaching sat inside. Lower-case and unspaced against the
    institution above it, so it reads as an aside rather than a second label. */
 .teach-group__detail {
-  flex: 0 0 auto;
+  /* Shrinkable, so a longer degree wraps inside itself rather than pushing
+     the line wider than the column. */
+  flex: 0 1 auto;
   order: 3;
   font-size: $token-text-xs;
   font-weight: 400;

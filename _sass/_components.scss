@@ -153,13 +153,27 @@ $icon-list-gutter: 1.75rem;
   transform: translate(-50%, 2px);
   transition: opacity $token-transition, transform $token-transition;
 
+  /* Centred on the marker, then nudged back on screen when that centring
+     would hang the note off an edge - a marker in the last word of a line on
+     a phone put half the note past the right of the viewport, which was
+     enough to give the whole page a horizontal scrollbar.
+
+     A margin rather than another term inside the `translate()`: the transform
+     already carries a percentage, and composing a custom property into it
+     resolved the property to its fallback. A margin on an absolutely
+     positioned box moves it by exactly the amount asked for and stays out of
+     the transform's way. Set by assets/js/writing-post.js; unset it is zero
+     and this behaves as it always did. */
+  margin-left: var(--sidenote-shift, 0px);
+
   /* Points back at the marker. Rotated square rather than a border triangle so
-     it can carry the same hairline and fill as the box. */
+     it can carry the same hairline and fill as the box. Takes the shift in
+     reverse, so the arrow stays on the marker while the box moves off it. */
   &::after {
     content: "";
     position: absolute;
     top: 100%;
-    left: 50%;
+    left: calc(50% - var(--sidenote-shift, 0px));
     width: 0.5rem;
     height: 0.5rem;
     background: $token-ground;
@@ -178,12 +192,131 @@ $icon-list-gutter: 1.75rem;
   transform: translate(-50%, 0);
 }
 
+/* Flipped under the marker when there isn't room above it - a footnote marker
+   in the first line of an entry would otherwise open its note off the top of
+   the screen. Set by assets/js/writing-post.js, which measures before showing;
+   nothing needs this class until something is near the top of the viewport. */
+.sidenote--below .sidenote__note {
+  top: calc(100% + #{$token-space-2});
+  bottom: auto;
+
+  /* Same square, turned so its two hairlines point up at the marker. */
+  &::after {
+    top: 0;
+    transform: translate(-50%, -50%) rotate(225deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sidenote__note {
     /* Rests where it will be shown, so revealing it is a fade and not a move. */
     transform: translate(-50%, 0);
     transition: none;
   }
+}
+
+/*
+   Rule label - a small mono heading with a hairline running to the margin.
+   --------------------------------------------------------------------------
+   The site's way of classifying a list without competing with the entries in
+   it: publication sections, teaching institutions, the year dividers and
+   apparatus headings on writing entries. A serif heading in those positions
+   was near-indistinguishable from the titles below it, so this takes the
+   other register instead - nothing here can be mistaken for content.
+
+   Extend it and then state whatever differs (margins, `align-items`), which
+   lands after the placeholder in source order and wins.
+   ========================================================================== */
+
+%rule-label {
+  display: flex;
+  align-items: center;
+  gap: $token-space-3;
+  margin: 0;
+  padding: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $token-sage;
+  /* Cancels the rule `.page__content h2` puts under prose headings - this is
+     a label, and it brings its own. */
+  border-bottom: 0;
+
+  &::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: $token-rule;
+  }
+}
+
+.rule-label {
+  @extend %rule-label;
+}
+
+/*
+   Chip - a small outlined action.
+   --------------------------------------------------------------------------
+   Quiet by design: these sit in rows of three or four next to something more
+   important (a paper, an entry) and must not outweigh it. Deliberately not
+   the theme's `.btn`, whose colour and weight are tuned for a full-width call
+   to action.
+
+   `.is-copied` and `.is-failed` are transient states set by
+   `assets/js/copy-button.js` after a copy attempt.
+   ========================================================================== */
+
+%chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.3em 0.7em;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  line-height: 1.4;
+  color: $token-moss;
+  background: $token-ground;
+  text-decoration: none;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  cursor: pointer;
+  transition: color $token-transition, border-color $token-transition,
+              background-color $token-transition;
+
+  &:hover {
+    color: $token-forest;
+    background: $token-wash;
+    border-color: $token-sage;
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
+
+  &.is-copied {
+    color: $token-ground;
+    background: $token-moss;
+    border-color: $token-moss;
+  }
+
+  &.is-failed {
+    color: $token-ground;
+    background: $token-cat-clay;
+    border-color: $token-cat-clay;
+  }
+
+  i {
+    font-size: 0.95em;
+  }
+}
+
+.chip {
+  @extend %chip;
 }
 
 /*

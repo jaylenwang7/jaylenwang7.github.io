@@ -3,6 +3,9 @@ layout: archive
 title: "Publications"
 permalink: /publications/
 author_profile: true
+# Ships publications.js (and the clipboard helper it calls) with this page and
+# no other - the citation and BibTeX buttons below are its only consumers.
+publication_list: true
 ---
 
 {% include base_path %}

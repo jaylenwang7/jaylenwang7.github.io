@@ -52,6 +52,11 @@
 @import "cv";
 @import "survey-results";
 
+/* Writing. Both partials extend `%rule-label` and `%chip` from `components`
+   and `.visually-hidden` from `utilities`, so they have to come after those. */
+@import "writing-index";
+@import "writing-post";
+
 @import "vendor/font-awesome/fontawesome";
 @import "vendor/font-awesome/solid";
 @import "vendor/font-awesome/brands";

@@ -1,0 +1,65 @@
+# ==========================================================================
+#  WRITING - strands
+# ==========================================================================
+#
+#  A strand is the big bucket an entry belongs to: the thing that separates a
+#  post about embodied carbon from a post about the draft lottery. Every entry
+#  declares exactly one, in its front matter:
+#
+#      strand: hoops
+#
+#  This file is the whole vocabulary. Adding a strand means adding a block
+#  below - no CSS, no template, no new page. Renaming one means changing
+#  `label` here and the `strand:` line in the affected entries.
+#
+#  Fields
+#    id     Matches the `strand:` value in an entry's front matter. Lower-case,
+#           hyphenated; it also becomes the ?strand= value in the URL, so treat
+#           it as a permalink and avoid renaming it once entries are published.
+#    label  What readers see. Sentence case.
+#    color  A *token name* from _sass/_tokens.scss, without the `--color-`
+#           prefix. Never a hex value: the categorical ramp is held at matched
+#           saturation and lightness on purpose, and picking a colour outside
+#           it breaks the family. Six are available:
+#             cat-moss   green    cat-slate  blue
+#             cat-clay   rust     cat-plum   purple
+#             cat-ochre  gold     cat-teal   teal
+#           Two strands must not share a colour - colour *is* the strand's
+#           identity on the index.
+#    blurb  One sentence, shown under the page title when this strand is the
+#           active filter. This is what makes a filtered index read as a
+#           section rather than a hidden list, so write it like a section
+#           description, not like a tagline.
+#
+#  Anything whose `strand:` is missing or unrecognised falls through to the
+#  last entry here, so no post is ever silently dropped from the index.
+#
+#  Used by: _includes/writing/*, _sass/_writing-*.scss, assets/js/writing-index.js
+# ==========================================================================
+
+strands:
+  - id: carbon
+    label: Carbon
+    color: cat-moss
+    blurb: "Sustainable computing - where the emissions in a datacenter actually come from, and what it would take to cut them."
+
+  - id: systems
+    label: Systems
+    color: cat-slate
+    blurb: "Computer architecture and the hardware underneath: how large systems behave once they leave the simulator."
+
+  - id: hoops
+    label: Hoops
+    color: cat-clay
+    blurb: "Basketball, mostly the NBA, usually with a spreadsheet open."
+
+  - id: grad-school
+    label: Grad school
+    color: cat-ochre
+    blurb: "Notes from the PhD - reading, writing, reviewing, and the parts nobody puts in the acceptance email."
+
+  # Keep last. Entries with an unknown or missing `strand:` land here.
+  - id: misc
+    label: Misc
+    color: cat-plum
+    blurb: "Everything that didn't fit the other strands."

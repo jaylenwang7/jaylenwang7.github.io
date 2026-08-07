@@ -17,37 +17,16 @@
 /*
    Section divider
    --------------------------------------------------------------------------
-   These headings classify a list; they are not titles of writing. Set as a
-   serif heading they were near-indistinguishable from the paper titles below
-   them, so they take the site's other register instead - a small mono label
-   with a rule running out to the margin. Nothing here can be mistaken for an
-   entry, and the divider is lighter than the heading it replaced.
+   These headings classify a list; they are not titles of writing. The shared
+   `%rule-label` in _components.scss is that register - see the note there.
    ========================================================================== */
 
 .pub-section {
-  display: flex;
-  align-items: center;
-  gap: $token-space-3;
+  @extend %rule-label;
   margin: $token-space-6 0 0;
   /* Jumped to from in-page anchors, so the heading has to land below the
      sticky masthead rather than behind it. */
   scroll-margin-top: calc(#{$token-masthead-h} + #{$token-space-4});
-  padding: 0;
-  font-family: $token-font-mono;
-  font-size: $token-text-xs;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: $token-sage;
-  border-bottom: 0;
-
-  /* Rule runs from the label to the edge of the column. */
-  &::after {
-    content: "";
-    flex: 1 1 auto;
-    height: 1px;
-    background: $token-rule;
-  }
 
   &:first-of-type {
     margin-top: $token-space-4;
@@ -172,8 +151,9 @@
 /*
    Actions
    --------------------------------------------------------------------------
-   Quiet outlined chips. These deliberately do not use the theme's `.btn`,
-   whose colour and weight are tuned for full-width calls to action.
+   The shared `%chip` in _components.scss, with nothing added. Kept as its own
+   class because the markup and the JS both name it, and because a future
+   publication-only state belongs here rather than on every chip on the site.
    ========================================================================== */
 
 .pub__actions {
@@ -184,51 +164,7 @@
 }
 
 .pub__action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  padding: 0.3em 0.7em;
-  font-family: $token-font-mono;
-  font-size: $token-text-xs;
-  font-weight: 500;
-  line-height: 1.4;
-  color: $token-moss;
-  background: $token-ground;
-  text-decoration: none;
-  border: 1px solid $token-rule;
-  border-radius: $token-radius;
-  cursor: pointer;
-  transition: color $token-transition, border-color $token-transition,
-              background-color $token-transition;
-
-  &:hover {
-    color: $token-forest;
-    background: $token-wash;
-    border-color: $token-sage;
-    text-decoration: none;
-  }
-
-  &:focus-visible {
-    outline: 2px solid $token-moss;
-    outline-offset: 2px;
-  }
-
-  /* Transient states set by publications.js after a copy attempt. */
-  &.is-copied {
-    color: $token-ground;
-    background: $token-moss;
-    border-color: $token-moss;
-  }
-
-  &.is-failed {
-    color: $token-ground;
-    background: $token-cat-clay;
-    border-color: $token-cat-clay;
-  }
-
-  i {
-    font-size: 0.95em;
-  }
+  @extend %chip;
 }
 
 /*

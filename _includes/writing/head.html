@@ -1,0 +1,48 @@
+{% comment %}
+  Entry header: where you are, what this is, and how long it takes.
+
+  The first line is a breadcrumb rather than a back-link plus a section label,
+  which is what it started as. Two controls stacked above a title read as
+  clutter, and "Writing / Carbon" says the same thing in one line while making
+  both levels clickable. The strand carries its colour here, so the register of
+  the piece registers before the title does.
+
+  Styles: _sass/_writing-post.scss
+{% endcomment %}
+
+{% include base_path %}
+
+{% include writing/strand.html %}
+
+{% assign words = page.content | strip_html | number_of_words %}
+{% assign minutes = words | divided_by: site.words_per_minute | plus: 1 %}
+
+{% comment %} `--strand-color` is inherited from `.post` - see _layouts/writing.html. {% endcomment %}
+<header class="post__head">
+
+  <nav class="post__crumbs" aria-label="Breadcrumb">
+    <a class="post__crumb" href="{{ base_path }}/writing/">Writing</a>
+    <span class="post__crumb-sep" aria-hidden="true">/</span>
+    <a class="post__crumb post__crumb--strand"
+       href="{{ base_path }}/writing/?strand={{ strand.id }}">{{ strand.label }}</a>
+  </nav>
+
+  <h1 class="post__title" itemprop="headline">{{ page.title }}</h1>
+
+  {% if page.standfirst %}
+    <p class="post__standfirst" itemprop="description">{{ page.standfirst }}</p>
+  {% endif %}
+
+  <p class="post__meta">
+    <time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: "%B %-d, %Y" }}</time>
+    <span class="post__meta-sep" aria-hidden="true">·</span>
+    <span>{{ minutes }} min read</span>
+    {% if page.updated %}
+      <span class="post__meta-sep" aria-hidden="true">·</span>
+      <span class="post__updated">
+        Updated <time datetime="{{ page.updated | date_to_xmlschema }}" itemprop="dateModified">{{ page.updated | date: "%B %-d, %Y" }}</time>
+      </span>
+    {% endif %}
+  </p>
+
+</header>

@@ -1,5 +1,41 @@
+{% comment %}
+  Every script the site loads, in one place.
+
+  Only two are unconditional. sidenotes.js is one of them because `.sidenote`
+  is a site-wide component - the About page has one mid-paragraph - and its job
+  is to stop a note that hangs off the right edge from scrolling the page
+  sideways, which it has to do whether or not anyone points at it.
+
+  Everything else is gated on the page having the markup for it. Each script
+  bails immediately when its markup is missing, so the gates are about not
+  sending the bytes, not about correctness.
+
+  copy-button.js is a dependency, not a feature: publications.js and
+  writing-post.js both call `window.copyToClipboard`, so it ships when either
+  of them does and stays first.
+{% endcomment %}
+
+{% assign wants_copy = false %}
+{% if page.publication_list or page.layout == "writing" %}{% assign wants_copy = true %}{% endif %}
+
 <script src="{{ base_path }}/assets/js/main.min.js"></script>
-<script src="{{ base_path }}/assets/js/publications.js"></script>
+<script src="{{ base_path }}/assets/js/sidenotes.js"></script>
+
+{% if wants_copy %}
+  <script src="{{ base_path }}/assets/js/copy-button.js"></script>
+{% endif %}
+
+{% if page.publication_list %}
+  <script src="{{ base_path }}/assets/js/publications.js"></script>
+{% endif %}
+
+{% if page.writing_index %}
+  <script src="{{ base_path }}/assets/js/writing-index.js"></script>
+{% endif %}
+
+{% if page.layout == "writing" %}
+  <script src="{{ base_path }}/assets/js/writing-post.js"></script>
+{% endif %}
 
 {% include analytics.html %}
 {% include /comments-providers/scripts.html %}

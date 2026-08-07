@@ -21,6 +21,25 @@
 }
 
 /* ==========================================================================
+   IN-PAGE ANCHOR JUMPS
+   ==========================================================================
+   The other half of what the view transitions below do for navigation between
+   documents: a jump inside one. Clicking a contents entry, a footnote marker,
+   or a publication section link teleported the page, which costs the reader
+   the one thing the jump was supposed to give them - knowing which way they
+   just moved and roughly how far.
+
+   Every target on this site already sets `scroll-margin-top` to clear the
+   sticky masthead, so this only changes how the scroll gets there. Turned off
+   again for anyone who asked for reduced motion by the blanket rule in
+   `_base.scss`, which sets `scroll-behavior: auto !important`.
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ==========================================================================
    CROSS-DOCUMENT VIEW TRANSITIONS
    ==========================================================================
    Opts every same-origin navigation into a short cross-fade, so moving between

@@ -1,0 +1,52 @@
+{% comment %}
+  Two or three images side by side under one caption. For comparisons - before
+  and after, two configurations, three angles on the same thing.
+
+      {% include writing/gallery.html
+           src1="/images/writing/a.png" alt1="Baseline"
+           src2="/images/writing/b.png" alt2="With scheduling"
+           caption="The same workload, scheduled two ways."
+           width="wide" %}
+
+  Parameters
+    src1..src3 / alt1..alt3   Two required, the third optional.
+    caption, credit, width, bare   As in figure.html.
+    w, h      Optional pixel dimensions of *one* image in the row. Since the
+              images are meant to share proportions, one pair describes them
+              all, and passing it means the row reserves its height before
+              anything loads instead of shoving the paragraph below it down.
+
+  Numbered parameters rather than one delimited list: a mismatched
+  `srcs`/`alts` pair is a silent accessibility bug, and this way each image
+  and its description are written next to each other.
+
+  Images share a row and are set to equal height, so pass pictures with
+  similar aspect ratios - two charts, two screenshots. A tall image next to a
+  wide one will letterbox.
+{% endcomment %}
+
+{% include base_path %}
+
+<figure class="w-figure w-gallery{% if include.width == 'wide' %} w-figure--wide{% elsif include.width == 'full' %} w-figure--full{% endif %}{% if include.bare %} w-figure--bare{% endif %}">
+  <div class="w-gallery__row">
+    {% for n in (1..3) %}
+      {% capture src_key %}src{{ n }}{% endcapture %}
+      {% capture alt_key %}alt{{ n }}{% endcapture %}
+      {% assign gal_src = include[src_key] %}
+      {% if gal_src %}
+        {% unless gal_src contains "://" %}{% assign gal_src = gal_src | prepend: base_path %}{% endunless %}
+        <img class="w-figure__img" src="{{ gal_src }}" alt="{{ include[alt_key] }}"
+             {% if include.w %}width="{{ include.w }}"{% endif %}
+             {% if include.h %}height="{{ include.h }}"{% endif %}
+             loading="lazy" decoding="async">
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if include.caption or include.credit %}
+    <figcaption class="w-figure__caption">
+      {{ include.caption }}
+      {% if include.credit %}<span class="w-figure__credit">{{ include.credit }}</span>{% endif %}
+    </figcaption>
+  {% endif %}
+</figure>

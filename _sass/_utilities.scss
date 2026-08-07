@@ -215,12 +215,14 @@ body:hover .visually-hidden button {
     transition: 0.3s;
   }
 
+  /* Spaced by their own constant. Derived from the bar height, the gap
+     collapsed to nothing the moment the bars were made hairlines. */
   &:before {
-    top: (-2 * $navicon-height);
+    top: -$navicon-gap;
   }
 
   &:after {
-    bottom: (-2 * $navicon-height);
+    bottom: -$navicon-gap;
   }
 }
 
@@ -234,6 +236,11 @@ body:hover .visually-hidden button {
         -ms-transform-origin: 50% 50%;
             transform-origin: 50% 50%;
     top: 0;
+    /* `bottom` is still set on `:after` from the rule above, and an absolutely
+       positioned box given top, bottom, and height resolves them by dropping
+       bottom - but only where height wins. Clearing it outright is what makes
+       both bars land on the same line and cross cleanly. */
+    bottom: auto;
     width: $navicon-width;
   }
 

@@ -24,7 +24,16 @@
 <meta name="msapplication-TileImage" content="{{ base_path }}/images/mstile-144x144.png">
 <meta name="msapplication-config" content="{{ base_path }}/images/browserconfig.xml">
 <meta name="theme-color" content="#ffffff">
+{% comment %}
+  Academicons draws exactly one glyph on this site: the ORCID mark in
+  _data/profile_links.yml. It is a render-blocking stylesheet plus a webfont,
+  and the author profile is the only thing that renders it - so it loads with
+  the profile and nowhere else. Writing entries set `author_profile: false`
+  and never see it. Same condition as _includes/sidebar.html.
+{% endcomment %}
+{% if page.author_profile or layout.author_profile %}
 <link rel="stylesheet" href="{{ base_path }}/assets/css/academicons.css"/>
+{% endif %}
 
 {% if page.mathjax %}
 <!-- MathJax loads only on pages with `mathjax: true` in their front matter -->

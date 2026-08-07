@@ -1,0 +1,99 @@
+{% comment %}
+  The writing index: search, strand filters, and the entry list.
+
+  Reads `page.standfirst` for the unfiltered description. Everything else comes
+  from `site.posts` and `_data/writing.yml`.
+
+  Filtering is client-side and reversible through the URL (?q=, ?strand=,
+  ?tag=), so a filtered view is a shareable link rather than a transient state.
+  Deliberately not paginated: a personal blog's whole archive is a few hundred
+  rows at most, and one continuous list you can search beats page 3 of 7.
+
+  Styles: _sass/_writing-index.scss · Script: assets/js/writing-index.js
+{% endcomment %}
+
+{% include base_path %}
+
+{% assign strands = site.data.writing.strands %}
+{% assign fallback_strand = strands | last %}
+
+<div class="w-index" data-writing-index>
+
+  {% comment %}
+    Swapped for the active strand's blurb when a strand filter is on, which is
+    what makes a filtered index read as a section instead of a hidden list. The
+    default is kept in a data attribute so the script can put it back.
+  {% endcomment %}
+  <p class="w-standfirst" data-w-standfirst
+     data-default="{{ page.standfirst | escape }}">{{ page.standfirst }}</p>
+
+  {% if site.posts.size > 0 %}
+    <div class="w-controls">
+      <div class="w-search">
+        <i class="fas fa-search w-search__icon" aria-hidden="true"></i>
+        <label class="w-search__label" for="w-search-input">Search writing</label>
+        <input class="w-search__input" id="w-search-input" type="search"
+               placeholder="Search writing" autocomplete="off"
+               spellcheck="false" data-w-search>
+        <button class="w-search__clear" type="button" data-w-clear hidden>
+          <i class="fas fa-times" aria-hidden="true"></i>
+          <span class="visually-hidden">Clear search</span>
+        </button>
+      </div>
+
+      <div class="w-strands" role="group" aria-label="Filter by strand">
+        <button class="w-strand is-active" type="button" data-w-strand=""
+                aria-pressed="true">
+          All<span class="w-strand__count" data-w-strand-count></span>
+        </button>
+        {% for strand in strands %}
+          {% comment %}
+            `data-blurb` carries the strand's description to the script. The
+            copy stays in _data/writing.yml; the script only moves it.
+          {% endcomment %}
+          <button class="w-strand" type="button" data-w-strand="{{ strand.id }}"
+                  aria-pressed="false"
+                  data-blurb="{{ strand.blurb | escape }}"
+                  data-label="{{ strand.label | escape }}"
+                  style="--strand-color: var(--color-{{ strand.color }})">
+            <span class="w-strand__dot" aria-hidden="true"></span>{{ strand.label }}<span class="w-strand__count" data-w-strand-count></span>
+          </button>
+        {% endfor %}
+      </div>
+
+      <p class="w-status" role="status">
+        <span data-w-count></span>
+        <button class="w-status__reset" type="button" data-w-reset hidden>Show everything</button>
+      </p>
+    </div>
+  {% endif %}
+
+  {% comment %}
+    Grouped by year so the list carries its own timeline. `group_by_exp` keeps
+    the order it found them in, and `site.posts` arrives newest first.
+  {% endcomment %}
+  <div class="w-list" data-w-list>
+    {% assign years = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+    {% for year in years %}
+      <section class="w-year" data-w-year>
+        <h2 class="w-year__label">{{ year.name }}</h2>
+        {% for post in year.items %}
+          {% include writing/entry.html post=post %}
+        {% endfor %}
+      </section>
+    {% endfor %}
+  </div>
+
+  {% comment %} Two different nothings, and they need different answers. {% endcomment %}
+  {% if site.posts.size > 0 %}
+    <p class="w-blank" data-w-noresults hidden>
+      Nothing matches that.
+      <button class="w-blank__action" type="button" data-w-reset>Show everything</button>
+    </p>
+  {% else %}
+    <p class="w-blank">
+      Nothing published yet. The first entry will show up here.
+    </p>
+  {% endif %}
+
+</div>

@@ -1,0 +1,76 @@
+{% comment %}
+  One row in the writing index. Expects `post` - a document from `_posts`.
+
+  Shape follows the site's recurring grammar: a mono label in a fixed left
+  column with prose to its right, the same as a course number on /teaching/.
+  Here the label is the date, because that is what people scan an archive by.
+
+  The strand rides in as a CSS custom property rather than a class per strand,
+  so adding a strand to _data/writing.yml needs no new CSS.
+
+  `data-search`, `data-strand`, and `data-tags` are what the index script
+  filters on. Everything it searches is also visible on the page - there is no
+  hidden body-text index, which keeps the page small and keeps the results
+  explicable ("it matched because that word is right there").
+
+  Styles: _sass/_writing-index.scss
+{% endcomment %}
+
+{% include base_path %}
+
+{% include writing/strand.html post=post %}
+
+{% comment %}
+  Prefer the hand-written standfirst. `excerpt_separator` is a blank line, so
+  the fallback is the entry's opening paragraph.
+{% endcomment %}
+{% assign blurb = post.standfirst | default: post.excerpt | strip_html | strip_newlines %}
+
+{% comment %}
+  Integer division, then round up by adding one - a 40-word post reads as
+  "1 min" rather than "0 min", and nothing here is precise enough to deserve
+  more arithmetic than that.
+{% endcomment %}
+{% assign words = post.content | strip_html | number_of_words %}
+{% assign minutes = words | divided_by: site.words_per_minute | plus: 1 %}
+
+{% capture haystack %}{{ post.title }} {{ blurb }} {{ strand.label }} {{ post.tags | join: " " }}{% endcapture %}
+
+<article class="w-entry"
+         data-strand="{{ strand.id }}"
+         data-tags="{{ post.tags | join: "," }}"
+         data-search="{{ haystack | strip_html | downcase | normalize_whitespace | escape }}"
+         style="--strand-color: var(--color-{{ strand.color }})">
+
+  <div class="w-entry__rail">
+    <time class="w-entry__date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d" }}</time>
+    <span class="w-entry__minutes">{{ minutes }} min</span>
+  </div>
+
+  <div class="w-entry__body">
+    {% comment %}
+      A link, not a button: it should be openable in a new tab and it should
+      survive a reader with scripting off. The index script intercepts the
+      click and filters in place instead of reloading.
+    {% endcomment %}
+    <a class="w-entry__eyebrow" href="{{ base_path }}/writing/?strand={{ strand.id }}"
+       data-w-strand-link="{{ strand.id }}">{{ strand.label }}</a>
+
+    <h3 class="w-entry__title">
+      <a href="{{ base_path }}{{ post.url }}">{{ post.title }}</a>
+    </h3>
+
+    {% if blurb != blank %}
+      <p class="w-entry__blurb">{{ blurb | truncatewords: 34 }}</p>
+    {% endif %}
+
+    {% if post.tags.size > 0 %}
+      <p class="w-entry__tags">
+        {% for tag in post.tags %}
+          <a class="w-tag" href="{{ base_path }}/writing/?tag={{ tag | uri_escape }}"
+             data-w-tag-link="{{ tag }}">{{ tag }}</a>
+        {% endfor %}
+      </p>
+    {% endif %}
+  </div>
+</article>

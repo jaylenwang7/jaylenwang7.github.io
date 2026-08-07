@@ -206,17 +206,25 @@ collections:
 
 # Defaults
 defaults:
-  # _posts
+  # _posts - writing entries. See _layouts/writing.html for the front matter
+  # an entry can set, and _data/writing.yml for the strand vocabulary.
+  #
+  # `_posts` rather than a collection on purpose: drafts (`_drafts/`, shown
+  # with `jekyll serve --drafts`), the RSS feed jekyll-feed builds from
+  # `site.posts`, and the date-in-filename convention all come free, and none
+  # of them do for a collection.
   - scope:
       path: ""
       type: posts
     values:
-      layout: single
-      author_profile: true
-      read_time: true
-      comments: true
-      share: true
-      related: true
+      layout: writing
+      # The entry owns the full width; the profile rail belongs on the pages
+      # that are about the person rather than about the argument.
+      author_profile: false
+      # Overrides the site-wide `/:categories/:title/`. Entries are classified
+      # by `strand:`, not by Jekyll categories, so there are no categories to
+      # put in the path - and the year keeps slugs from ever colliding.
+      permalink: /writing/:year/:slug/
   # _pages
   - scope:
       path: ""

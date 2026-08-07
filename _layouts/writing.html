@@ -1,0 +1,67 @@
+---
+layout: default
+---
+
+{% comment %}
+  A single writing entry.
+
+  Deliberately not `single.html`. That layout carries the academic furniture -
+  venue lines, recommended citation, author rail, related grid - which a blog
+  entry has no use for, and its prose column is sized for a CV page rather
+  than for reading. This owns its own container instead of fighting that one.
+
+  Front matter it reads:
+    title                     required
+    strand                    an id from _data/writing.yml; falls back to the
+                              last strand there if missing or unrecognised
+    standfirst                one sentence under the title; also the index blurb
+    tags                      list of free-form tags
+    toc: true                 in-margin table of contents on wide screens
+    updated: YYYY-MM-DD       shown next to the date when an entry is revised
+    mathjax: true             already handled by _includes/head/custom.html
+    header:
+      image: card.png         social card only. This layout never renders a
+                              hero, so `header.image` reaches nothing but the
+                              og:image tag in _includes/seo.html.
+
+  Styles: _sass/_writing-post.scss · Script: assets/js/writing-post.js
+{% endcomment %}
+
+{% include base_path %}
+{% include writing/strand.html %}
+
+<div id="main" role="main">
+  {% comment %}
+    The strand's colour is set once, on the shell, and inherited by everything
+    in the entry - the breadcrumb, asides, the "keep reading" list. A component
+    that wants the accent reads `var(--strand-color)` and never has to know
+    which strand it is inside of.
+
+    On the shell rather than on `.post`, because the contents rail is a sibling
+    of the article, not a descendant: declared one level down, the rail's
+    current-heading marker resolved `var(--strand-color)` to nothing and fell
+    back to body ink.
+  {% endcomment %}
+  <div class="w-shell{% if page.toc %} w-shell--toc{% endif %}"
+       style="--strand-color: var(--color-{{ strand.color }})">
+
+    {% if page.toc %}
+      {% comment %}
+        Filled in by the script from the headings it finds, so the contents
+        can never drift from the entry. Empty and inert without scripting.
+      {% endcomment %}
+      <nav class="w-toc" data-w-toc aria-label="On this page" hidden></nav>
+    {% endif %}
+
+    <article class="post" itemscope itemtype="https://schema.org/BlogPosting">
+      {% include writing/head.html %}
+
+      <div class="post__body" data-w-body itemprop="articleBody">
+        {{ content }}
+      </div>
+
+      {% include writing/foot.html %}
+    </article>
+
+  </div>
+</div>

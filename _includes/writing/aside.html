@@ -1,0 +1,34 @@
+{% comment %}
+  A boxed aside beside the argument: a definition, a caveat, a piece of context
+  a reader can skip without losing the thread.
+
+      {% include writing/aside.html
+           title="What counts as embodied"
+           text="Everything spent before the machine is switched on: silicon, packaging, freight." %}
+
+  Parameters
+    title   Optional heading, set as a small label.
+    text    The body. One paragraph.
+    tone    accent (default, takes the entry's strand colour) | caution
+
+  For an aside longer than one paragraph, or one containing a list, a link, or
+  emphasis, write the box directly - kramdown will process the Markdown inside
+  it as long as `markdown="1"` is present:
+
+      <div class="w-aside" markdown="1">
+      #### A longer aside
+
+      With **emphasis**, a [link](https://example.com), and a list:
+
+      - one
+      - two
+      </div>
+
+  Same box either way. The include is the shortcut for the common case, not a
+  different component.
+{% endcomment %}
+
+<div class="w-aside{% if include.tone == 'caution' %} w-aside--caution{% endif %}">
+  {% if include.title %}<h4 class="w-aside__title">{{ include.title }}</h4>{% endif %}
+  <p class="w-aside__text">{{ include.text }}</p>
+</div>

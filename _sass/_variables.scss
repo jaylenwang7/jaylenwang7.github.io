@@ -118,6 +118,11 @@ $susy: (
 
 $border-radius              : $token-radius;
 $box-shadow                 : $token-shadow;
-$navicon-width              : 28px;
-$navicon-height             : 4px;
+/* Overflow-menu icon. The theme shipped 28x4 bars, which next to 14px nav
+   text and a page built out of 1px rules was the heaviest mark in the
+   masthead. Hairline bars with real space between them read as the same
+   drawing at a fraction of the weight. */
+$navicon-width              : 20px;
+$navicon-height             : 2px;
+$navicon-gap                : 6px;
 $global-transition          : all $token-transition;

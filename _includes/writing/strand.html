@@ -1,0 +1,19 @@
+{% comment %}
+  Resolves the strand for a page or a post into a `strand` variable.
+
+      {% include writing/strand.html %}            resolves for the current page
+      {% include writing/strand.html post=post %}  resolves for another document
+
+  Then `strand.id`, `strand.label`, `strand.color`, and `strand.blurb` are
+  available to the caller - Liquid includes share the enclosing scope.
+
+  One file so the fallback rule lives in one place. An entry whose `strand:`
+  is missing or names something not in _data/writing.yml lands in the last
+  strand defined there rather than vanishing from the index, which is the
+  behaviour every consumer needs and none of them should re-implement.
+{% endcomment %}
+
+{% assign strand_of = include.post | default: page %}
+{% assign strands = site.data.writing.strands %}
+{% assign strand = strands | where: "id", strand_of.strand | first %}
+{% unless strand %}{% assign strand = strands | last %}{% endunless %}

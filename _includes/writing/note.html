@@ -1,0 +1,24 @@
+{% comment %}
+  A hover note: a marker in the sentence that reveals a short aside on hover,
+  focus, or tap, and never leaves the paragraph.
+
+      …the numbers only cover Scope 2{% raw %}{% include writing/note.html
+        text="Scope 3 is where the interesting part is, and nobody publishes it."
+      %}{% endraw %}, which is the easy half.
+
+  Parameters
+    text    Required. One or two sentences. If it needs a paragraph, it wants
+            to be a footnote instead.
+    mark    Optional marker character. Defaults to an asterisk.
+
+  Use this when the aside is a shrug, and a footnote (`[^1]`) when the aside is
+  a source or an argument the reader might want to come back to. Footnotes get
+  the same hover behaviour *and* a numbered entry at the end of the piece; a
+  note like this deliberately leaves no trace after you stop pointing at it.
+
+  Markup mirrors the `.sidenote` component in _sass/_components.scss - a real
+  button so it is reachable by keyboard and openable on touch.
+{% endcomment %}
+
+{%- assign note_id = include.text | slugify | truncate: 40, "" | prepend: "note-" -%}
+<span class="sidenote"><button type="button" class="sidenote__marker" aria-describedby="{{ note_id }}">{{ include.mark | default: "*" }}</button><span role="tooltip" id="{{ note_id }}" class="sidenote__note">{{ include.text }}</span></span>

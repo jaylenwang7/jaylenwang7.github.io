@@ -1,0 +1,37 @@
+{% comment %}
+  A reference list, at the end of an entry that cited things formally.
+
+      {% include writing/references.html keys="gupta2021chasing,acun2023carbon" %}
+
+  Parameters
+    keys    Required. Comma-separated keys from _data/references.yml, in the
+            order you want them listed.
+    title   Optional heading. Defaults to "References".
+
+  Listed in the order given rather than gathered automatically from the
+  `cite.html` calls above. Liquid has no way to accumulate state across
+  includes that survives the template being reordered or cached, and a
+  reference list that silently drops an entry is worse than one you maintain
+  by hand. It is one line per source.
+{% endcomment %}
+
+{%- assign ref_keys = include.keys | split: "," -%}
+
+<section class="w-refs" aria-labelledby="references">
+  <h2 class="w-label" id="references">{{ include.title | default: "References" }}</h2>
+  <ol class="w-refs__list">
+    {%- for raw_key in ref_keys -%}
+      {%- assign ref_key = raw_key | strip -%}
+      {%- assign ref = site.data.references.references | where: "key", ref_key | first -%}
+      <li class="w-refs__item" id="ref-list-{{ ref_key }}">
+        {%- if ref -%}
+          {{ ref.authors }} ({{ ref.year }}).
+          {% if ref.url %}<a href="{{ ref.url }}">{{ ref.title }}</a>{% else %}{{ ref.title }}{% endif %}.
+          <span class="w-refs__venue">{{ ref.venue }}</span>
+        {%- else -%}
+          <span class="w-cite--missing">No reference with the key <code>{{ ref_key }}</code> in _data/references.yml.</span>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ol>
+</section>

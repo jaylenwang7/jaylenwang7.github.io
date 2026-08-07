@@ -1,0 +1,30 @@
+{% comment %}
+  An inline citation, looked up in _data/references.yml.
+
+      Embodied carbon already dominates {% raw %}{% include writing/cite.html key="gupta2021chasing" %}{% endraw %}
+      for most consumer devices.
+
+  Renders "(Gupta et al., 2021)" as a link to the source, revealing the full
+  reference on hover or focus - the same behaviour as a footnote marker, so a
+  reader who has hovered one thing on the page knows what the rest will do.
+
+  Parameters
+    key     Required. Matches a `key` in _data/references.yml.
+    page    Optional locator, e.g. "§4" or "p. 12".
+
+  Use this when the same source comes up more than once, or when the entry
+  ends with a reference list. For a source mentioned exactly once, a footnote
+  with the link in it is less machinery for the same result.
+
+  An unknown key renders as `[?key]` rather than failing the build, so a typo
+  shows up while proofreading instead of taking the site down.
+{% endcomment %}
+
+{%- assign ref = site.data.references.references | where: "key", include.key | first -%}
+{%- if ref -%}
+  {%- assign ref_id = include.key | prepend: "ref-" -%}
+  {%- capture ref_full -%}{{ ref.authors }} ({{ ref.year }}). {{ ref.title }}. {{ ref.venue }}.{%- endcapture -%}
+  <span class="sidenote w-cite">{% if ref.url %}<a class="w-cite__link" href="{{ ref.url }}" aria-describedby="{{ ref_id }}">({{ ref.authors }}, {{ ref.year }}{% if include.page %}, {{ include.page }}{% endif %})</a>{% else %}<span class="w-cite__link" tabindex="0" role="link" aria-describedby="{{ ref_id }}">({{ ref.authors }}, {{ ref.year }}{% if include.page %}, {{ include.page }}{% endif %})</span>{% endif %}<span role="tooltip" id="{{ ref_id }}" class="sidenote__note">{{ ref_full }}</span></span>
+{%- else -%}
+  <span class="w-cite w-cite--missing" title="No reference with this key in _data/references.yml">[?{{ include.key }}]</span>
+{%- endif -%}

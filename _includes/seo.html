@@ -20,7 +20,20 @@
 
 <title>{{ seo_title | default: site.title }}{% if paginator %}{% unless paginator.page == 1 %} {{ site.title_separator }} {{ site.data.ui-text[site.locale].page | default: "Page" }} {{ paginator.page }}{% endunless %}{% endif %}</title>
 
-{% assign seo_description = page.description | default: page.excerpt | default: site.description %}
+{% comment %}
+  `noindex: true` keeps a page out of search results. `sitemap: false` only
+  stops us advertising a URL; it does not stop a crawler that finds one, so a
+  page that is finished but deliberately unannounced needs both. Paired with
+  the two edits in _pages/writing.html - delete them together.
+{% endcomment %}
+{% if page.noindex %}<meta name="robots" content="noindex, follow">{% endif %}
+
+{% comment %}
+  `standfirst` is a writing entry's one-sentence summary. It is written to be
+  read under the title, which is also exactly what a social card wants, so it
+  feeds this rather than making every entry repeat itself in `description`.
+{% endcomment %}
+{% assign seo_description = page.description | default: page.standfirst | default: page.excerpt | default: site.description %}
 {% if seo_description %}
   {% assign seo_description = seo_description | markdownify | strip_html | strip_newlines | escape_once %}
 {% endif %}

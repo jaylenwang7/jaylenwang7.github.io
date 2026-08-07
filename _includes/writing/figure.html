@@ -1,0 +1,49 @@
+{% comment %}
+  An image with a caption, sized to one of the entry's three columns.
+
+      {% include writing/figure.html
+           src="/images/writing/embodied-carbon.png"
+           alt="Stacked bars comparing embodied and operational carbon"
+           caption="Embodied carbon overtakes operational carbon at scale."
+           width="wide" %}
+
+  Parameters
+    src       Required. Site-relative (leading slash) or absolute.
+    alt       Required. What the image shows, for anyone who can't see it. An
+              empty string is the correct value for a purely decorative image
+              - but there probably shouldn't be one in an essay.
+    caption   Optional. Rendered under the image.
+    credit    Optional. Source or photographer, set quieter than the caption.
+    width     prose (default) | wide | full. See the column note below.
+    link      Optional. Wraps the image so it opens somewhere.
+    bare      Optional. `true` drops the hairline frame. Use for photographs
+              and anything with its own edges; keep the frame for charts and
+              screenshots, whose white backgrounds otherwise bleed into the page.
+    w, h      Optional pixel dimensions. Worth passing: they reserve the space
+              before the image loads, so the text below doesn't jump.
+
+  The three widths are grid columns defined once in _sass/_writing-post.scss,
+  not margins invented per image. That is what keeps figures aligned down the
+  length of an entry no matter how many are in it.
+{% endcomment %}
+
+{% include base_path %}
+
+{% assign fig_src = include.src %}
+{% unless fig_src contains "://" %}{% assign fig_src = fig_src | prepend: base_path %}{% endunless %}
+
+<figure class="w-figure{% if include.width == 'wide' %} w-figure--wide{% elsif include.width == 'full' %} w-figure--full{% endif %}{% if include.bare %} w-figure--bare{% endif %}">
+  {% if include.link %}<a href="{{ include.link }}">{% endif %}
+  <img class="w-figure__img" src="{{ fig_src }}" alt="{{ include.alt }}"
+       {% if include.w %}width="{{ include.w }}"{% endif %}
+       {% if include.h %}height="{{ include.h }}"{% endif %}
+       loading="lazy" decoding="async">
+  {% if include.link %}</a>{% endif %}
+
+  {% if include.caption or include.credit %}
+    <figcaption class="w-figure__caption">
+      {{ include.caption }}
+      {% if include.credit %}<span class="w-figure__credit">{{ include.credit }}</span>{% endif %}
+    </figcaption>
+  {% endif %}
+</figure>

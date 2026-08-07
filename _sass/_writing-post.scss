@@ -1,0 +1,1042 @@
+/* ==========================================================================
+   WRITING - entry
+   ==========================================================================
+
+   A single entry at /writing/:year/:slug/.
+
+   Two things set this page apart from the rest of the site, and everything
+   else follows from them.
+
+   1. The prose is set in Newsreader, not IBM Plex Sans. Newsreader is already
+      loaded, already part of the identity, and is a *reading* face with
+      optical sizing - it was only ever being used for headings. Reading pages
+      get it for the body; every other page keeps the sans. Same fonts, warmer
+      register, nothing new over the wire.
+
+   2. The body is a grid of named columns rather than a block with a
+      max-width. An image is placed by naming a column - `prose`, `wide`, or
+      `full` - so figures line up down the length of an entry no matter how
+      many there are, and no component has to invent its own negative margins.
+
+      Consequence worth knowing before editing spacing here: grid items do not
+      collapse their margins. A paragraph's `margin-bottom` and the following
+      heading's `margin-top` *add* rather than overlapping. That is more
+      predictable than collapsing, but the numbers below are tuned for it -
+      changing one without the other will not do what it looks like it does.
+
+   Markup: _layouts/writing.html, _includes/writing/*
+   Script: assets/js/writing-post.js
+   ========================================================================== */
+
+/* The measure. 77 characters at the body size below, and 66 at the lead
+   paragraph's 1.15em - measured, not estimated. 77 is at the wide end of the
+   comfortable band, which is what the generous 1.72 line-height below is
+   paying for: the longer the line, the more leading it takes to find the next
+   one. Narrowing this is the lever if the prose ever reads as hard work. */
+$post-prose    : 34rem;
+
+/* How far a `wide` figure reaches past the text on each side. */
+$post-breakout : 5rem;
+
+/* The article's outer bound: the prose, both breakouts, and a hair either
+   side. Sized to its contents rather than left to inherit `#main`'s 1280px,
+   which put the text in the middle of a field with no relationship to either
+   edge - the look of a page nobody decided the width of. */
+$post-shell    : 46rem;
+
+/* Narrow, and close to the text. This is an annotation in the margin, not a
+   navigation sidebar. */
+$post-toc-width: 9rem;
+$post-toc-gap  : 2rem;
+
+/* `min()` and `clamp()` are also Sass functions, and this Sass is old enough
+   to try evaluating them - which fails the build the moment two units are
+   mixed. `unquote` hands the string to CSS untouched. */
+$post-prose-track: unquote("min(#{$post-prose}, 100%)");
+
+/*
+   The outer tracks have a zero minimum on purpose. Given any minimum at all,
+   `min(34rem, 100%)` claims the whole container on a phone and the gutters
+   are then added on top of it, which pushed the entry a gutter's width wider
+   than the screen and gave every page a horizontal scrollbar. `#main` already
+   carries the page's side padding; these tracks only distribute what is left.
+   ========================================================================== */
+@mixin prose-columns {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(0, 1fr)
+    [wide-start] minmax(0, $post-breakout)
+    [prose-start] #{$post-prose-track} [prose-end]
+    minmax(0, $post-breakout) [wide-end]
+    minmax(0, 1fr) [full-end];
+
+  > * {
+    grid-column: prose;
+    min-width: 0;
+  }
+}
+
+/*
+   Shell
+   --------------------------------------------------------------------------
+   One column, plus a contents rail on screens with room to spare.
+
+   The third grid track is empty on purpose. Without it the rail was width
+   added to one side only, so the text sat about a hundred pixels right of
+   centre and the page had a narrow margin on the left and a wide one on the
+   right. Mirroring the rail's width on the right keeps the article centred,
+   and - the part that matters more - keeps it in exactly the same place as on
+   an entry with no rail at all. Two entries opened side by side should not
+   have their first words in different columns.
+
+   `:has()` rather than the modifier class alone, so a rail the script never
+   filled in - no headings, or no scripting - reserves no space.
+   ========================================================================== */
+
+.w-shell {
+  max-width: $post-shell;
+  margin-inline: auto;
+
+  @include breakpoint($x-large) {
+    &--toc:has(.w-toc:not([hidden])) {
+      display: grid;
+      grid-template-columns:
+        $post-toc-width
+        minmax(0, #{$post-shell})
+        $post-toc-width;
+      column-gap: $post-toc-gap;
+      max-width: calc(#{$post-shell} + 2 * (#{$post-toc-width} + #{$post-toc-gap}));
+    }
+  }
+}
+
+.w-toc {
+  display: none;
+
+  @include breakpoint($x-large) {
+    &:not([hidden]) {
+      display: block;
+      position: sticky;
+      top: calc(#{$token-masthead-h} + #{$token-space-5});
+      max-height: calc(100vh - #{$token-masthead-h} - #{$token-space-7});
+      overflow-y: auto;
+    }
+  }
+}
+
+.w-toc__title {
+  @extend %rule-label;
+  margin: 0 0 $token-space-3;
+}
+
+.w-toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.w-toc__item {
+  margin: 0;
+}
+
+.w-toc__link {
+  display: block;
+  padding: 0.3em 0 0.3em $token-space-3;
+  font-size: $token-text-xs;
+  line-height: 1.45;
+  color: $token-sage;
+  text-decoration: none;
+  border-left: 2px solid $token-rule;
+  transition: color $token-transition, border-color $token-transition;
+
+  &:hover {
+    color: $token-ink;
+    text-decoration: none;
+  }
+
+  &.is-current {
+    color: var(--strand-color);
+    border-left-color: var(--strand-color);
+  }
+}
+
+/*
+   Header
+   ========================================================================== */
+
+/*
+   The header takes the `wide` track, the body keeps the measure.
+
+   Everything here used to sit in the same 34rem column as the prose, which
+   left the largest type on the page in the narrowest container it could be
+   in - a three-line headline in a 612px slot with 400px of nothing either
+   side of it. The grid already declares a wider column for figures; the
+   header is the other thing that has never wanted the measure.
+
+   It also gives the page somewhere to start. On an entry without a contents
+   rail there is nothing else out here, and the article read as dropped into
+   the middle of the window rather than placed on it. Opening broad and
+   stepping down into the text is the order a reader expects, and the step is
+   the same 5rem breakout a `wide` figure uses, so it is a width the page
+   already speaks in.
+
+   The tracks collapse to zero below ~44rem, so on a phone this is identical
+   to what it replaced.
+   ========================================================================== */
+
+.post__head {
+  @include prose-columns;
+  margin-bottom: $token-space-6;
+
+  > * {
+    grid-column: wide;
+  }
+}
+
+/* "Writing / Carbon". A breadcrumb rather than a back-link above a section
+   label: two controls stacked over a title read as clutter, and this says the
+   same thing in one line with both levels clickable. */
+.post__crumbs {
+  margin-bottom: $token-space-4;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.post__crumb {
+  color: $token-sage;
+  text-decoration: none;
+
+  &:hover {
+    color: $token-ink;
+    text-decoration: underline;
+  }
+}
+
+.post__crumb--strand {
+  color: var(--strand-color);
+
+  &:hover {
+    color: var(--strand-color);
+  }
+}
+
+.post__crumb-sep {
+  margin: 0 0.4em;
+  color: $token-rule;
+}
+
+.post__title {
+  margin: 0 0 $token-space-4;
+  font-family: $token-font-display;
+  /* `calc()` inside, so Sass leaves the mixed units alone - see the note on
+     `$post-prose-track`. */
+  font-size: clamp(2rem, calc(1.35rem + 2.6vw), 2.75rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.022em;
+  color: $token-forest;
+  text-wrap: balance;
+}
+
+.post__standfirst {
+  margin: 0 0 $token-space-5;
+  font-family: $token-font-display;
+  font-size: $token-text-md;
+  font-weight: 400;
+  line-height: 1.5;
+  color: $token-sage;
+  text-wrap: pretty;
+
+  @include breakpoint($medium) {
+    font-size: 1.25rem;
+  }
+}
+
+/* The rule sits under the byline rather than under the whole header, so it
+   ends where the text does instead of spanning the grid. */
+.post__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $token-space-2;
+  margin: 0;
+  padding-bottom: $token-space-4;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  letter-spacing: 0.03em;
+  color: $token-sage;
+  border-bottom: 1px solid $token-rule;
+}
+
+.post__meta-sep {
+  color: $token-rule;
+}
+
+/*
+   Body
+   ==========================================================================
+   Everything below is scoped to `.post__body`, which only ever contains
+   Markdown the author wrote. Components brought in by an include state their
+   own values and sit further down this file.
+   ========================================================================== */
+
+.post__body {
+  @include prose-columns;
+  font-family: $token-font-display;
+  /* The one size in this file allowed off the token scale, because it is the
+     size everything else is judged against and the scale has no step between
+     base and md. Newsreader carries an unusually large x-height for a serif
+     (0.512, against Georgia's 0.481), so this sets about as big as the sans
+     would at the same nominal size - and the long line below is what the 1.72
+     leading is paying for. */
+  font-size: 1.0625rem;
+  line-height: 1.72;
+  color: $token-ink;
+
+  p {
+    margin: 0 0 1.15em;
+    text-wrap: pretty;
+  }
+
+  /* An opening paragraph set slightly larger, the way a magazine steps you
+     into a piece. Applies to the first paragraph only, and only when nothing
+     else - a figure, an aside - got there first. */
+  > p:first-child {
+    font-size: 1.15em;
+    line-height: 1.62;
+  }
+
+  h2,
+  h3,
+  h4 {
+    font-family: $token-font-display;
+    color: $token-forest;
+    text-wrap: balance;
+    scroll-margin-top: calc(#{$token-masthead-h} + #{$token-space-4});
+  }
+
+  /* The ladder runs on the token scale rather than on values picked per level.
+     Hand-picked, it had gone top-heavy and then collapsed: the title was 1.83x
+     the h2 while the h4 was the same size as body text, distinguished only by
+     its weight, which reads as a bolded sentence rather than a heading. On the
+     scale each step is a real one, and a three-level entry stays legible as an
+     outline. Body size stays off the scale deliberately - see `.post__body`. */
+  h2 {
+    margin: 1.3em 0 0.4em;
+    font-size: $token-text-xl;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    /* No rule underneath. `.page__content h2` draws one to separate sections
+       of a CV-style page; in an essay every few hundred words, that many
+       rules turn the page into a form. */
+    border-bottom: 0;
+  }
+
+  h3 {
+    margin: 1.2em 0 0.35em;
+    font-size: $token-text-lg;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  h4 {
+    margin: 1.1em 0 0.3em;
+    font-size: $token-text-md;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 1.15em;
+    padding-left: 1.35em;
+  }
+
+  li {
+    margin-bottom: 0.3em;
+  }
+
+  li > ul,
+  li > ol {
+    margin: 0.3em 0 0.4em;
+  }
+
+  a {
+    color: $token-moss;
+    text-decoration: underline;
+    text-decoration-color: rgba($token-moss, 0.35);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.16em;
+
+    &:hover {
+      color: $token-forest;
+      text-decoration-color: currentColor;
+    }
+  }
+
+  strong {
+    font-weight: 600;
+    color: $token-forest;
+  }
+
+  hr {
+    width: 4rem;
+    margin: $token-space-6 auto;
+    border-top: 1px solid $token-rule;
+  }
+
+  /* Pull quote. Not italic: a paragraph of serif italic is harder work than
+     the sentence is usually worth, and the size and the rule already say
+     "this is quoted". */
+  blockquote {
+    margin: $token-space-5 0;
+    padding: 0 0 0 $token-space-5;
+    font-size: 1.06em;
+    font-style: normal;
+    line-height: 1.6;
+    color: $token-forest;
+    border-left: 2px solid var(--strand-color, #{$token-moss});
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    cite {
+      display: block;
+      margin-top: $token-space-3;
+      font-family: $token-font-body;
+      font-size: $token-text-sm;
+      font-style: normal;
+      color: $token-sage;
+    }
+  }
+
+  /* A table wide enough to need it scrolls on its own rather than widening
+     the page. `display: block` is what makes a table a scroll container.
+
+     Restated in the site's register rather than left to the theme, whose
+     tables are fully boxed - an outer border, a filled header band, and a rule
+     down every column. On a CV page that reads as a data table; in the middle
+     of an essay set in hairlines it was the heaviest object on the page.
+     Horizontal rules only, and the header takes the same mono label the rest
+     of the site uses to classify a list. */
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    /* Same rhythm as a code block, and for the same reason: grid items do not
+       collapse margins, so a top margin here would add to the paragraph's
+       bottom one rather than overlapping it. */
+    margin: 0 0 1.3em;
+    font-family: $token-font-body;
+    font-size: $token-text-sm;
+    line-height: 1.5;
+    border: 0;
+    border-top: 1px solid $token-rule;
+  }
+
+  thead {
+    background: none;
+    border-bottom: 1px solid $token-rule;
+  }
+
+  th {
+    padding: $token-space-2 $token-space-4 $token-space-2 0;
+    font-family: $token-font-mono;
+    font-size: $token-text-xs;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $token-sage;
+    border: 0;
+  }
+
+  td {
+    padding: $token-space-3 $token-space-4 $token-space-3 0;
+    vertical-align: baseline;
+    border: 0;
+    border-bottom: 1px solid $token-rule;
+  }
+
+  /* Nothing hanging past the last column. */
+  th:last-child,
+  td:last-child {
+    padding-right: 0;
+  }
+
+  /* Inline code inside serif prose runs small; the theme's sizing is tuned
+     for the sans body used everywhere else.
+
+     `overflow-wrap` matters more than it looks: a filename or a command in
+     backticks is one unbreakable word to the line breaker, and on a phone a
+     single `bundle exec jekyll serve --config ...` was pushing every page
+     wider than the screen and giving the whole site a horizontal scrollbar.
+
+     The frame is restated rather than inherited. The theme fakes horizontal
+     padding with a non-breaking space either side of the box - the only way to
+     pad an inline box that may wrap across lines - and pays for it with a
+     visible gap: `_drafts/ ,` reads with a hole before the comma. Nothing
+     inside backticks in an entry is long enough to wrap, so real padding is
+     available and the spaces are not. */
+  p > code,
+  li > code,
+  td > code,
+  a > code {
+    padding: 0.1em 0.3em;
+    font-size: 0.85em;
+    overflow-wrap: break-word;
+    background: $token-wash;
+    border: 0;
+    border-radius: $token-radius;
+    box-shadow: none;
+
+    &::before,
+    &::after {
+      content: none;
+    }
+  }
+}
+
+/*
+   Code blocks
+   --------------------------------------------------------------------------
+   The frame is rebuilt here: the theme's version carries a FontAwesome glyph
+   in the corner, which is a decoration on a CV page and noise in an essay.
+   The script wraps each block in `.post__code` and adds a bar naming the
+   language with a copy button; the block styles itself correctly with or
+   without that wrapper, so nothing depends on the script having run.
+
+   Three things about the selectors here.
+
+   Specificity: the theme's rule is `div.highlighter-rouge .highlight` (0,2,1).
+   Three classes clears it without `!important`.
+
+   Direct child: kramdown nests `pre.highlight` inside `div.highlight`, so a
+   descendant selector paints the frame twice and draws a box inside a box.
+   `>` picks the outer one, and the `pre` is reset to a bare scroll container.
+
+   `div.`: kramdown puts `highlighter-rouge` on inline `<code>` as well as on
+   the block wrapper. Unqualified, everything below reached the inline spans
+   too and stripped the frame off every backticked word in the prose - while
+   leaving behind the spacing that frame was there to justify. The theme scopes
+   its own version to `div` for the same reason.
+   ========================================================================== */
+
+.post__body div.highlighter-rouge {
+  margin: 0 0 1.3em;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+
+  &::before {
+    content: none;
+  }
+}
+
+.post__body div.highlighter-rouge > .highlight {
+  margin: 0;
+  padding: $token-space-4;
+  font-family: $token-font-mono;
+  /* Code in an essay is content, not apparatus: it gets read as closely as the
+     prose around it. At the metadata size it was 23% smaller than the body and
+     was being treated as a caption. One step up on the scale, which still
+     leaves it plainly subordinate. */
+  font-size: $token-text-sm;
+  line-height: 1.6;
+  background: $token-wash;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  overflow-x: auto;
+}
+
+.post__body div.highlighter-rouge pre.highlight {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.post__code {
+  margin: 0 0 1.3em;
+}
+
+.post__code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $token-space-3;
+  padding: 0.35rem 0.35rem 0.35rem $token-space-4;
+  background: $token-wash-deep;
+  border: 1px solid $token-rule;
+  border-bottom: 0;
+  border-radius: $token-radius $token-radius 0 0;
+}
+
+.post__code-lang {
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $token-sage;
+}
+
+/* Squared off under the bar so the two read as one object. */
+.post__code div.highlighter-rouge {
+  margin: 0;
+}
+
+.post__code div.highlighter-rouge > .highlight {
+  border-top: 0;
+  border-radius: 0 0 $token-radius $token-radius;
+}
+
+/*
+   Figures
+   --------------------------------------------------------------------------
+   `--wide` and `--full` name grid columns declared once at the top of this
+   file. A figure never sets a margin to escape the text column.
+   ========================================================================== */
+
+.post__body > .w-figure--wide {
+  grid-column: wide;
+}
+
+.post__body > .w-figure--full {
+  grid-column: full;
+}
+
+.w-figure {
+  /* The theme sets `figure { display: flex }` to lay images out side by side;
+     these place themselves. */
+  display: block;
+  margin: $token-space-6 0;
+}
+
+.w-figure__img,
+.w-figure__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  background: $token-ground;
+  /* A hairline so a chart or screenshot with a white background has an edge
+     instead of bleeding into the page. `bare` drops it for photographs. */
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  box-shadow: none;
+}
+
+.w-figure--bare .w-figure__img,
+.w-figure--bare .w-figure__video {
+  border: 0;
+  border-radius: 0;
+}
+
+.w-figure__caption {
+  margin: $token-space-3 0 0;
+  /* Sans against the serif body: a caption is apparatus, and the change of
+     voice says so before the size does. */
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  line-height: 1.5;
+  color: $token-sage;
+  text-wrap: pretty;
+}
+
+/* A full-width figure still gets a caption you can read in one go. */
+.w-figure--full .w-figure__caption {
+  max-width: $post-prose;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.w-figure__credit {
+  display: block;
+  margin-top: $token-space-1;
+  font-size: $token-text-xs;
+  color: $token-sage;
+  opacity: 0.85;
+}
+
+.w-gallery__row {
+  display: flex;
+  gap: $token-space-3;
+
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+    object-fit: cover;
+  }
+
+  /* Stacked on a phone, where two images side by side are two thumbnails. */
+  @include breakpoint(max-width $small) {
+    flex-direction: column;
+  }
+}
+
+/*
+   Reveal
+   --------------------------------------------------------------------------
+   Figures rise a little as they come into view. The attribute is added by the
+   script, so a reader without it never meets an element that starts invisible
+   and waits for permission to exist.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-w-reveal] {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 420ms ease, transform 420ms ease;
+  }
+
+  [data-w-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+   Aside
+   --------------------------------------------------------------------------
+   Takes the entry's strand colour, so an aside in a basketball post is rust
+   and one in a carbon post is green without the author choosing anything.
+   Set in the sans for the same reason captions are.
+   ========================================================================== */
+
+.w-aside {
+  margin: $token-space-5 0;
+  padding: $token-space-4 $token-space-5;
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  line-height: 1.65;
+  color: $token-ink;
+  background: $token-wash;
+  border: 1px solid $token-rule;
+  border-left: 2px solid var(--strand-color, #{$token-moss});
+  border-radius: 0 $token-radius $token-radius 0;
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  p {
+    margin: 0 0 $token-space-3;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  h4,
+  .w-aside__title {
+    margin: 0 0 $token-space-2;
+    font-family: $token-font-mono;
+    font-size: $token-text-xs;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $token-sage;
+  }
+}
+
+.w-aside--caution {
+  border-left-color: $token-cat-clay;
+  background: rgba($token-cat-clay, 0.05);
+}
+
+/*
+   Footnotes
+   --------------------------------------------------------------------------
+   Written as `[^1]` and rendered by kramdown. The script additionally wraps
+   each marker in the site's `.sidenote` component, so the same footnote both
+   previews on hover and lands in a numbered list at the end - one syntax,
+   both behaviours, nothing extra to remember while writing.
+
+   The heading is a `::before` rather than an inserted element: kramdown puts
+   `role="doc-endnotes"` on the container, which is what carries the meaning,
+   and a heading that only exists when a script runs is worse than one that
+   always does.
+   ========================================================================== */
+
+.post__body .footnotes {
+  margin-top: $token-space-7;
+  padding-top: $token-space-5;
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  line-height: 1.6;
+  color: $token-sage;
+  border-top: 1px solid $token-rule;
+
+  &::before {
+    content: "Notes";
+    display: block;
+    margin-bottom: $token-space-4;
+    font-family: $token-font-mono;
+    font-size: $token-text-xs;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $token-sage;
+  }
+
+  ol {
+    margin: 0;
+    padding-left: 1.4em;
+  }
+
+  li {
+    margin-bottom: $token-space-3;
+    scroll-margin-top: calc(#{$token-masthead-h} + #{$token-space-4});
+
+    &::marker {
+      font-family: $token-font-mono;
+      font-size: 0.9em;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .reversefootnote {
+    margin-left: 0.4em;
+    text-decoration: none;
+  }
+}
+
+/* The marker in the text. Mono and raised, in the strand's colour, so it
+   reads as apparatus rather than as a link into the argument. */
+.post__body sup[id^="fnref"] a {
+  padding: 0 0.12em;
+  font-family: $token-font-mono;
+  font-size: 0.95em;
+  font-weight: 500;
+  color: var(--strand-color, #{$token-moss});
+  text-decoration: none;
+}
+
+/*
+   Citations
+   ========================================================================== */
+
+.w-cite__link {
+  color: $token-moss;
+  text-decoration: underline;
+  text-decoration-color: rgba($token-moss, 0.35);
+  text-underline-offset: 0.16em;
+  cursor: pointer;
+
+  &:hover {
+    color: $token-forest;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
+}
+
+.w-cite--missing {
+  font-family: $token-font-mono;
+  font-size: 0.85em;
+  color: $token-cat-clay;
+}
+
+.w-refs {
+  margin-top: $token-space-7;
+}
+
+.w-refs__list {
+  margin: 0;
+  padding-left: 1.4em;
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  line-height: 1.55;
+  color: $token-ink;
+}
+
+.w-refs__item {
+  margin-bottom: $token-space-3;
+  scroll-margin-top: calc(#{$token-masthead-h} + #{$token-space-4});
+}
+
+.w-refs__venue {
+  color: $token-sage;
+}
+
+/*
+   Apparatus heading
+   --------------------------------------------------------------------------
+   "Cite this entry", "Keep reading", "References". The same mono label the
+   rest of the site uses to classify a list.
+   ========================================================================== */
+
+.w-label {
+  @extend %rule-label;
+  margin: 0 0 $token-space-4;
+}
+
+/*
+   Footer
+   ========================================================================== */
+
+.post__foot {
+  @include prose-columns;
+  margin-top: $token-space-7;
+}
+
+.post__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $token-space-1 $token-space-3;
+  margin: 0 0 $token-space-6;
+  padding-top: $token-space-5;
+  border-top: 1px solid $token-rule;
+}
+
+.post__cite {
+  margin-bottom: $token-space-7;
+}
+
+.post__cite-text {
+  margin: 0 0 $token-space-3;
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  line-height: 1.55;
+  color: $token-ink;
+  /* Hanging indent, the way a bibliography sets a reference. */
+  padding-left: 1.4em;
+  text-indent: -1.4em;
+}
+
+/* Hidden without scripting, on the same principle the index applies to its
+   search field: a control that cannot do the thing written on it should not be
+   drawn. These three are in the markup, unlike the copy button on a code block,
+   which the script creates and which therefore takes care of itself. The
+   citation is a paragraph directly above them either way, and can be selected. */
+.post__cite-actions {
+  display: none;
+  flex-wrap: wrap;
+  gap: $token-space-2;
+  margin: 0;
+}
+
+.js .post__cite-actions {
+  display: flex;
+}
+
+.post__more {
+  margin-bottom: $token-space-6;
+}
+
+.post__more-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post__more-item {
+  padding: $token-space-3 0;
+
+  + .post__more-item {
+    border-top: 1px solid $token-rule;
+  }
+}
+
+.post__more-strand {
+  display: block;
+  margin-bottom: $token-space-1;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--strand-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.post__more-title {
+  font-family: $token-font-display;
+  font-size: $token-text-md;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: $token-forest;
+  text-decoration: none;
+  text-wrap: pretty;
+
+  &:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--strand-color);
+  }
+}
+
+.post__back {
+  margin: 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  a {
+    color: $token-sage;
+    text-decoration: none;
+
+    &:hover {
+      color: $token-forest;
+    }
+  }
+}
+
+/*
+   Print
+   ========================================================================== */
+
+@media print {
+  .w-toc,
+  .post__cite-actions,
+  .post__more,
+  .post__back {
+    display: none;
+  }
+
+  .post__head,
+  .post__body,
+  .post__foot {
+    display: block;
+  }
+
+  /* The reveal above is scroll-driven, and printing does not scroll: an entry
+     sent to the printer from the top prints every figure below the fold as
+     blank space. `prefers-reduced-motion` is not a screen-only feature, so the
+     rule that hides them applies here too - this is later in the file and wins
+     without `!important`. */
+  [data-w-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Two breakouts and a 46rem shell on a page that is about 40rem wide. */
+  .w-shell {
+    max-width: none;
+  }
+}

@@ -1,0 +1,462 @@
+/* ==========================================================================
+   WRITING - index
+   ==========================================================================
+
+   The archive at /writing/: search, strand filters, and one continuous list.
+
+   `w-` is the feature prefix, short for writing, used by both this file and
+   _writing-post.scss. The post page also owns `post-*` classes; anything
+   named `w-` is shared between the two pages or belongs to the index.
+
+   Shape is the site's recurring grammar - a mono label in a fixed left column
+   with prose to its right, the same as a course number on /teaching/ - with
+   the date in the label position, because that is what people scan an archive
+   by. Entries are separated by hairlines rather than sitting in cards, so a
+   long list reads as one table of contents.
+
+   Colour is the only thing that distinguishes one strand from another, and it
+   arrives as `--strand-color` set inline from _data/writing.yml. Nothing here
+   knows the strand vocabulary, so adding a strand needs no CSS.
+
+   Markup: _includes/writing/index.html, _includes/writing/entry.html
+   Script: assets/js/writing-index.js
+   ========================================================================== */
+
+/* Wide enough for "Sep 30" plus the reading time under it, which is the
+   longest this column ever gets. */
+$w-rail: 4.5rem;
+
+/*
+   Standfirst
+   --------------------------------------------------------------------------
+   The page's one line of description - and, when a strand filter is on, the
+   strand's own. Swapping this is what makes a filtered index read as a
+   section rather than as a list with rows missing; the rule down its left is
+   the only other thing that changes colour, which keeps the shift to a signal
+   instead of a repaint.
+   ========================================================================== */
+
+.w-standfirst {
+  max-width: 34em;
+  margin: 0 0 $token-space-6;
+  font-family: $token-font-display;
+  font-size: $token-text-md;
+  line-height: 1.55;
+  color: $token-sage;
+  text-wrap: pretty;
+  transition: padding-left $token-transition, border-color $token-transition;
+}
+
+.w-index[data-strand] .w-standfirst {
+  padding-left: $token-space-4;
+  border-left: 2px solid var(--strand-color);
+}
+
+/*
+   Controls
+   --------------------------------------------------------------------------
+   Hidden without scripting. Filtering happens in the page, so a search field
+   that cannot search would be a control that lies about what it does; the
+   full list underneath is the honest fallback and it is already complete.
+   ========================================================================== */
+
+.w-controls {
+  display: none;
+  margin-bottom: $token-space-6;
+}
+
+.js .w-controls {
+  display: block;
+}
+
+.w-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 26rem;
+}
+
+.w-search__label {
+  @extend .visually-hidden;
+}
+
+.w-search__icon {
+  position: absolute;
+  left: 0.8rem;
+  font-size: $token-text-sm;
+  color: $token-sage;
+  pointer-events: none;
+}
+
+.w-search__input {
+  width: 100%;
+  margin: 0;
+  padding: 0.55rem 2.2rem 0.55rem 2.2rem;
+  font-family: $token-font-body;
+  font-size: $token-text-sm;
+  line-height: 1.4;
+  color: $token-ink;
+  background: $token-ground;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  box-shadow: none;
+  transition: border-color $token-transition, box-shadow $token-transition;
+
+  &::placeholder {
+    color: $token-sage;
+    opacity: 1;
+  }
+
+  /* The active strand's colour reaches the focus ring, so the field belongs
+     to whichever section you are in. Falls back to the site accent. */
+  &:focus {
+    outline: none;
+    border-color: var(--strand-color, #{$token-moss});
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--strand-color, #{$token-moss}) 18%, transparent);
+  }
+
+  /* Safari draws its own clear affordance; there is a real button here. */
+  &::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+.w-search__clear {
+  position: absolute;
+  right: 0.35rem;
+  display: flex;
+  align-items: center;
+  padding: 0.35rem;
+  font-size: $token-text-xs;
+  color: $token-sage;
+  background: none;
+  border: 0;
+  border-radius: $token-radius;
+  cursor: pointer;
+
+  /* The script hides this whenever the field is empty, and a class setting
+     `display` outranks the `[hidden]` rule browsers apply - so without this
+     the field shipped with a permanent clear button that cleared nothing. */
+  &[hidden] {
+    display: none;
+  }
+
+  &:hover {
+    color: $token-ink;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 1px;
+  }
+}
+
+/*
+   Strand filters
+   ========================================================================== */
+
+.w-strands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $token-space-2;
+  margin-top: $token-space-3;
+}
+
+.w-strand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.3em 0.7em;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: $token-sage;
+  background: $token-ground;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+  cursor: pointer;
+  transition: color $token-transition, border-color $token-transition,
+              background-color $token-transition, opacity $token-transition;
+
+  &:hover {
+    color: $token-ink;
+    border-color: $token-sage;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--strand-color, #{$token-moss});
+    outline-offset: 2px;
+  }
+
+  &.is-active {
+    color: var(--strand-color, #{$token-forest});
+    border-color: var(--strand-color, #{$token-forest});
+    background: color-mix(in srgb, var(--strand-color, #{$token-forest}) 7%, #{$token-ground});
+  }
+
+  /* Nothing to show under the current search. Dimmed rather than disabled -
+     it is still the way back out of a search that found nothing here. */
+  &.is-empty {
+    opacity: 0.45;
+  }
+}
+
+.w-strand__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--strand-color, #{$token-sage});
+}
+
+.w-strand__count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+
+  &:empty {
+    display: none;
+  }
+}
+
+/*
+   Result count
+   ========================================================================== */
+
+.w-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $token-space-3;
+  margin: $token-space-4 0 0;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  color: $token-sage;
+  font-variant-numeric: tabular-nums;
+}
+
+.w-status__reset {
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: $token-moss;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba($token-moss, 0.4);
+  cursor: pointer;
+
+  &:hover {
+    color: $token-forest;
+    border-bottom-color: currentColor;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $token-moss;
+    outline-offset: 2px;
+  }
+}
+
+/*
+   Year dividers
+   ========================================================================== */
+
+.w-year__label {
+  @extend %rule-label;
+  margin: $token-space-6 0 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+  scroll-margin-top: calc(#{$token-masthead-h} + #{$token-space-4});
+}
+
+.w-year:first-child .w-year__label {
+  margin-top: 0;
+}
+
+/* Hidden by the script when a filter empties the year out. */
+.w-year[hidden] {
+  display: none;
+}
+
+/*
+   Entry
+   ========================================================================== */
+
+.w-entry {
+  display: grid;
+  gap: $token-space-1;
+  padding: $token-space-4 0;
+
+  + .w-entry {
+    border-top: 1px solid $token-rule;
+  }
+
+  &[hidden] {
+    display: none;
+  }
+
+  @include breakpoint($small) {
+    grid-template-columns: $w-rail minmax(0, 1fr);
+    gap: $token-space-5;
+    align-items: baseline;
+  }
+}
+
+/* Date over reading time on wide screens, side by side on a phone where the
+   column would otherwise eat a third of the line. */
+.w-entry__rail {
+  display: flex;
+  align-items: baseline;
+  gap: $token-space-2;
+
+  @include breakpoint($small) {
+    display: block;
+  }
+}
+
+.w-entry__date {
+  display: block;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: $token-forest;
+  transition: color $token-transition;
+}
+
+.w-entry__minutes {
+  display: block;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: $token-sage;
+}
+
+/* Pointing at a row tints its date with the strand's colour. The only hover
+   state on the list besides the title's underline: two coordinated changes
+   teach the colour mapping without the list twitching under the cursor. */
+.w-entry:hover .w-entry__date,
+.w-entry:focus-within .w-entry__date {
+  color: var(--strand-color);
+}
+
+.w-entry__body {
+  min-width: 0;
+}
+
+/* Names the strand and filters to it. First thing in the row on purpose:
+   which of two unrelated subjects this is should register before the title
+   does, and colour at the top of the block is where the eye already is. */
+.w-entry__eyebrow {
+  display: inline-block;
+  margin-bottom: $token-space-1;
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--strand-color);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--strand-color);
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+  }
+}
+
+.w-entry__title {
+  margin: 0;
+  font-family: $token-font-display;
+  font-size: $token-text-lg;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  text-wrap: pretty;
+
+  a {
+    color: $token-forest;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--strand-color);
+      text-underline-offset: 0.15em;
+    }
+  }
+}
+
+.w-entry__blurb {
+  /* Narrower than the row it sits in. A blurb that ran the full width of the
+     list read as the widest thing on the page, which put it ahead of the
+     title it is supposed to be supporting. */
+  max-width: 38em;
+  margin: $token-space-2 0 0;
+  font-size: $token-text-sm;
+  line-height: 1.6;
+  color: $token-sage;
+  text-wrap: pretty;
+}
+
+.w-entry__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $token-space-1 $token-space-3;
+  margin: $token-space-2 0 0;
+}
+
+/*
+   Tag
+   --------------------------------------------------------------------------
+   Used on both pages. No border or fill: tags are the third thing in an entry
+   and a row of outlined boxes would read louder than the title above them.
+   The hash does the identifying.
+   ========================================================================== */
+
+.w-tag {
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+  color: $token-sage;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &::before {
+    content: "#";
+    opacity: 0.55;
+  }
+
+  &:hover {
+    color: $token-forest;
+    text-decoration: none;
+  }
+}
+
+/*
+   Nothing to show
+   --------------------------------------------------------------------------
+   Two different nothings: an archive with no entries in it yet, and a search
+   that matched none of them. Same panel, different copy, and the second one
+   comes with the way out.
+   ========================================================================== */
+
+.w-blank {
+  margin: $token-space-6 0;
+  padding: $token-space-6 $token-space-5;
+  font-size: $token-text-sm;
+  color: $token-sage;
+  text-align: center;
+  background: $token-wash;
+  border: 1px solid $token-rule;
+  border-radius: $token-radius;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.w-blank__action {
+  @extend .w-status__reset;
+  margin-left: $token-space-2;
+}

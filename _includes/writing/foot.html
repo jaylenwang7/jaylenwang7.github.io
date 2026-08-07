@@ -1,0 +1,117 @@
+{% comment %}
+  Entry footer: tags, a citation block, and somewhere to go next.
+
+  The citation is generated from front matter rather than written by hand, so
+  it can never fall out of step with the title or the date. It reuses the
+  chip and copy machinery from /publications/ (`.chip`, `copy-button.js`),
+  because a reader who has seen one of these on this site already knows what
+  the button does.
+
+  Styles: _sass/_writing-post.scss · Script: assets/js/writing-post.js
+{% endcomment %}
+
+{% include base_path %}
+
+{% include writing/strand.html %}
+
+{% comment %} `base_path` is already absolute - see _includes/base_path. {% endcomment %}
+{% assign entry_url = base_path | append: page.url %}
+{% assign surname = site.author.name | split: " " | last %}
+{% assign year = page.date | date: "%Y" %}
+{% assign first_word = page.title | slugify | split: "-" | first %}
+{% assign bib_key = surname | downcase | append: year | append: first_word %}
+
+<footer class="post__foot">
+
+  {% if page.tags.size > 0 %}
+    <p class="post__tags">
+      {% for tag in page.tags %}
+        <a class="w-tag" href="{{ base_path }}/writing/?tag={{ tag | uri_escape }}">{{ tag }}</a>
+      {% endfor %}
+    </p>
+  {% endif %}
+
+  <section class="post__cite" aria-labelledby="cite-this">
+    <h2 class="w-label" id="cite-this">Cite this entry</h2>
+
+    <p class="post__cite-text" data-w-citation>{{ surname }}, {{ site.author.name | slice: 0 }}. ({{ page.date | date: "%Y, %B %-d" }}). {{ page.title }}. <i>{{ site.title }}</i>. {{ entry_url }}</p>
+
+    <p class="post__cite-actions">
+      <button class="chip" type="button" data-w-copy="citation">
+        <i class="fas fa-quote-left" aria-hidden="true"></i> Copy citation
+      </button>
+      <button class="chip" type="button" data-w-copy="bibtex">
+        <i class="fas fa-copy" aria-hidden="true"></i> Copy BibTeX
+      </button>
+      <button class="chip" type="button" data-w-copy="link">
+        <i class="fas fa-link" aria-hidden="true"></i> Copy link
+      </button>
+    </p>
+
+    {% comment %}
+      Read by the script, never shown. A `text/plain` script is the one place
+      arbitrary multi-line text can sit in HTML without being re-wrapped,
+      collapsed, or turned into elements.
+    {% endcomment %}
+    <script type="text/plain" data-w-bibtex>@misc{ {{- bib_key -}} ,
+  author = { {{- site.author.name -}} },
+  title  = { {{- page.title -}} },
+  year   = { {{- year -}} },
+  month  = { {{- page.date | date: "%b" | downcase -}} },
+  url    = { {{- entry_url -}} },
+  note   = {Blog entry}
+}</script>
+    <span hidden data-w-link>{{ entry_url }}</span>
+  </section>
+
+  {% comment %}
+    Same strand first, then whatever is most recent, up to three. `taken` is a
+    comma-delimited string of URLs rather than an array of documents: Liquid's
+    `contains` on an array of objects compares identity, which Jekyll does not
+    promise across collection reads.
+  {% endcomment %}
+  {% capture taken %},{{ page.url }},{% endcapture %}
+  {% assign related = "" | split: "" %}
+
+  {% assign same_strand = site.posts | where: "strand", strand.id %}
+  {% for entry in same_strand %}
+    {% if related.size < 3 %}
+      {% capture key %},{{ entry.url }},{% endcapture %}
+      {% unless taken contains key %}
+        {% assign related = related | push: entry %}
+        {% capture taken %}{{ taken }}{{ entry.url }},{% endcapture %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+
+  {% for entry in site.posts %}
+    {% if related.size < 3 %}
+      {% capture key %},{{ entry.url }},{% endcapture %}
+      {% unless taken contains key %}
+        {% assign related = related | push: entry %}
+        {% capture taken %}{{ taken }}{{ entry.url }},{% endcapture %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+
+  {% if related.size > 0 %}
+    <section class="post__more" aria-labelledby="keep-reading">
+      <h2 class="w-label" id="keep-reading">Keep reading</h2>
+      <ul class="post__more-list">
+        {% for entry in related %}
+          {% assign entry_strand = strands | where: "id", entry.strand | first %}
+          {% unless entry_strand %}{% assign entry_strand = strands | last %}{% endunless %}
+          <li class="post__more-item" style="--strand-color: var(--color-{{ entry_strand.color }})">
+            <a class="post__more-strand" href="{{ base_path }}/writing/?strand={{ entry_strand.id }}">{{ entry_strand.label }}</a>
+            <a class="post__more-title" href="{{ base_path }}{{ entry.url }}">{{ entry.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  <p class="post__back">
+    <a href="{{ base_path }}/writing/">All writing</a>
+  </p>
+
+</footer>
