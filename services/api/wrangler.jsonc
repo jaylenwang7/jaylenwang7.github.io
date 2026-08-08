@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jaylenwang-interactions-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-07",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "MAX_SUBJECTS": "500",
+    "SUBJECT_MANIFEST_URL": "https://jaylenwang.com/api/subjects.json"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jaylenwang-interactions",
+      "database_id": "5229fba3-7bc5-4895-a036-b81c6fecd685",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "RL_VISITOR",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    },
+    {
+      "name": "RL_IP",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ]
+}
