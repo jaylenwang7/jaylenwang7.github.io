@@ -1,5 +1,6 @@
 ---
 title: "How this blog works"
+like_id: how-writing-works
 strand: misc
 standfirst: "Every piece of the writing setup, demonstrated by using it. Keep this in _drafts/ as a reference, or delete it once the shapes are familiar."
 date: 2026-08-03
@@ -24,15 +25,16 @@ The front matter:
 ```yaml
 ---
 title: "The scheduler was the problem"
+like_id: the-scheduler-was-the-problem
 strand: systems
 standfirst: "One sentence under the title. Also the blurb on the index and the description on a social card."
 tags: [scheduling, measurement]
 ---
 ```
 
-Only `title` and `strand` do real work. `standfirst` is optional but worth writing — it is the line that convinces someone on the index to open the entry, and it saves you from the fallback, which is your opening paragraph truncated mid-thought.
+`title`, `strand`, and `like_id` do real work. The like id is a permanent, URL-independent identity: make it unique when the draft starts, never reuse it for another entry, and do not change it after publishing even if the title, filename, or permalink changes. `standfirst` is optional but worth writing — it is the line that convinces someone on the index to open the entry, and it saves you from the fallback, which is your opening paragraph truncated mid-thought.
 
-There are four more, all optional:
+The remaining front-matter switches are all optional:
 
 | Key | Does |
 |---|---|

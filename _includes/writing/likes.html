@@ -1,0 +1,34 @@
+{% comment %}
+  The count is useful without browser storage; the button is not. Both begin
+  hidden so a failed API read leaves no dead control behind. writing-likes.js
+  reveals the count after a valid response and reveals the button only after a
+  write/read/remove probe proves that a visitor id can persist.
+
+  There is deliberately no URL-derived id fallback. `like_id` is the stable
+  identity of the entry even if its title, date, or permalink later changes.
+{% endcomment %}
+
+{% if site.api.base_url and page.like_id %}
+  <section class="post__likes"
+           data-w-likes
+           data-api="{{ site.api.base_url | escape }}"
+           data-subject="{{ page.like_id | escape }}"
+           hidden>
+    <div class="post__like-row">
+      <button class="chip post__like"
+              type="button"
+              data-w-like
+              aria-pressed="false"
+              hidden>
+        <i class="far fa-heart" data-w-like-icon aria-hidden="true"></i>
+        <span data-w-like-label>Like</span>
+      </button>
+      <span class="post__like-count" data-w-like-count>0 likes</span>
+      <span class="post__like-error" data-w-like-error role="status" hidden>Couldn't save — try again</span>
+    </div>
+    <p class="post__like-note">
+      Likes are anonymous and limited to one per browser.
+      <a href="{{ base_path }}/privacy/">What this stores</a>
+    </p>
+  </section>
+{% endif %}

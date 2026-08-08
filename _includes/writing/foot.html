@@ -1,5 +1,5 @@
 {% comment %}
-  Entry footer: tags, a citation block, and somewhere to go next.
+  Entry footer: likes, tags, a citation block, and somewhere to go next.
 
   The citation is generated from front matter rather than written by hand, so
   it can never fall out of step with the title or the date. It reuses the
@@ -7,7 +7,8 @@
   because a reader who has seen one of these on this site already knows what
   the button does.
 
-  Styles: _sass/_writing-post.scss · Script: assets/js/writing-post.js
+  Styles: _sass/_writing-post.scss · Scripts: assets/js/writing-post.js and
+  assets/js/writing-likes.js
 {% endcomment %}
 
 {% include base_path %}
@@ -22,6 +23,8 @@
 {% assign bib_key = surname | downcase | append: year | append: first_word %}
 
 <footer class="post__foot">
+
+  {% include writing/likes.html %}
 
   {% if page.tags.size > 0 %}
     <p class="post__tags">

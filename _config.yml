@@ -83,6 +83,12 @@ analytics:
   # and global opt-out is honored.
   provider               : "custom" # false (default), "google", "google-universal", "custom"
 
+# Reader interactions are served separately from this static site. Entries opt
+# in with a permanent `like_id`; without both values, no control or script is
+# rendered.
+api:
+  base_url                : "https://jaylenwang-interactions-api.jaylenwang.workers.dev"
+
 
 # Site Author
 author:

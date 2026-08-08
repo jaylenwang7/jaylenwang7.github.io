@@ -12,6 +12,8 @@ layout: default
 
   Front matter it reads:
     title                     required
+    like_id                   permanent interaction id; required for likes and
+                              never inferred from the entry URL
     strand                    an id from _data/writing.yml; falls back to the
                               last strand there if missing or unrecognised
     standfirst                one sentence under the title; also the index blurb
@@ -24,7 +26,8 @@ layout: default
                               hero, so `header.image` reaches nothing but the
                               og:image tag in _includes/seo.html.
 
-  Styles: _sass/_writing-post.scss · Script: assets/js/writing-post.js
+  Styles: _sass/_writing-post.scss · Scripts: assets/js/writing-post.js and,
+  when `like_id` and the API base URL exist, assets/js/writing-likes.js
 {% endcomment %}
 
 {% include base_path %}

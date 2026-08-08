@@ -1,0 +1,11 @@
+---
+layout: null
+permalink: /api/subjects.json
+sitemap: false
+---
+{%- assign subjects = site.posts | where_exp: "post", "post.like_id" -%}
+[
+{%- for post in subjects %}
+  {"id":{{ post.like_id | jsonify }},"kind":"writing","path":{{ post.url | jsonify }}}{% unless forloop.last %},{% endunless %}
+{%- endfor %}
+]

@@ -1,5 +1,6 @@
 ---
 title: "Rebounding is a team stat and the box score keeps lying about it"
+like_id: rebounding-is-a-team-stat
 strand: hoops
 standfirst: "A placeholder entry, here so the index has more than one row to sort, filter, and search. Delete it whenever."
 date: 2026-07-18

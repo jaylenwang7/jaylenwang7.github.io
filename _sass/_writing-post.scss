@@ -900,6 +900,101 @@ $post-prose-track: unquote("min(#{$post-prose}, 100%)");
   margin-top: $token-space-7;
 }
 
+/* A progressive enhancement: the entire block stays absent until the API has
+   returned a valid count. The button has a stricter gate and is revealed only
+   when its anonymous browser id can be persisted. */
+.post__likes {
+  margin: 0 0 $token-space-6;
+  padding-top: $token-space-5;
+  border-top: 1px solid $token-rule;
+}
+
+.post__likes[hidden],
+.post__like[hidden],
+.post__like-error[hidden] {
+  display: none;
+}
+
+.post__like-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $token-space-2 $token-space-3;
+}
+
+/* The chassis remains the shared `%chip`; only the selected state belongs to
+   this component. Its inherited strand colour is the same accent used by the
+   entry heading, contents rail, and related links. */
+.post__like.is-liked,
+.post__like.is-liked:hover {
+  color: $token-ground;
+  background: var(--strand-color);
+  border-color: var(--strand-color);
+}
+
+.post__like:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.post__like-count,
+.post__like-error,
+.post__like-note {
+  font-family: $token-font-mono;
+  font-size: $token-text-xs;
+}
+
+.post__like-count {
+  color: $token-sage;
+  font-variant-numeric: tabular-nums;
+}
+
+.post__like-error {
+  color: $token-cat-clay;
+}
+
+.post__like-note {
+  margin: $token-space-2 0 0;
+  line-height: 1.5;
+  color: $token-sage;
+
+  a {
+    color: inherit;
+    text-decoration-color: $token-rule;
+
+    &:hover {
+      color: $token-forest;
+      text-decoration-color: $token-sage;
+    }
+  }
+}
+
+/* The likes block owns the footer's opening rule when tags follow it. */
+.post__likes + .post__tags {
+  padding-top: 0;
+  border-top: 0;
+}
+
+@keyframes post-like-pulse {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(1.08); }
+}
+
+@keyframes post-like-tick {
+  0% { opacity: 0.55; transform: translateY(0.2em); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .post__like.is-pulsing {
+    animation: post-like-pulse 280ms ease;
+  }
+
+  .post__like-count.is-ticking {
+    animation: post-like-tick 220ms ease-out;
+  }
+}
+
 .post__tags {
   display: flex;
   flex-wrap: wrap;
@@ -1013,6 +1108,7 @@ $post-prose-track: unquote("min(#{$post-prose}, 100%)");
 
 @media print {
   .w-toc,
+  .post__likes,
   .post__cite-actions,
   .post__more,
   .post__back {

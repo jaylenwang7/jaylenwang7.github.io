@@ -37,5 +37,9 @@
   <script src="{{ base_path }}/assets/js/writing-post.js"></script>
 {% endif %}
 
+{% if page.layout == "writing" and site.api.base_url and page.like_id %}
+  <script src="{{ base_path }}/assets/js/writing-likes.js"></script>
+{% endif %}
+
 {% include analytics.html %}
 {% include /comments-providers/scripts.html %}
