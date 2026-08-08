@@ -10,7 +10,7 @@ citation: J. Wang, U. Gupta, and A. Sriraman, "Characterizing Datacenter Server 
 collection: publications
 conf_shorthand: NetZero
 date: 2023-02-25
-paperurl: https://jaylenwang7.github.io/files/NetZero_23.pdf
+paperurl: https://jaylenwang.com/files/NetZero_23.pdf
 title: Characterizing Datacenter Server Generations for Lifetime Extension and Carbon
   Reduction
 venue: 1st Workshop on NetZero Carbon Computing

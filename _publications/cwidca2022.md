@@ -12,7 +12,7 @@ citation: S. Rangarajan, X. Chen, P. Patel, J. Wang, and A. Sriraman, "Designing
 collection: publications
 conf_shorthand: CWIDCA
 date: 2022-10-02
-paperurl: https://jaylenwang7.github.io/files/CWIDCA_2022.pdf
+paperurl: https://jaylenwang.com/files/CWIDCA_2022.pdf
 permalink: /publication/cwidca2022
 title: Designing Equitable Data Center Scheduling Systems
 venue: Career Workshop for Inclusion and Diversity in Computer Architecture
