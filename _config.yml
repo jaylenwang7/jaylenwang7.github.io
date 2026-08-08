@@ -213,8 +213,8 @@ exclude:
   # could find. Source kept for the same reason as above.
   #
   # The template's privacy policy, `modified: 2016-06-06`, describing ad
-  # networks and cookie behaviour this site does not have. A privacy policy
-  # that is wrong about the site is worse than no page at all:
+  # networks and cookie behaviour this site does not have. It has been
+  # replaced by the current, site-specific policy at /privacy/:
   - _pages/terms.md
   #
   # /publications/ and /teaching/ carry the record now. See the `research`
