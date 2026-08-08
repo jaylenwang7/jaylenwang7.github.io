@@ -77,9 +77,11 @@ social:
 
 # Analytics
 analytics:
-  provider               :  "google-universal" # false (default), "google", "google-universal", "custom"
-  google:
-    tracking_id          :
+  # Clicky is loaded by _includes/analytics-providers/custom.html. Its
+  # account-wide Visitor privacy setting is "All visitors" (verified
+  # 2026-08-07): IP addresses are anonymized, tracking cookies are disabled,
+  # and global opt-out is honored.
+  provider               : "custom" # false (default), "google", "google-universal", "custom"
 
 
 # Site Author
@@ -157,6 +159,8 @@ exclude:
   - log
   - node_modules
   - package.json
+  # The Worker is deployed independently and must never become site output.
+  - services
   - tmp
   - vendor
 

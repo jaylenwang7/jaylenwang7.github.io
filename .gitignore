@@ -9,3 +9,8 @@ CLAUDE.md
 # Python bytecode from running the survey/playlist scripts locally.
 __pycache__/
 *.pyc
+
+# Cloudflare Worker service
+services/api/node_modules/
+services/api/.wrangler/
+services/api/.dev.vars
