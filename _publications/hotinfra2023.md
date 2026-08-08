@@ -9,7 +9,7 @@ citation: J. Wang, U. Gupta, and A. Sriraman, "Giving Old Servers New Life at Hy
 collection: publications
 conf_shorthand: HotInfra
 date: 2023-06-18
-paperurl: https://jaylenwang7.github.io/files/HotInfra_23.pdf
+paperurl: https://jaylenwang.com/files/HotInfra_23.pdf
 title: Giving Old Servers New Life at Hyperscale
 venue: 1st Workshop on Hot Topics in System Infrastructure
 venue_type: workshop

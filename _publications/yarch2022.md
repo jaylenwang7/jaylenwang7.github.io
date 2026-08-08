@@ -12,7 +12,7 @@ conf_shorthand: YArch
 date: 2022-03-28
 excerpt: We propose a novel resilience analysis framework targeting DNN accelerator
   design.
-paperurl: https://jaylenwang7.github.io/files/YArch_22.pdf
+paperurl: https://jaylenwang.com/files/YArch_22.pdf
 permalink: /publication/2009-10-01-paper-title-number-1
 title: A Dataflow-Aware Fault Resilience Analysis Framework for Deep Neural Network
   Accelerators

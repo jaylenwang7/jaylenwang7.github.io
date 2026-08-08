@@ -11,8 +11,12 @@ title                    : "Jaylen Wang"
 title_separator          : "-"
 name                     : &name "Jaylen Wang"
 description              : &description "personal description"
-url                      : https://jaylenwang7.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : https://jaylenwang.com # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
+# The GitHub repo name, not the site URL - these stopped matching when the site
+# moved to a custom domain. It stays `jaylenwang7.github.io` because that is
+# what jekyll-github-metadata resolves against, and because GitHub Pages serves
+# the 301s from the old URLs only while the repo keeps that name.
 repository               : "jaylenwang7.github.io"
 teaser                   :  # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
 breadcrumbs              : false # true, false (default)

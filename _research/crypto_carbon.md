@@ -24,8 +24,8 @@ There has been a good amount of research looking into the potential energy consu
 
 # Project Presentation
 See the following presentation I gave to my lab group for a more detailed description of the project and some of the results:
-<object data="https://jaylenwang7.github.io/files/Crypto_Capex_Carbon.pdf" type="Crypto/pdf" width="700px" height="700px">
-    <embed src="https://jaylenwang7.github.io/files/Crypto_Capex_Carbon.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://jaylenwang7.github.io/files/Crypto_Capex_Carbon.pdf">Download PDF</a>.</p>
+<object data="https://jaylenwang.com/files/Crypto_Capex_Carbon.pdf" type="Crypto/pdf" width="700px" height="700px">
+    <embed src="https://jaylenwang.com/files/Crypto_Capex_Carbon.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://jaylenwang.com/files/Crypto_Capex_Carbon.pdf">Download PDF</a>.</p>
     </embed>
 </object>
