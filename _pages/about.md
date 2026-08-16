@@ -13,11 +13,11 @@ hero:
   thesis: "My research addresses the growing carbon emissions of data centers through solutions that span computer architecture and software systems. Much of it concerns the **tradeoff between embodied and operational emissions**: the carbon spent manufacturing hardware against the carbon spent running it."
   levers:
     - label: "Server design"
-      text: "Designing cloud servers that balance energy efficiency with reusing decommissioned components, and evaluating whether the carbon savings survive production performance and fleet constraints."
+      text: "Designing cloud servers that balance energy efficiency with reusing decommissioned components, and evaluating carbon savings under production performance and fleet constraints."
     - label: "Fleet capacity"
-      text: "Getting more out of the servers already built, so fewer need to be manufactured and that carbon is never spent. Finding intelligent, performance-preserving ways to use hardware for longer, and letting workloads share capacity so the same demand needs fewer machines."
+      text: "Getting more out of the servers already built, reducing manufacturing emissions. Finding intelligent, performance-preserving ways to (1) use hardware for longer, and (2) serve the same demand with fewer servers."
     - label: "Server power"
-      text: "Lowering the power consumed by the servers that remain, currently the hosts behind large-scale ML training."
+      text: "Lowering the power consumed by the servers that remain (e.g., the accelerator-attached hosts that support large-scale ML training)."
   facts:
     - label: "Advised by"
       value: "[Akshitha Sriraman](https://users.ece.cmu.edu/~asrirama/)"
