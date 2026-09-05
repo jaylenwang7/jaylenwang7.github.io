@@ -6,6 +6,7 @@
 */
 
 var $nav = $('#site-nav');
+// The toggle starts hidden in the markup to avoid a pre-measurement flash.
 var $btn = $('#site-nav button');
 var $vlinks = $('#site-nav .visible-links');
 var $hlinks = $('#site-nav .hidden-links');
