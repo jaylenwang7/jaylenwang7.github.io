@@ -16,6 +16,11 @@ config:
     # grant: "#8a6a3f"        # bronze
 
 items:
+  - date: 2026-08-31
+    headline: "Continuing at Google as a part-time Student Researcher"
+    content: "Extending the summer internship into the fall as a part-time Student Researcher, carrying on the same host-power project with the same hosts, Jixin Feng and Soheil Khadir. Runs alongside my research at CMU through the end of December."
+    category: misc
+
   - date: 2026-06-01
     headline: "Paper presented at HotInfra'26 workshop"
     content: "Presented 'Safe CPU Oversubscription: One Size Does Not Fit All' at the 3rd Workshop on Hot Topics in System Infrastructure (HotInfra 2026), co-located with ISCA. Work done with collaborators at Microsoft Azure on how much CPU sharing preserves performance, and what makes that limit move."
