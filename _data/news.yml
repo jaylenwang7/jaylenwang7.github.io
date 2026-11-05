@@ -16,6 +16,11 @@ config:
     # grant: "#8a6a3f"        # bronze
 
 items:
+  - date: 2026-11-03
+    headline: "Received the IEEE TCuArch Graduate Student Industry Impact Award"
+    content: "Received the 2026 IEEE Computer Society TCuArch Graduate Student Industry Impact Award, presented at MICRO-59, for my technical contributions to GreenSKU during my 2023 internship at Microsoft. Thank you to the award committee, to my advisor Akshitha Sriraman for nominating me, and to my collaborators at Microsoft (Fiodar Kazhamiaka, Daniel Berger, Esha Choukse, Rodrigo Fonseca, Ricardo Bianchini, and many others)!"
+    category: award
+
   - date: 2026-08-31
     headline: "Continuing at Google as a part-time Student Researcher"
     content: "Extending my summer internship as a part-time Student Researcher, continuing my work with Jixin Feng and Soheil Khadir."
